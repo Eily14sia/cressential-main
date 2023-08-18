@@ -12,12 +12,12 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-import { Link as RouterLink } from "react-router-dom";
-import { Link } from "@mui/material";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+
+// @mui material components
 import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
@@ -36,7 +36,7 @@ import regeneratorRuntime from "regenerator-runtime";
 import authorsTableData from "./data/authorsTableData";
 import projectsTableData from "./data/projectsTableData";
 
-function Graduate_record() {
+function Undergraduate_record() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
 
@@ -64,12 +64,10 @@ function Graduate_record() {
                   Authors Table
                 </MDTypography>
                 
-                <Link to="/graduate-record/add-record" component={RouterLink}>
-                  <MDButton variant="gradient" color="dark">
-                    Add Record&nbsp;
-                    <Icon>add</Icon>
-                  </MDButton>
-                </Link>
+                <MDButton variant="gradient" color="dark">
+                  Add Record&nbsp;
+                  <Icon>add</Icon>
+                </MDButton>
               </MDBox>
 
                 <MDBox pt={3}>
@@ -91,4 +89,4 @@ function Graduate_record() {
   );
 }
 
-export default Graduate_record;
+export default Undergraduate_record;

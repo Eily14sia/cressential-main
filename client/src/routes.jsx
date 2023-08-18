@@ -38,6 +38,10 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "./layouts/dashboard";
 import Graduate from "./layouts/graduate_record";
+import Undergraduate from "./layouts/undergraduate_record";
+import Type_of_Record from "./layouts/type_of_record";
+import User_Management from "./layouts/user_management";
+import Graduate_Add_Record from "./layouts/graduate_record/add_record";
 import Tables from "./layouts/tables";
 import Billing from "./layouts/billing";
 import RTL from "./layouts/rtl";
@@ -72,32 +76,40 @@ const routes = [
     key: "undergraduate-record",
     icon: <Icon fontSize="small">book</Icon>,
     route: "/undergraduate-record",
-    component: <Dashboard />,
+    component: <Undergraduate />,
   },
   {
     type: "collapse",
     name: "Type of Record",
     key: "type-of-record",
     icon: <Icon fontSize="small">folder</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
+    route: "/type-of-record",
+    component: <Type_of_Record />,
   },
   {
     type: "collapse",
     name: "User Management",
     key: "user-management",
     icon: <Icon fontSize="small">group</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
+    route: "/user-management",
+    component: <User_Management />,
   },
   {
-    type: "collapse",
-    name: "Tables",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
+    type: "hidden",
+    name: "Add Record",
+    key: "graduate-add-record",
+    icon: <Icon fontSize="small">group</Icon>,
+    route: "/graduate-record/add-record",
+    component: <Graduate_Add_Record />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Tables",
+  //   key: "tables",
+  //   icon: <Icon fontSize="small">table_view</Icon>,
+  //   route: "/tables",
+  //   component: <Tables />,
+  // },
   // {
   //   type: "collapse",
   //   name: "Billing",
