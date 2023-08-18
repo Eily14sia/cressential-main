@@ -37,6 +37,7 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 React layouts
 import Dashboard from "./layouts/dashboard";
+import Graduate from "./layouts/graduate_record";
 import Tables from "./layouts/tables";
 import Billing from "./layouts/billing";
 import RTL from "./layouts/rtl";
@@ -60,23 +61,23 @@ const routes = [
   {
     type: "collapse",
     name: "Graduate Record",
-    key: "graduate_record",
+    key: "graduate-record",
     icon: <Icon fontSize="small">school</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
+    route: "/graduate-record",
+    component: <Graduate />,
   },
   {
     type: "collapse",
     name: "Undergraduate Record",
-    key: "undergraduate_record",
+    key: "undergraduate-record",
     icon: <Icon fontSize="small">book</Icon>,
-    route: "/dashboard",
+    route: "/undergraduate-record",
     component: <Dashboard />,
   },
   {
     type: "collapse",
     name: "Type of Record",
-    key: "type_of_record",
+    key: "type-of-record",
     icon: <Icon fontSize="small">folder</Icon>,
     route: "/dashboard",
     component: <Dashboard />,
@@ -84,19 +85,19 @@ const routes = [
   {
     type: "collapse",
     name: "User Management",
-    key: "user_management",
+    key: "user-management",
     icon: <Icon fontSize="small">group</Icon>,
     route: "/dashboard",
     component: <Dashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Tables",
-  //   key: "tables",
-  //   icon: <Icon fontSize="small">table_view</Icon>,
-  //   route: "/tables",
-  //   component: <Tables />,
-  // },
+  {
+    type: "collapse",
+    name: "Tables",
+    key: "tables",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/tables",
+    component: <Tables />,
+  },
   // {
   //   type: "collapse",
   //   name: "Billing",
