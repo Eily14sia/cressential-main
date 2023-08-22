@@ -110,11 +110,11 @@ function DefaultNavbar({ transparent, light, action }) {
           pl={{ xs: 0, lg: 1 }}
         >
           <MDTypography variant="button" fontWeight="bold" color={light ? "white" : "dark"}>
-            Material Dashboard 2
+            Cressential
           </MDTypography>
         </MDBox>
         <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
-          <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" light={light} />
+          {/* <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" light={light} />
           <DefaultNavbarLink icon="person" name="profile" route="/profile" light={light} />
           <DefaultNavbarLink
             icon="account_circle"
@@ -127,7 +127,10 @@ function DefaultNavbar({ transparent, light, action }) {
             name="sign in"
             route="/authentication/sign-in"
             light={light}
-          />
+          /> */}
+          <DefaultNavbarLink icon="home" name="home" route="/dashboard" light={light} />
+          <DefaultNavbarLink icon="info" name="about" route="/dashboard"  light={light} />
+          <DefaultNavbarLink icon="call" name="contact" route="/dashboard"  light={light} />
         </MDBox>
         {action &&
           (action.type === "internal" ? (
@@ -140,23 +143,26 @@ function DefaultNavbar({ transparent, light, action }) {
                 size="small"
               >
                 {action.label}
+                <Icon>login</Icon>                
               </MDButton>
             </MDBox>
           ) : (
             <MDBox display={{ xs: "none", lg: "inline-block" }}>
-              <MDButton
-                component="a"
-                href={action.route}
-                target="_blank"
-                rel="noreferrer"
-                variant="gradient"
-                color={action.color ? action.color : "info"}
-                size="small"
-                sx={{ mt: -0.3 }}
-              >
-                {action.label}
-              </MDButton>
-            </MDBox>
+            <MDButton
+              component="a"
+              href={action.route}
+              target="_blank"
+              rel="noreferrer"
+              variant="gradient"
+              color={action.color ? action.color : "info"}
+              size="small"
+              sx={{ mt: -0.3, display: "flex", alignItems: "center" }} // Added display and alignItems for vertical centering
+            >
+              {action.label}
+              <Icon sx={{ marginLeft: "0.5rem" }}>login</Icon> {/* Add margin to the right of the icon */}
+            </MDButton>
+          </MDBox>
+
           ))}
         <MDBox
           display={{ xs: "inline-block", lg: "none" }}

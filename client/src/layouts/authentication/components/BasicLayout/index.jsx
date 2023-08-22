@@ -36,7 +36,7 @@ function BasicLayout({ image, children }) {
         action={{
           type: "external",
           route: "https://creative-tim.com/product/material-dashboard-react",
-          label: "free download",
+          label: "Login as ",
           color: "dark",
         }}
       />
@@ -58,19 +58,22 @@ function BasicLayout({ image, children }) {
       />
       <MDBox px={1} width="100%" height="100vh" mx="auto">
         <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
-          <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
+          {/* <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
+            {children}
+          </Grid> */}
+          <Grid item xs={12} sm={11} md={8} lg={10} xl={12}>
             {children}
           </Grid>
         </Grid>
       </MDBox>
-      <Footer light />
+      {/* <Footer dark /> */}
     </PageLayout>
   );
 }
 
 // Typechecking props for the BasicLayout
 BasicLayout.propTypes = {
-  image: PropTypes.string.isRequired,
+  // image: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
 

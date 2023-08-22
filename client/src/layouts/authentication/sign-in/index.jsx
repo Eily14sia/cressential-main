@@ -40,6 +40,7 @@ import BasicLayout from "../components/BasicLayout";
 
 // Images
 import bgImage from "../../../assets/images/bg-sign-in-basic.jpeg";
+import Album from "../../../examples/Album";
 
 function Basic() {
   const [rememberMe, setRememberMe] = useState(false);
@@ -47,8 +48,9 @@ function Basic() {
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   return (
-    <BasicLayout image={bgImage}>
-      <Card>
+    // <BasicLayout image={bgImage}>
+    <BasicLayout>
+      {/* <Card>
         <MDBox
           variant="gradient"
           bgColor="info"
@@ -123,7 +125,8 @@ function Basic() {
             </MDBox>
           </MDBox>
         </MDBox>
-      </Card>
+      </Card> */}
+      <Album></Album>
     </BasicLayout>
   );
 }
