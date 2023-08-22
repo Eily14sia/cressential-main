@@ -40,6 +40,8 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "../../../context";
 
+import LoginModal from '../../../layouts/authentication/components/LoginModal';
+
 function DefaultNavbar({ transparent, light, action }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
@@ -74,6 +76,16 @@ function DefaultNavbar({ transparent, light, action }) {
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", displayMobileNavbar);
   }, []);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <Container>
@@ -136,21 +148,24 @@ function DefaultNavbar({ transparent, light, action }) {
           (action.type === "internal" ? (
             <MDBox display={{ xs: "none", lg: "inline-block" }}>
               <MDButton
-                component={Link}
-                to={action.route}
+                // component={Link}
+                // to={action.route}
                 variant="gradient"
                 color={action.color ? action.color : "info"}
                 size="small"
+                onClick={handleOpenDialog}
               >
                 {action.label}
                 <Icon>login</Icon>                
               </MDButton>
+              <LoginModal open={isDialogOpen} onClose={handleCloseDialog} />
             </MDBox>
           ) : (
             <MDBox display={{ xs: "none", lg: "inline-block" }}>
             <MDButton
-              component="a"
-              href={action.route}
+              // component="a"
+              // href={action.route}
+              onClick={handleOpenDialog}
               target="_blank"
               rel="noreferrer"
               variant="gradient"
@@ -161,6 +176,7 @@ function DefaultNavbar({ transparent, light, action }) {
               {action.label}
               <Icon sx={{ marginLeft: "0.5rem" }}>login</Icon> {/* Add margin to the right of the icon */}
             </MDButton>
+            <LoginModal open={isDialogOpen} onClose={handleCloseDialog} />
           </MDBox>
 
           ))}
