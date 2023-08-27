@@ -48,7 +48,8 @@ import RTL from "./layouts/rtl";
 import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import SignIn from "./layouts/authentication/sign-in";
-import SignUp from "./layouts/authentication/sign-up";
+import Home from "./layouts/authentication/home";
+import Verifier_Portal from "./layouts/authentication/verification_portal";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -144,11 +145,19 @@ const routes = [
   },
   {
     type: "hidden",
-    name: "Sign In",
-    key: "sign-in",
+    name: "Home",
+    key: "home",
     icon: <Icon fontSize="small">login</Icon>,
-    route: "/authentication/sign-in",
-    component: <SignIn />,
+    route: "/home",
+    component: <Home />,
+  },
+  {
+    type: "hidden",
+    name: "Verifier Portal",
+    key: "verifier-portal",
+    icon: <Icon fontSize="small">login</Icon>,
+    route: "/verifier-portal",
+    component: <Verifier_Portal />,
   },
 ];
 

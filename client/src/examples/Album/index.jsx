@@ -12,9 +12,7 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Icon from "@mui/material/Icon";
-// import MDTypography from '@mui/material/MDTypography';
 import Container from '@mui/material/Container';
-// import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Divider from "@mui/material/Divider";
 
@@ -22,10 +20,14 @@ import MDTypography from "../../components/MDTypography";
 import MDButton from '../../components/MDButton';
 import MDBox from '../../components/MDBox';
 
-import link from "../../assets/images/homepage_main.png"
+import bg_link from "../../assets/images/homepage_main.png"
 
 import DefaultInfoCard from "../../examples/Cards/InfoCards/DefaultInfoCard";
 import Footer from '../Footer/index';
+
+import { Link as RouterLink } from "react-router-dom";
+import { Link } from "@mui/material";
+
 
 // function Copyright() {
 //   return (
@@ -86,17 +88,18 @@ export default function Album() {
                     sx={{ pt: 4 }}
                     direction="row"
                     >
+                      <Link to="/verifier-portal" component={RouterLink}>
                         <MDButton variant="gradient" color="info" type="submit">
                         Verifier Portal&nbsp;
                         <Icon>arrow_right_alt</Icon>
                         </MDButton>
-                    {/* <MDButton variant="contained">Main call to action</MDButton> */}
+                      </Link>
                     </Stack>
                 </Grid>
                 <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end' }}>  
                     <MDBox p={5}>
                         <img
-                        src={link}
+                        src={bg_link}
                         alt="Your Alt Text"
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />  

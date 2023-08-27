@@ -37,7 +37,7 @@ function CoverLayout({ coverHeight, image, children }) {
         action={{
           type: "external",
           route: "https://creative-tim.com/product/material-dashboard-react",
-          label: "free download",
+          label: "Login as",
         }}
         transparent
         light
@@ -64,12 +64,12 @@ function CoverLayout({ coverHeight, image, children }) {
       />
       <MDBox mt={{ xs: -20, lg: -18 }} px={1} width="calc(100% - 2rem)" mx="auto">
         <Grid container spacing={1} justifyContent="center">
-          <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
+          <Grid item xs={10} sm={8} md={5} lg={6} xl={4}>
             {children}
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
+      <Footer/>
     </PageLayout>
   );
 }

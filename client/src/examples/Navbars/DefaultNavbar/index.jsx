@@ -140,7 +140,7 @@ function DefaultNavbar({ transparent, light, action }) {
             route="/authentication/sign-in"
             light={light}
           /> */}
-          <DefaultNavbarLink icon="home" name="home" route="/dashboard" light={light} />
+          <DefaultNavbarLink icon="home" name="home" route="/home" light={light} />
           <DefaultNavbarLink icon="info" name="about" route="/dashboard"  light={light} />
           <DefaultNavbarLink icon="call" name="contact" route="/dashboard"  light={light} />
         </MDBox>
