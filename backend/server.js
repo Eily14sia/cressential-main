@@ -1,10 +1,7 @@
 const express = require('express');
+const router = express.Router();
 const mysql = require('mysql');
-const cors = require('cors');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -13,7 +10,16 @@ const db = mysql.createConnection({
     database: 'cressential'
 })
 
-app.get('/', (re, res)=> {
+// Connect to the database
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to MySQL database:', err);
+        throw err;
+    }
+    console.log('Connected to MySQL database');
+});
+
+router.get('/', (re, res)=> {
     return res.json("From Backend Server");
 })
 
@@ -21,7 +27,7 @@ app.get('/', (re, res)=> {
 
 
 //Type of Record Tab
-app.get('/type-of-record', (req, res)=> {
+router.get('/type-of-record', (req, res)=> {
     const sql = "SELECT * FROM type_of_record";
     db.query(sql, (err, data)=> {
         if(err) return res.json(err);
@@ -30,7 +36,7 @@ app.get('/type-of-record', (req, res)=> {
 })
 
 //Add Record
-app.post('/add-record', (req, res) => {
+router.post('/add-record', (req, res) => {
     const { type, price } = req.body;
     
     // Check if required fields are present
@@ -49,7 +55,7 @@ app.post('/add-record', (req, res) => {
   });
 
 //User Management Tab
-app.get('/users', (req, res)=> {
+router.get('/users', (req, res)=> {
     const sql = "SELECT * FROM user_management";
     db.query(sql, (err, data)=> {
         if(err) return res.json(err);
@@ -57,6 +63,4 @@ app.get('/users', (req, res)=> {
     })
 })
 
-app.listen(8081, ()=> {
-    console.log("listening");
-})
+module.exports = router;
