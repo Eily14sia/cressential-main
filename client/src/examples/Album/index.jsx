@@ -55,26 +55,12 @@ export default function Album() {
           <Container maxWidth="sm" >
             <Grid container spacing={2}>
                 <Grid item xs={12} md={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    {/* <MDTypography
-                    component="h1"
-                    variant="h2"
-                    align="center"
-                    color="text.primary"
-                    gutterBottom
-                    >
-                    Album layout
-                    </MDTypography> */}
                     <MDTypography variant="h1" gutterBottom>
                     Take verifier experience to the{' '}
                     <span style={{ color: '#1A73E8', display: 'inline', fontSize: 'inherit' }}>
                         next level
                     </span>
                     </MDTypography>
-
-                    
-                
-                    {/* <MDTypography variant="h5" align="center" color="text.secondary" paragraph> */}
-                    {/* <MDTypography variant="h5" align="center" color="text" paragraph> */}
                     <MDTypography
                         variant="h5"
                         fontWeight="regular"
