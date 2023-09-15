@@ -38,7 +38,7 @@ import themeDark from "./assets/theme-dark";
 
 // Material Dashboard 2 React routes
 import routes from "./routes";
-
+import Home from "./layouts/authentication/home"
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./context";
 
@@ -130,7 +130,11 @@ export default function App() {
 
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
-      <CssBaseline />
+      <CssBaseline />      
+        <Routes>
+          {getRoutes(routes)}
+          <Route path="/" element={<Home/>} />       
+        </Routes>      
       {layout === "dashboard" && (
         <>
           <Sidenav
@@ -146,10 +150,7 @@ export default function App() {
         </>
       )}
       {layout === "vr" && <Configurator />}
-      <Routes>
-        {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/home" />} />
-      </Routes>
+      
     </ThemeProvider>
   );
 }

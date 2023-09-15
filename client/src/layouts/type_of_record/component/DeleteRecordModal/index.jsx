@@ -11,14 +11,14 @@ import CloseIcon from '@mui/icons-material/Close';
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
-import MDInput from "../../../../components/MDInput";
+import MDTypography from '../../../../components/MDTypography';
 
 
 
-function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordPrice, setRecordPrice, recordId, }) {
+function DialogBox({ open, onClose, onSubmit, recordId, }) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Update Record
+      <DialogTitle>Delete Record
         <IconButton
           sx={{
             position: 'absolute',
@@ -39,25 +39,9 @@ function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordP
       />
       <DialogContent>
         <Grid container justifyContent="center" alignItems="center"> 
-          <Grid item textAlign="center" xs={11} mb={3}>
-            <MDInput
-              label="Type of Record"
-              value={recordType}
-              onChange={(e) => setRecordType(e.target.value)}
-              required    
-              sx={{ width: '100%' }}          
-            />
-          </Grid>
-          <Grid item textAlign="center" xs={11} >
-            <MDInput
-              label="Price"
-              type="number"
-              value={recordPrice}
-              onChange={(e) => setRecordPrice(e.target.value)}
-              required
-              sx={{ width: '100%' }}
-            />
-          </Grid>
+          <MDTypography variant="body1">
+            Are you sure you want to delete Record {recordId}?
+          </MDTypography>
         </Grid>
       </DialogContent>
       <MDBox
@@ -70,10 +54,10 @@ function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordP
         </MDButton>
         <MDButton
           variant="contained"
-          color="info"
+          color="error"
           onClick={onSubmit} 
         >
-            Update Record
+            Delete Record
         </MDButton>
       </DialogActions>
     </Dialog>

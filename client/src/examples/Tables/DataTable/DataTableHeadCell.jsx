@@ -51,6 +51,7 @@ function DataTableHeadCell({ width, children, sorted, align, ...rest }) {
           textTransform: "uppercase",
           cursor: sorted && "pointer",
           userSelect: sorted && "none",
+          paddingRight: "15px",
         })}
       >
         {children}

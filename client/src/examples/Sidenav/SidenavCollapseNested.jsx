@@ -53,7 +53,8 @@ function SidenavCollapse({ icon, name, active, isNested, ...rest }) {
             sidenavColor,
           })
         }
-      >
+      > 
+        <MDBox p={2}></MDBox>
         <ListItemIcon
           sx={(theme) =>
             collapseIconBox(theme, { transparentSidenav, whiteSidenav, darkMode, active })

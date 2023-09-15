@@ -41,19 +41,13 @@ import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 
-// Data
-import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
-import { CoPresentSharp } from '@mui/icons-material';
-
-function Graduate_record() {
+function Alumni_record_request() {
   // const { columns, rows } = authorsTableData();
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
 
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/record-request")
+    fetch("http://localhost:8081/mysql/payment-record-request")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -79,7 +73,7 @@ function Graduate_record() {
     setTabValue(newValue);
   };
 
-  function getStatusColor(status, payment_status) {
+  function getStatusColor(status) {
     switch (status) {
       case 'Pending':
         return 'secondary'; // Set to your desired color for pending status
@@ -88,12 +82,18 @@ function Graduate_record() {
       case 'Declined':
         return 'error'; // Set to your desired color for declined status
       case 'Completed':
-        return 'info'; // Set to your desired color for completed status
-      default:
-        // If payment_status is 'Unpaid', return 'error'; otherwise, return 'info' as default
-        return payment_status === 'Unpaid' ? 'secondary' : 'success';
+        return 'info'; // Set to your desired color for completed status     
     }
   }  
+
+  function getPaymentStatusColor(payment_status) {
+    switch (payment_status) {
+      case 'Paid':
+        return 'success'; // Set to your desired color for pending status
+      default:
+        return 'secondary'; // Set a default color for other status values
+    }
+  }
 
   return (
     <DashboardLayout>
@@ -135,116 +135,7 @@ function Graduate_record() {
                     showTotalEntries={false}
                     noEndBorder
                   /> */}
-                  {/* <DataTable
-                    table={{
-                      columns: [
-                        { Header: "id", accessor: "id", width: "25%" },
-                        { Header: "name", accessor: "name", width: "30%" },
-                        { Header: "email", accessor: "email" },
-                        { Header: "wallet", accessor: "wallet", width: "12%" },
-                      ],
-                      rows: [
-                        
-                        {
-                          name: "Hanny Baniard",
-                          position: "Data Coordiator",
-                          office: "Baorixile",
-                          age: 42,
-                          startDate: "4/11/2021",
-                          salary: "$474,978",
-                        },
-                        {
-                          name: "Lara Puleque",
-                          position: "Payment Adjustment Coordinator",
-                          office: "Cijangkar",
-                          age: 47,
-                          startDate: "8/2/2021",
-                          salary: "$387,287",
-                        },
-                        {
-                          name: "Torie Repper",
-                          position: "Administrative Officer",
-                          office: "Montpellier",
-                          age: 25,
-                          startDate: "4/21/2021",
-                          salary: "$94,780",
-                        },
-                        {
-                          name: "Nat Gair",
-                          position: "Help Desk Technician",
-                          office: "Imider",
-                          age: 57,
-                          startDate: "12/6/2020",
-                          salary: "$179,177",
-                        },
-                        {
-                          name: "Maggi Slowan",
-                          position: "Help Desk Technician",
-                          office: "Jaunpils",
-                          age: 56,
-                          startDate: "11/7/2020",
-                          salary: "$440,874",
-                        },
-                        {
-                          name: "Marleah Snipe",
-                          position: "Account Representative II",
-                          office: "Orekhovo-Borisovo Severnoye",
-                          age: 31,
-                          startDate: "7/18/2021",
-                          salary: "$404,983",
-                        },
-                        {
-                          name: "Georgia Danbury",
-                          position: "Professor",
-                          office: "Gniezno",
-                          age: 50,
-                          startDate: "10/1/2020",
-                          salary: "$346,576",
-                        },
-                        {
-                          name: "Bev Castan",
-                          position: "Design Engineer",
-                          office: "Acharnés",
-                          age: 19,
-                          startDate: "1/14/2021",
-                          salary: "$445,171",
-                        },
-                        {
-                          name: "Reggi Westney",
-                          position: "Financial Advisor",
-                          office: "Piuí",
-                          age: 56,
-                          startDate: "3/21/2021",
-                          salary: "$441,569",
-                        },
-                        {
-                          name: "Bartholomeus Prosh",
-                          position: "Project Manager",
-                          office: "Kelīshād va Sūdarjān",
-                          age: 28,
-                          startDate: "5/27/2021",
-                          salary: "$336,238",
-                        },
-                        {
-                          name: "Sheffy Feehely",
-                          position: "Software Consultant",
-                          office: "Ndibène Dahra",
-                          age: 27,
-                          startDate: "3/23/2021",
-                          salary: "$473,391",
-                        },
-                        {
-                          name: "Euphemia Chastelain",
-                          position: "Engineer IV",
-                          office: "Little Baguio",
-                          age: 63,
-                          startDate: "5/1/2021",
-                          salary: "$339,489",
-                        },
-                      ]
-                    }}
-                    canSearch={true}
-                  /> */}
+                  
                   <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       <Tabs
@@ -336,7 +227,7 @@ function Graduate_record() {
                       <MDBox ml={-1}>
                         <MDBadge
                           badgeContent={item.payment_status}
-                          color={getStatusColor(item.payment_status)} // Set the badge color dynamically
+                          color={getPaymentStatusColor(item.payment_status)} // Set the badge color dynamically
                           variant="gradient"
                           size="sm"
                         />
@@ -380,4 +271,4 @@ function Graduate_record() {
   );
 }
 
-export default Graduate_record;
+export default Alumni_record_request;

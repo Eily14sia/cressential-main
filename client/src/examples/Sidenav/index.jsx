@@ -12,8 +12,8 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-
-import { useEffect } from "react";
+import React from 'react';
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -34,6 +34,7 @@ import MDButton from "../../components/MDButton";
 
 // Material Dashboard 2 React example components
 import SidenavCollapse from "./SidenavCollapse";
+import SidenavCollapseNested from "./SidenavCollapseNested";
 
 // Custom styles for the Sidenav
 import SidenavRoot from "./SidenavRoot";
@@ -51,8 +52,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
-  const collapseName = location.pathname.replace("/", "");
+  // const pathSegments = location.pathname.split('/'); // Split the pathname into segments
+  // const collapseName = pathSegments[1]; // The first segment after the initial '/'
+  const [collapseName, setCollapseName] = useState(null);
 
+  useEffect(() => {
+    console.log(collapseName); // Log the value of collapseName
+  }, [collapseName]);
   let textColor = "white";
 
   if (transparentSidenav || (whiteSidenav && !darkMode)) {
@@ -84,61 +90,108 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   }, [dispatch, location]);
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
-    let returnValue;
+  const renderRoutes = [
+    // Example of a "collapse" type
+    <NavLink key="dashboard" to="/dashboard" onClick={() => setCollapseName("dashboard")}>
+      <SidenavCollapse name="Dashboard" icon={<Icon fontSize="small">dashboard</Icon>} active={collapseName === "dashboard"} />
+    </NavLink>,
 
-    if (type === "collapse") {
-      returnValue = href ? (
-        <Link
-          href={href}
-          key={key}
-          target="_blank"
-          rel="noreferrer"
-          sx={{ textDecoration: "none" }}
-        >
-          <SidenavCollapse
-            name={name}
-            icon={icon}
-            active={key === collapseName}
-            noCollapse={noCollapse}
-          />
-        </Link>
-      ) : (
-        <NavLink key={key} to={route}>
-          <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
-        </NavLink>
-      );
-    } else if (type === "title") {
-      returnValue = (
-        <MDTypography
-          key={key}
-          color={textColor}
-          display="block"
-          variant="caption"
-          fontWeight="bold"
-          textTransform="uppercase"
-          pl={3}
-          mt={2}
-          mb={1}
-          ml={1}
-        >
-          {title}
-        </MDTypography>
-      );
-    } else if (type === "divider") {
-      returnValue = (
-        <Divider
-          key={key}
-          light={
-            (!darkMode && !whiteSidenav && !transparentSidenav) ||
-            (darkMode && !transparentSidenav && whiteSidenav)
+    /// Example of a "collapse" type for "Student" without navigation
+      <div
+        key="student"
+        onClick={() => {
+          if (collapseName === "student") {
+            setCollapseName(null); // Toggle collapseName to null if it's already "alumni"
+          } else {
+            setCollapseName("student");
           }
+        }}
+      >
+        <SidenavCollapse
+          name="Student Record"
+          icon={
+            <div>
+              <Icon fontSize="small">person</Icon> {/* Icon indicating Alumni */}
+            </div>
+          }
+          active={collapseName === "student"}
+          isNested={true}
         />
-      );
-    }
+      </div>,
 
-    return returnValue;
-  });
+      // Conditionally render sub-items for "Alumni" tab when it's clicked
+      collapseName === "student" && (
+        <>
+          <NavLink key="registrar-student-record-request" to="/student/record-request">
+            <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-alumni-record-request"} />
+          </NavLink>
+          <NavLink key="registrar-student-issued-record" to="/student/issued-record">
+            <SidenavCollapseNested name="Issued Record" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-alumni-issued-record"} />
+          </NavLink>
+        </>
+      ),
+    
+    
+
+    /// Example of a "collapse" type for "Alumni" without navigation
+    <div
+      key="alumni"
+      onClick={() => {
+        if (collapseName === "alumni") {
+          setCollapseName(null); // Toggle collapseName to null if it's already "alumni"
+        } else {
+          setCollapseName("alumni");
+        }
+      }}
+    >
+      <SidenavCollapse
+        name="Alumni Record"
+        icon={
+          <div>
+            <Icon fontSize="small">school</Icon> {/* Icon indicating Alumni */}
+          </div>
+        }
+        active={collapseName === "alumni"}
+        isNested={true}
+      />
+    </div>,
+
+    // Conditionally render sub-items for "Alumni" tab when it's clicked
+    collapseName === "alumni" && (
+      <>
+        <NavLink key="registrar-alumni-record-request" to="/alumni/record-request">
+          <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-alumni-record-request"} />
+        </NavLink>
+        <NavLink key="registrar-alumni-issued-record" to="/alumni/issued-record">
+          <SidenavCollapseNested name="Issued Record" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-alumni-issued-record"} />
+        </NavLink>
+      </>
+    ),
+
+  <NavLink key="payment" to="/payment" onClick={() => setCollapseName("payment")}>
+    <SidenavCollapse name="Payment" icon={<Icon fontSize="small">payment</Icon>} active={collapseName === "payment"} />
+  </NavLink>,
+
+  <NavLink key="type-of-record" to="/type-of-record" onClick={() => setCollapseName("type-of-record")}>
+    <SidenavCollapse name="Type of Record" icon={<Icon fontSize="small">folder</Icon>} active={collapseName === "type-of-record"} />
+  </NavLink>,
+
+  <NavLink key="student-management" to="/student-management" onClick={() => setCollapseName("student-management")}>
+    <SidenavCollapse name="Student Management" icon={<Icon fontSize="small">backpack</Icon>} active={collapseName === "student-management"} />
+  </NavLink>,
+
+  <NavLink key="user-management" to="/user-management" onClick={() => setCollapseName("user-management")}>
+    <SidenavCollapse name="User Management" icon={<Icon fontSize="small">group</Icon>} active={collapseName === "user-management"} />
+  </NavLink>,
+
+// ==================  STUDENT  =======================
+
+  <NavLink key="record-request" to="/record-request" onClick={() => setCollapseName("record-request")}>
+    <SidenavCollapse name="Record Request" icon={<Icon fontSize="small">assignment</Icon>} active={collapseName === "record-request"} />
+  </NavLink>,
+];
+
+
 
   return (
     <SidenavRoot
@@ -179,19 +232,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
-      {/* <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="#"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
-        </MDButton>
-      </MDBox> */}
     </SidenavRoot>
   );
 }

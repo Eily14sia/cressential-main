@@ -23,11 +23,16 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Tooltip from '@mui/material/Tooltip';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
+import MDBadge from "../../components/MDBadge";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -47,7 +52,7 @@ function User_Management() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/users")
+    fetch("http://localhost:8081/mysql/users")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -56,10 +61,9 @@ function User_Management() {
   }, []);
 
   const columns = [
-    { Header: "id", accessor: "id", width: "10%" },
     { Header: "name", accessor: "name", width: "30%" },
-    { Header: "email", accessor: "email" },
     { Header: "Wallet Address", accessor: "wallet", width: "30%" },
+    { Header: "Status", accessor: "status", width: "10%" },
     { Header: "Action", accessor: "action", width: "10%" },
   ];
 
@@ -130,14 +134,37 @@ function User_Management() {
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({
-                        id: item.id,
-                        name: item.name,
-                        email: item.email,
+                       
+                        name: (
+                        <MDBox ml={2} lineHeight={1}>
+                          <MDTypography display="block" variant="button" fontWeight="medium">
+                           {item.name}
+                          </MDTypography>
+                          <MDTypography variant="caption">{item.email}</MDTypography>
+                        </MDBox>
+                        ),
                         wallet: item.wallet_address,
+                        status: (
+                          <MDBox ml={-1}>
+                            <MDBadge badgeContent="active" color="success" variant="gradient" size="sm" />
+                          </MDBox>
+                        ),
                         action: (
-                          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
-                            more_vert
-                          </Icon>
+                          // <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
+                          //   more_vert
+                          // </Icon>
+                          <>
+                          <Tooltip title="Update" >
+                            <IconButton color="info" onClick={() => handleOpenUpdateDialog(item)}>
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete" >
+                            <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                          </>     
                         )
                       })), 
                     }}

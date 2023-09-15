@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -8,21 +7,15 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea } from '@mui/material';
-import Divider from "@mui/material/Divider";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
-import MDTypography from "../../../../components/MDTypography";
 import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 
 
 
-function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordPrice, setRecordPrice }) {
+function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordPrice, setRecordPrice, recordTypeError, recordPriceError }) {
   
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -49,10 +42,12 @@ function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordP
         <Grid container justifyContent="center" alignItems="center"> 
           <Grid item textAlign="center" xs={11} mb={3}>
             <MDInput
-              label="Type"
+              label="Type of Record"
               value={recordType}
               onChange={(e) => setRecordType(e.target.value)}
               required    
+              error={!!recordTypeError}
+              helperText={recordTypeError}
               sx={{ width: '100%' }}          
             />
           </Grid>
@@ -63,6 +58,8 @@ function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordP
               value={recordPrice}
               onChange={(e) => setRecordPrice(e.target.value)}
               required
+              error={!!recordPriceError}
+              helperText={recordPriceError}
               sx={{ width: '100%' }}
             />
           </Grid>

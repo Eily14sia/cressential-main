@@ -38,6 +38,7 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "./layouts/dashboard";
 import Graduate from "./layouts/graduate_record";
+import Alumni_record_request from "./layouts/alumni_record_request";
 import Undergraduate from "./layouts/undergraduate_record";
 import Type_of_Record from "./layouts/type_of_record";
 import User_Management from "./layouts/user_management";
@@ -50,10 +51,18 @@ import Profile from "./layouts/profile";
 import SignIn from "./layouts/authentication/sign-in";
 import Home from "./layouts/authentication/home";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
+import Payment from "./layouts/payment";
+
+// ================ Student ====================
+import Record_request from "./student_layouts/record_request";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
-
+const icon1 = <Icon fontSize="small">person</Icon>;
+const icon2 = <Icon fontSize="small">book</Icon>;
+const icon3 = <Icon fontSize="small">school</Icon>;
+const icon4 = <Icon fontSize="small">work</Icon>;
+const paymentIcon = <Icon fontSize="small">receipt_long</Icon>;
 const routes = [
   {
     type: "collapse",
@@ -65,19 +74,51 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Graduate Record",
-    key: "graduate-record",
-    icon: <Icon fontSize="small">school</Icon>,
-    route: "/graduate-record",
-    component: <Graduate />,
+    name: "Student Record Request",
+    key: "undergraduate-record",
+    icon: icon1, // Use the first icon
+    route: "/undergraduate-record",
+    component: <Undergraduate />,
   },
   {
     type: "collapse",
-    name: "Undergraduate Record",
-    key: "undergraduate-record",
-    icon: <Icon fontSize="small">book</Icon>,
-    route: "/undergraduate-record",
+    name: "Student Issued Record",
+    key: "registrar-student-issuance-record",
+    icon: icon2, // Use the second icon
+    route: "/registrar-student-issuance-record",
     component: <Undergraduate />,
+  },
+  {
+    type: "collapse",
+    name: "Alumni",
+    key: "alumni",
+    icon: icon2,
+    collapse: [ 
+      {
+        type: "collapse",
+        name: "Alumni Record Request",
+        key: "alumni-record-request",
+        icon: icon3,
+        route: "/alumni/record-request",
+        component: <Alumni_record_request />,
+      },
+      {
+        type: "collapse",
+        name: "Alumni Issued Record",
+        key: "alumni-issued-record",
+        icon: icon4,
+        route: "/alumni/alumni-issued-record",
+        component: <Graduate />,
+      },
+    ],
+  },
+  {
+    type: "collapse",
+    name: "Payment",
+    key: "payment",
+    icon: paymentIcon,
+    route: "/payment",
+    component: <Payment />,
   },
   {
     type: "collapse",
@@ -89,12 +130,21 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Student Management",
+    key: "student-management",
+    icon: <Icon fontSize="small">backpack</Icon>,
+    route: "/student-management",
+    component: <User_Management />,
+  },
+  {
+    type: "collapse",
     name: "User Management",
     key: "user-management",
     icon: <Icon fontSize="small">group</Icon>,
     route: "/user-management",
     component: <User_Management />,
   },
+
   {
     type: "hidden",
     name: "Add Record",
@@ -159,6 +209,17 @@ const routes = [
     route: "/verifier-portal",
     component: <Verifier_Portal />,
   },
+
+  //student
+  {
+    type: "collapse",
+    name: "Record Request",
+    key: "record-request",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/record-request",
+    component: <Record_request />,
+  },
+
 ];
 
 export default routes;
