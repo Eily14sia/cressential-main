@@ -24,6 +24,11 @@
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^3.0.4",
-    "pdfjs-dist": "^3.9.179"
+    "pdfjs-dist": "^3.9.179",
+    "node-fetch": "^3.3.2",
+    "paymongo-node": "^10.17.0",
+    "axios": "^1.5.0",
+    "multihashes": "^4.0.3"
+
   }
 }
