@@ -26,7 +26,6 @@ import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import Tooltip from '@mui/material/Tooltip';
 
 // Material Dashboard 2 React components
@@ -42,18 +41,14 @@ import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 
-// Data
-import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
-
-function User_Management() {
+function Student_Management() {
   // const { columns, rows } = authorsTableData();
   // const { columns: pColumns, rows: pRows } = projectsTableData();
 
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/users")
+    fetch("http://localhost:8081/mysql/student-management")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -62,11 +57,14 @@ function User_Management() {
   }, []);
 
   const columns = [
-    { Header: "user_id", accessor: "user_id", width: "10%" },
-    { Header: "Wallet Address", accessor: "wallet", width: "30%" },
-    { Header: "Status", accessor: "status", width: "10%" },
-    { Header: "Role", accessor: "role", width: "10%" },
-    { Header: "Action", accessor: "action", width: "10%" },
+    { Header: "Name", accessor: "name", align: "left", width: "20%",  },
+    { Header: "Contact Info", accessor: "contact_info", align: "left",},
+    { Header: "Course", accessor: "course", },
+    { Header: "Entry Year", accessor: "entry_year" },
+    { Header: "Date of Graduation", accessor: "date_of_graduation" },
+    { Header: "Permanent Address", accessor: "permanent_address", },
+    { Header: "Status", accessor: "status" },
+    { Header: "Action", accessor: "action" },
   ];
 
   const [menu, setMenu] = useState(null);
@@ -89,33 +87,25 @@ function User_Management() {
       open={Boolean(menu)}
       onClose={closeMenu}
     >
-      <MenuItem onClick={closeMenu}><VisibilityIcon />&nbsp; View Record</MenuItem>
-      <MenuItem onClick={closeMenu}><EditIcon />&nbsp; Edit Record</MenuItem>
-      <MenuItem onClick={closeMenu}><DeleteIcon />&nbsp; Delete Record</MenuItem>
+      <MenuItem onClick={closeMenu}>Action</MenuItem>
+      <MenuItem onClick={closeMenu}>Another action</MenuItem>
+      <MenuItem onClick={closeMenu}>Something else</MenuItem>
     </Menu>
   );
 
   function getStatusColor(status) {
     switch (status) {
-      case '1':
-        return 'secondary';
-      case '2':
-        return 'info';   
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'light';   
+      case 'Pending':
+        return 'secondary'; // Set to your desired color for pending status
+      case 'Received':
+        return 'success'; // Set to your desired color for received status
+      case 'Declined':
+        return 'error'; // Set to your desired color for declined status
+      case 'Completed':
+        return 'info'; // Set to your desired color for completed status     
     }
   } 
 
-  function getRole(role) {
-    switch (role) {
-      case '1':
-        return 'Registar';
-      case '2':
-        return 'Student';
-  }
-} 
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -137,13 +127,14 @@ function User_Management() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  User Management Table
+                  Student Management Table
                 </MDTypography>
                 
-                <MDButton variant="gradient" color="dark">
-                  Add Record&nbsp;
-                  <Icon>add</Icon>
-                </MDButton>
+                <Link to="/student-management/add-record" component={RouterLink}>
+                  <MDButton variant="gradient" color="dark">                    
+                    <Icon>add</Icon> &nbsp;Add record
+                  </MDButton>
+                </Link>
               </MDBox>
 
                 <MDBox pt={3}>
@@ -158,15 +149,33 @@ function User_Management() {
                     table={{ columns, 
                       rows: data.map((item) => ({
                        
-                        user_id: (
+                        name: (
                         <MDBox ml={2} lineHeight={1}>
                           <MDTypography display="block" variant="button" fontWeight="medium">
-                           {item.user_id}
+                           {item.first_name + " " + item.middle_name + " " + item.last_name}
                           </MDTypography>
-                          <MDTypography variant="caption">{item.email}</MDTypography>
+                          <MDTypography variant="caption">{item.student_number}</MDTypography>
                         </MDBox>
                         ),
-                        wallet: item.wallet_address,
+                        contact_info: (
+                          <MDBox lineHeight={1} textAlign="left">
+                            <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+                              {item.email}
+                            </MDTypography>
+                            <MDTypography variant="caption">{item.mobile_number}</MDTypography>
+                          </MDBox>
+                        ),
+                        course: (
+                          <MDBox lineHeight={1} textAlign="left">
+                            <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+                              {item.course}
+                            </MDTypography>
+                            <MDTypography variant="caption">{item.college}</MDTypography>
+                          </MDBox>
+                        ),
+                        entry_year: item.entry_year_from + " - " + item.entry_year_to,
+                        date_of_graduation: item.date_of_graduation,
+                        permanent_address: item.permanent_address,
                         status: (
                           <>
                             <MDBox ml={-1}>
@@ -179,34 +188,22 @@ function User_Management() {
                             </MDBox>
                           </>
                         ),
-                        role: (
-                          <>
-                            <MDBox ml={-1}>
-                              <MDBadge
-                                badgeContent={getRole(item.role)}
-                                color={getStatusColor(item.role)} // Set the badge color dynamically
-                                variant="gradient"
-                                size="sm"
-                              />
-                            </MDBox>
-                          </>
-                        ),
                         action: (
-                          <>
-                            <Tooltip title="Update" >
-                              <IconButton color="info" onClick={() => handleOpenUpdateDialog(item)}>
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete" >
-                              <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>  
                           // <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
                           //   more_vert
-                          // </Icon>   
+                          // </Icon>
+                          <>
+                          <Tooltip title="Update" >
+                            <IconButton color="info" onClick={() => handleOpenUpdateDialog(item)}>
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete" >
+                            <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                          </>     
                         )
                       })), 
                     }}
@@ -224,4 +221,4 @@ function User_Management() {
   );
 }
 
-export default User_Management;
+export default Student_Management;

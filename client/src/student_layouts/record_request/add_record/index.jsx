@@ -37,62 +37,62 @@ function Graduate_Add_Record() {
 
   return (
     <DashboardLayout>
-  <DashboardNavbar />
-  <MDBox pt={6} pb={3}>
-    <Grid container spacing={6} justifyContent="center">
-      <Grid item xs={12} sm={6}>
-        <Card>
-          <MDBox pt={3} px={3}>
-            <MDBox component="form" role="form">
-              <MDBox mb={2}>
-                <MDInput type="text" label="Text" fullWidth />
-              </MDBox>
-              <MDBox>
-                <MDInput type="password" label="Password" fullWidth />
-              </MDBox>              
-              <MDBox mb={1}>
-                <FormControl variant="outlined" fullWidth margin="normal">
-                  <InputLabel>Select an option</InputLabel>
-                  <Select style={{ height: "40px" }}
-                    label="Select an option"
-                    // Add more props as needed
-                  >
-                    <MenuItem value="option1">Option 1</MenuItem>
-                    <MenuItem value="option2">Option 2</MenuItem>
-                    <MenuItem value="option3">Option 3</MenuItem>
-                  </Select>
-                </FormControl>
-              </MDBox>
-              <MDBox mb={2}>
-                <MDInput fullWidth
-                    type="file"
-                    accept=".jpg, .png, .jpeg"
-                    // Add more props as needed
-                  />              
-              </MDBox>
-              <MDBox mb={2}>
-                
-              </MDBox>
-              <MDBox mt={4} mb={1}>
-                <Grid container justifyContent="flex-end">
-                  <Grid item>
-                    <Link to="/graduate-record/add-record" component={RouterLink}>
-                      <MDButton variant="gradient" color="info" type="submit">
-                        Submit&nbsp;
-                        <Icon>add</Icon>
-                      </MDButton>
-                    </Link>
-                  </Grid>
-                </Grid>
-              </MDBox>
-            </MDBox>
-          </MDBox>
-        </Card>
-      </Grid>
-    </Grid>
-  </MDBox>
-  <Footer />
-</DashboardLayout>
+      <DashboardNavbar />
+        <MDBox pt={6} pb={3}>
+          <Grid container spacing={6} justifyContent="center">
+            <Grid item xs={12} sm={6}>
+              <Card>
+                <MDBox pt={3} px={3}>
+                  <MDBox component="form" role="form">
+                    <MDBox mb={2}>
+                      <MDInput type="text" label="Text" fullWidth />
+                    </MDBox>
+                    <MDBox>
+                      <MDInput type="password" label="Password" fullWidth />
+                    </MDBox>              
+                    <MDBox mb={1}>
+                      <FormControl variant="outlined" fullWidth margin="normal">
+                        <InputLabel>Select an option</InputLabel>
+                        <Select style={{ height: "40px" }}
+                          label="Select an option"
+                          // Add more props as needed
+                        >
+                          <MenuItem value="option1">Option 1</MenuItem>
+                          <MenuItem value="option2">Option 2</MenuItem>
+                          <MenuItem value="option3">Option 3</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </MDBox>
+                    <MDBox mb={2}>
+                      <MDInput fullWidth
+                          type="file"
+                          accept=".jpg, .png, .jpeg"
+                          // Add more props as needed
+                        />              
+                    </MDBox>
+                    <MDBox mb={2}>
+                      
+                    </MDBox>
+                    <MDBox mt={4} mb={1}>
+                      <Grid container justifyContent="flex-end">
+                        <Grid item>
+                          <Link to="/graduate-record/add-record" component={RouterLink}>
+                            <MDButton variant="gradient" color="info" type="submit">
+                              Submit&nbsp;
+                              <Icon>add</Icon>
+                            </MDButton>
+                          </Link>
+                        </Grid>
+                      </Grid>
+                    </MDBox>
+                  </MDBox>
+                </MDBox>
+              </Card>
+            </Grid>
+          </Grid>
+        </MDBox>
+        <Footer />
+    </DashboardLayout>
 
   );
 }

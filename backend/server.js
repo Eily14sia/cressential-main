@@ -27,13 +27,99 @@ router.get('/', (re, res)=> {
                             REGISTRAR
    =========================================================== */
 
-// ======================= Payment ===========================
+// ================== Alumni Record Issuance  ==================
 
-router.get('/payment-record-request', (req, res) => {
+router.get('/record-per-request/:ctrl_number', (req, res) => {
+    const ctrl_number = req.params.ctrl_number;
+
+    const sql = `
+        SELECT *
+        FROM record_per_request
+        INNER JOIN record_request ON record_per_request.ctrl_number = record_request.ctrl_number
+        INNER JOIN payment ON record_per_request.ctrl_number = payment.ctrl_number
+        INNER JOIN type_of_record ON record_per_request.record_type_id = type_of_record.id
+        WHERE record_per_request.ctrl_number = ?
+    `;
+    
+    db.query(sql, [ctrl_number], (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
+
+// ======================= Student Record Request =========================== 
+
+  router.get('/payment-student-record-request', (req, res) => {
     const sql = `
       SELECT *
-      FROM payment
-      INNER JOIN record_request ON payment.ctrl_number = record_request.ctrl_number
+      FROM payment AS p
+      INNER JOIN record_request AS r ON p.ctrl_number = r.ctrl_number
+      WHERE p.student_id IN (
+        SELECT id
+        FROM student_management
+        WHERE is_alumni = 0
+      )
+    `;
+  
+    db.query(sql, (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
+// ======================= Alumni Record Request =========================== 
+  router.get('/payment-record-request', (req, res) => {
+    const sql = `
+      SELECT *
+      FROM payment AS p
+      INNER JOIN record_request AS r ON p.ctrl_number = r.ctrl_number
+      WHERE p.student_id IN (
+        SELECT id
+        FROM student_management
+        WHERE is_alumni = 1
+      )
+    `;
+  
+    db.query(sql, (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
+  // Update Record
+  router.put('/update-record-request/:new_ctrl_number', (req, res) => {
+    const new_ctrl_number = req.params.new_ctrl_number;
+    const { date_releasing, processing_officer, request_status } = req.body;
+
+    const sql = "UPDATE record_request SET date_releasing = ?, processing_officer = ?, request_status = ? WHERE ctrl_number = ?";
+
+    db.query(sql, [date_releasing, processing_officer, request_status, new_ctrl_number], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to update record' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        return res.status(200).json({ message: 'Record updated successfully' });
+    });
+});
+
+  
+
+  router.get('/record-per-request', (req, res) => {
+    const sql = `
+    SELECT *
+    FROM record_per_request
+    INNER JOIN record_request as r ON record_per_request.ctrl_number = r.ctrl_number
+    INNER JOIN payment ON record_per_request.ctrl_number = payment.ctrl_number
+    INNER JOIN type_of_record ON record_per_request.record_type_id = type_of_record.id
+    WHERE r.student_id IN (
+        SELECT id
+        FROM student_management
+        WHERE is_alumni = 1
+      )
     `;
     
     db.query(sql, (err, data) => {
@@ -112,17 +198,55 @@ router.get('/payment-record-request', (req, res) => {
     });
 
 
-//User Management Tab
-router.get('/users', (req, res)=> {
-    const sql = "SELECT * FROM user_management";
-    db.query(sql, (err, data)=> {
-        if(err) return res.json(err);
-        return res.json(data);
+    // User Management Tab
+    router.get('/users', (req, res)=> {
+        
+        const sql = `
+            SELECT *
+            FROM user_management;      
+                
+        `;
+        db.query(sql, (err, data)=> {
+            if(err) return res.json(err);
+            return res.json(data);
+        })
     })
-})
 
+  // Student Management Tab
+    router.get('/student-management', (req, res)=> {
+        
+        const sql = `
+            SELECT *
+            FROM student_management 
+            JOIN user_management ON student_management.user_id = user_management.user_id;              
+        `;
 
-//User Management Tab
+        db.query(sql, (err, data)=> {
+            if(err) return res.json(err);
+            return res.json(data);
+        })
+    })
+
+  // Registrar Management Tab
+    router.get('/registrar-management', (req, res)=> {
+        
+        const sql = `
+            SELECT *
+            FROM registrar_management 
+            JOIN user_management ON registrar_management.user_id = user_management.user_id;              
+        `;
+
+        db.query(sql, (err, data)=> {
+            if(err) return res.json(err);
+            return res.json(data);
+        })
+    })
+
+/* ===========================================================
+                            STUDENT
+   =========================================================== */
+
+//Record Request Tab
 router.get('/record-request', (req, res)=> {
     const sql = "SELECT * FROM record_request";
     db.query(sql, (err, data)=> {

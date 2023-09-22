@@ -111,7 +111,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           name="Student Record"
           icon={
             <div>
-              <Icon fontSize="small">person</Icon> {/* Icon indicating Alumni */}
+              <Icon fontSize="small">person</Icon> 
             </div>
           }
           active={collapseName === "student"}
@@ -119,14 +119,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         />
       </div>,
 
-      // Conditionally render sub-items for "Alumni" tab when it's clicked
+      // Conditionally render sub-items for "Student" tab when it's clicked
       collapseName === "student" && (
         <>
           <NavLink key="registrar-student-record-request" to="/student/record-request">
-            <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-alumni-record-request"} />
+            <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-student-record-request"} />
           </NavLink>
-          <NavLink key="registrar-student-issued-record" to="/student/issued-record">
-            <SidenavCollapseNested name="Issued Record" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-alumni-issued-record"} />
+          <NavLink key="registrar-student-record-issuance" to="/student/record-issuance">
+            <SidenavCollapseNested name="Record Issuance" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-student-record-issuance"} />
           </NavLink>
         </>
       ),
@@ -162,8 +162,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         <NavLink key="registrar-alumni-record-request" to="/alumni/record-request">
           <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-alumni-record-request"} />
         </NavLink>
-        <NavLink key="registrar-alumni-issued-record" to="/alumni/issued-record">
-          <SidenavCollapseNested name="Issued Record" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-alumni-issued-record"} />
+        <NavLink key="registrar-alumni-record-issuance" to="/alumni/record-issuance">
+          <SidenavCollapseNested name="Record Issuance" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-alumni-record-issuance"} />
         </NavLink>
       </>
     ),

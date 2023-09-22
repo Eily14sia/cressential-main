@@ -38,7 +38,7 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "./layouts/dashboard";
 import Graduate from "./layouts/graduate_record";
-import Alumni_record_request from "./layouts/alumni_record_request";
+
 import Undergraduate from "./layouts/undergraduate_record";
 import Type_of_Record from "./layouts/type_of_record";
 import User_Management from "./layouts/user_management";
@@ -53,6 +53,16 @@ import Home from "./layouts/authentication/home";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
 import Payment from "./layouts/payment";
 
+import Student_record_request from "./layouts/student_record_request";
+
+
+import Alumni_record_request from "./layouts/alumni_record_request";
+import Alumni_record_per_request from "./layouts/alumni_record_per_request";
+import Alumni_record_issuance from "./layouts/alumni_record_issuance";
+
+import Student_Management from "./layouts/student_management";
+import Student_Magement_Add from "./layouts/student_management/add_record";
+
 // ================ Student ====================
 import Record_request from "./student_layouts/record_request";
 
@@ -63,6 +73,7 @@ const icon2 = <Icon fontSize="small">book</Icon>;
 const icon3 = <Icon fontSize="small">school</Icon>;
 const icon4 = <Icon fontSize="small">work</Icon>;
 const paymentIcon = <Icon fontSize="small">receipt_long</Icon>;
+
 const routes = [
   {
     type: "collapse",
@@ -82,11 +93,43 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Student Issued Record",
-    key: "registrar-student-issuance-record",
+    name: "Student Record Issuance",
+    key: "registrar-student-record-issuance",
     icon: icon2, // Use the second icon
-    route: "/registrar-student-issuance-record",
+    route: "/registrar-student-record-issuance",
     component: <Undergraduate />,
+  },
+  {
+    type: "collapse",
+    name: "Student",
+    key: "student",
+    icon: icon2,
+    collapse: [ 
+      {
+        type: "collapse",
+        name: "Student Record Request",
+        key: "registrar-student-record-request",
+        icon: icon3,
+        route: "/student/record-request",
+        component: <Student_record_request />,
+      },
+      // {
+      //   type: "collapse",
+      //   name: "Student Record per Request",
+      //   key: "registrar-student-record-per-request",
+      //   icon: icon4,
+      //   route: "/student/record-per-request/:ctrl_number",
+      //   component: <Student_record_request />,
+      // },      
+      // {
+      //   type: "collapse",
+      //   name: "Student Record Issuance",
+      //   key: "registrar-student-record-issuance",
+      //   icon: icon4,
+      //   route: "/student/record-issuance",
+      //   component: <Student_record_request />,
+      // },
+    ],
   },
   {
     type: "collapse",
@@ -97,18 +140,26 @@ const routes = [
       {
         type: "collapse",
         name: "Alumni Record Request",
-        key: "alumni-record-request",
+        key: "registrar-alumni-record-request",
         icon: icon3,
         route: "/alumni/record-request",
         component: <Alumni_record_request />,
       },
       {
         type: "collapse",
-        name: "Alumni Issued Record",
-        key: "alumni-issued-record",
+        name: "Alumni Record per Request",
+        key: "registrar-alumni-record-per-request",
         icon: icon4,
-        route: "/alumni/alumni-issued-record",
-        component: <Graduate />,
+        route: "/alumni/record-per-request/:ctrl_number",
+        component: <Alumni_record_per_request />,
+      },      
+      {
+        type: "collapse",
+        name: "Alumni Record Issuance",
+        key: "registrar-alumni-record-issuance",
+        icon: icon4,
+        route: "/alumni/record-issuance",
+        component: <Alumni_record_issuance />,
       },
     ],
   },
@@ -134,7 +185,14 @@ const routes = [
     key: "student-management",
     icon: <Icon fontSize="small">backpack</Icon>,
     route: "/student-management",
-    component: <User_Management />,
+    component: <Student_Management />,    
+  },
+  {
+    type: "collapse",
+    name: "Student Management Add",
+    key: "student-management-add",
+    route: "/student-management/add-record",
+    component: <Student_Magement_Add />,
   },
   {
     type: "collapse",
@@ -185,8 +243,7 @@ const routes = [
   //   route: "/notifications",
   //   component: <Notifications />,
   // },
-  {
-    type: "hidden",
+  {    
     name: "Profile",
     key: "profile",
     icon: <Icon fontSize="small">person</Icon>,
@@ -194,7 +251,6 @@ const routes = [
     component: <Profile />,
   },
   {
-    type: "hidden",
     name: "Home",
     key: "home",
     icon: <Icon fontSize="small">login</Icon>,
@@ -202,7 +258,6 @@ const routes = [
     component: <Home />,
   },
   {
-    type: "hidden",
     name: "Verifier Portal",
     key: "verifier-portal",
     icon: <Icon fontSize="small">login</Icon>,

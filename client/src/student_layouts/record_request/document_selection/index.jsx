@@ -22,17 +22,22 @@ import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
 import MDInput from "../../../components/MDInput";
 
-function DocumentSelection({ data, updateTotalAmount  }) {
+function DocumentSelection({ data, updateTotalAmount,  updateSelectedItemID }) {
   const [selectedItem, setSelectedItem] = useState("");
-  const [selectedItemPrice, setSelectedItemPrice] = useState("");
+  const [selectedItemID, setSelectedItemID] = useState("");
+  const [selectedItemPrice, setSelectedItemPrice] = useState(0);
   const [numOfCopies, setNumOfCopies] = useState(1);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0.00);
 
   // Update the total amount when numOfCopies or selectedItemPrice changes
   useEffect(() => {
-    const newTotalAmount = numOfCopies * (parseFloat(selectedItemPrice) || 0);
+    const newTotalAmount = (numOfCopies * (parseFloat(selectedItemPrice) || 0.00)).toFixed(2);
     updateTotalAmount(newTotalAmount); // Call the callback function to update the total amount in the parent component
   }, [numOfCopies, selectedItemPrice, updateTotalAmount]);
+
+  useEffect(() => {
+    updateSelectedItemID(selectedItemID);
+  }, [selectedItemID, updateSelectedItemID]);
 
   return (
     <>
@@ -53,6 +58,8 @@ function DocumentSelection({ data, updateTotalAmount  }) {
                     // Find the corresponding item and set the price
                     const selectedPrice = data.find((item) => item.type === selectedItemValue)?.price;
                     setSelectedItemPrice(selectedPrice || ""); // Set the price or an empty string if not found
+                    const selectedItemID = data.find((item) => item.type === selectedItemValue)?.id;
+                    setSelectedItemID(selectedItemID);
                     setTotalAmount(selectedPrice * numOfCopies || 0); // Set the price or an empty string if not found
                 }}
                 >
@@ -70,20 +77,7 @@ function DocumentSelection({ data, updateTotalAmount  }) {
         <Grid item xs={9}>
             <MDInput type="number" disabled value={selectedItemPrice} fullWidth/>
         </Grid>
-        <Grid item xs={3} sx={{margin:"auto"}}>
-            <MDTypography variant="body2" >No. of Copies:</MDTypography>
-        </Grid>
-        <Grid item xs={9}>
-            <MDInput type="number" value={numOfCopies} label="Enter Number of Copies" fullWidth
-                onChange={(event) => {
-                const value = event.target.value;
-                setNumOfCopies(value);
-                // Calculate the new total amount based on the selected item's price and the number of copies
-                const newTotalAmount = value * (parseFloat(selectedItemPrice) || 0); // Ensure selectedItemPrice is parsed as a float or use 0 if it's not valid
-                setTotalAmount(newTotalAmount);
-            }}
-            />
-        </Grid>
+        
     </>
   );
 }
