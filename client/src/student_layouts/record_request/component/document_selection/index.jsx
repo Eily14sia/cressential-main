@@ -17,23 +17,22 @@ import {
 import PropTypes from "prop-types";
 
 // Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox";
-import MDTypography from "../../../components/MDTypography";
-import MDButton from "../../../components/MDButton";
-import MDInput from "../../../components/MDInput";
+import MDBox from "../../../../components/MDBox";
+import MDTypography from "../../../../components/MDTypography";
+import MDButton from "../../../../components/MDButton";
+import MDInput from "../../../../components/MDInput";
 
-function DocumentSelection({ data, updateTotalAmount,  updateSelectedItemID }) {
+function DocumentSelection({ data,  updateSelectedItemID }) {
   const [selectedItem, setSelectedItem] = useState("");
   const [selectedItemID, setSelectedItemID] = useState("");
   const [selectedItemPrice, setSelectedItemPrice] = useState(0);
   const [numOfCopies, setNumOfCopies] = useState(1);
-  const [totalAmount, setTotalAmount] = useState(0.00);
 
-  // Update the total amount when numOfCopies or selectedItemPrice changes
-  useEffect(() => {
-    const newTotalAmount = (numOfCopies * (parseFloat(selectedItemPrice) || 0.00)).toFixed(2);
-    updateTotalAmount(newTotalAmount); // Call the callback function to update the total amount in the parent component
-  }, [numOfCopies, selectedItemPrice, updateTotalAmount]);
+  // // Update the total amount when numOfCopies or selectedItemPrice changes
+  // useEffect(() => {
+  //   const newTotalAmount = (numOfCopies * (parseFloat(selectedItemPrice) || 0.00)).toFixed(2);
+  //   setTotalAmount(newTotalAmount); // Call the callback function to update the total amount in the parent component
+  // }, [numOfCopies, selectedItemPrice, setTotalAmount]);
 
   useEffect(() => {
     updateSelectedItemID(selectedItemID);
@@ -60,7 +59,7 @@ function DocumentSelection({ data, updateTotalAmount,  updateSelectedItemID }) {
                     setSelectedItemPrice(selectedPrice || ""); // Set the price or an empty string if not found
                     const selectedItemID = data.find((item) => item.type === selectedItemValue)?.id;
                     setSelectedItemID(selectedItemID);
-                    setTotalAmount(selectedPrice * numOfCopies || 0); // Set the price or an empty string if not found
+                    // setTotalAmount(selectedPrice * numOfCopies || 0); // Set the price or an empty string if not found
                 }}
                 >
                 {data.map((item) => (

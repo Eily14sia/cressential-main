@@ -18,23 +18,17 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import Divider from "@mui/material/Divider";
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import MDInput from "../../components/MDInput";
-import MDBadge from "../../components/MDBadge";
+import MDAlert from "../../components/MDAlert";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -42,9 +36,10 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
-import DocumentSelection from "./document_selection";
+import DocumentSelection from "./component/document_selection";
+import DialogBox from './component/add_record_modal';
 
-import { useMaterialUIController } from "../..//context";
+import { useMaterialUIController } from "../../context";
 
 function Record_request() {
   const [controller] = useMaterialUIController();
@@ -52,6 +47,21 @@ function Record_request() {
   const [data, setData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [selectedItemID, setSelectedItemID] = useState("");
+  const [selectedPurpose, setSelectedPurpose] = useState('');
+  const [purposeCollege, setPurposeCollege] = useState('');
+  // =========== For the MDAlert =================
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const alertContent = (name) => (
+    <MDTypography variant="body2" color="white">
+      {alertMessage}
+    </MDTypography>
+  );
+
+  // State to track whether the dialog is open
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/type-of-record")
@@ -69,26 +79,6 @@ function Record_request() {
   ];
 
 
-
-  // Callback function to update the selected item and price
-  const updateSelectedItem = (index, item) => {
-    const updatedSelectedDocuments = [...selectedDocuments];
-    updatedSelectedDocuments[index] = { ...updatedSelectedDocuments[index], ...item };
-    setSelectedDocuments(updatedSelectedDocuments);
-  };
-
-  // Callback function to update the number of copies
-  const updateNumOfCopies = (index, numOfCopies) => {
-    const updatedSelectedDocuments = [...selectedDocuments];
-    updatedSelectedDocuments[index].numOfCopies = numOfCopies;
-    setSelectedDocuments(updatedSelectedDocuments);
-  };
-
-  // Callback function to update the total amount
-  const updateTotalAmount = (newTotalAmount) => {
-    setTotalAmount(newTotalAmount);
-  };
-
   // Callback function to update the total amount
   const updateSelectedItemID = (newSelectedItemID) => {
     setSelectedItemID(newSelectedItemID);
@@ -103,6 +93,10 @@ function Record_request() {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
+    // Calculate the new totalAmount based on the updated cartItems
+    const newTotalAmount = cartItems.reduce((total, item) => total + item.price, 0);
+    setTotalAmount(newTotalAmount.toFixed(2));
+  
     renderCartItems();
   }, [cartItems]);
 
@@ -142,15 +136,16 @@ function Record_request() {
     renderCartItems();
 }
 
+
+
 function renderCartItems() {
-  let totalPrice = 0;
   const updatedRows = [];
+  let updatedTotalAmount = 0;
 
   for (let i = 0; i < cartItems.length; i++) {
   let item = cartItems[i]; 
-  let itemTotalPrice = item.price * item.quantity;
-  totalPrice += itemTotalPrice;
-      
+  updatedTotalAmount  += item.price;
+
   updatedRows.push({
     type: item.type,
     price: item.price.toFixed(2),
@@ -166,11 +161,25 @@ function renderCartItems() {
     ), 
   });
     
+  setTotalAmount(updatedTotalAmount.toFixed(2));
   }
  
   setRows(updatedRows);
 }
 
+// Function to open the dialog
+const handleOpenDialog = () => {
+  setIsSuccess(false);
+  setIsError(false);
+  setIsDialogOpen(true);
+};
+
+// Function to close the dialog
+const handleCloseDialog = () => {
+  // setRecordTypeError('');
+  // setRecordPriceError('');
+  setIsDialogOpen(false);
+};
 
 
   return (
@@ -179,6 +188,16 @@ function renderCartItems() {
         <MDBox pt={6} pb={3}>          
           <Grid container spacing={6}>
             <Grid item xs={12}>
+              {isSuccess && (
+                <MDAlert color="success" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsSuccess(false)}>
+                      {alertContent("success", alertMessage)}
+                </MDAlert>
+              )}
+              {isError && (
+                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                  {alertContent("error", alertMessage)}
+                </MDAlert>
+              )}
               <Card>              
               <MDBox
                 variant="gradient"
@@ -214,9 +233,9 @@ function renderCartItems() {
                       >
                         <Grid container spacing={2}>
                           <Grid item xs={12} sx={{margin:"auto"}}>
-                            <MDTypography fontWeight={"bold"}>Request For:</MDTypography>                         
+                            <MDTypography fontWeight={"bold"}>Request For:</MDTypography>                
                           </Grid>          
-                            <DocumentSelection data={data} updateTotalAmount={updateTotalAmount}  updateSelectedItemID={updateSelectedItemID}                      
+                            <DocumentSelection data={data}  updateSelectedItemID={updateSelectedItemID}                      
                             />
                           <Grid item xs={7} >
                           </Grid>
@@ -258,32 +277,68 @@ function renderCartItems() {
                             <MDTypography variant="body2">A. Transcript of Records (TOR):</MDTypography>
                           </Grid>
                           <Grid item xs={12} sx={{margin:"auto"}}>
-                            <FormGroup sx={{marginLeft:"30px"}}>
-                              <FormControlLabel control={<Checkbox defaultChecked />} label="1. Evaluation" />
-                              <FormControlLabel control={<Checkbox />} label="2. Employment/Promotion" />
-                              <FormControlLabel control={<Checkbox />} label="3. For further studies (Specify the college/university)" />
-                            <MDInput type="text" variant="standard" label="Please specify" fullWidth/>
-                            </FormGroup>
+                          <FormGroup sx={{ marginLeft: "30px" }}>
+                            <RadioGroup value={selectedPurpose} 
+                            onChange={(e) => {setSelectedPurpose(e.target.value), setPurposeCollege("")}}>
+                              <FormControlLabel
+                                value="Evaluation"
+                                control={<Radio />}
+                                label="1. Evaluation"
+                              />
+                              <FormControlLabel
+                                value="Employment/Promotion"
+                                control={<Radio />}
+                                label="2. Employment/Promotion"
+                              />
+                              <FormControlLabel
+                                value="For further studies"
+                                control={<Radio />}
+                                label="3. For further studies (Specify the college/university)"
+                              />
+                            </RadioGroup>
+                            {selectedPurpose === "For further studies" && (
+                              <MDInput
+                                type="text"
+                                variant="standard"
+                                label="Please specify"  
+                                onChange={(e) => {setPurposeCollege(" ("+ e.target.value + ")" )}}                             
+                              />
+                            )}
+                          </FormGroup>
                           </Grid>
                           <Grid item xs={3} sx={{marginTop:"15px"}}>
                             <MDTypography variant="body2">B. Others:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="text" variant="standard" label="Please specify" fullWidth/>
+                            <MDInput onChange={(e) => {setSelectedPurpose(e.target.value), setPurposeCollege("")}} type="text" variant="standard" label="Please specify" fullWidth/>
                           </Grid>
                         </Grid>
                       </MDBox>
                     {/* END OF PURPOSE */}
 
                     <Grid container spacing={2}>
-                      <Grid item xs={8}></Grid>
-                        <Grid item xs={4} sx={{marginTop:"10px"}} >
-                            <MDButton variant="gradient" color="info" fullWidth>
-                              <Icon>send</Icon> &nbsp;Submit
+                      <Grid item xs={9}></Grid>
+                        <Grid item xs={3} sx={{marginTop:"10px"}} >
+                            <MDButton variant="gradient" color="info" fullWidth onClick={handleOpenDialog}>
+                              <Icon>arrow_forward</Icon> &nbsp; Next
                             </MDButton>
                         </Grid>
                     </Grid>
-                                        
+                    <DialogBox
+                    open={isDialogOpen}
+                    onClose={handleCloseDialog}
+                    cartItems={cartItems}
+                    totalAmount={totalAmount}
+                    selectedPurpose={selectedPurpose}
+                    purposeCollege={purposeCollege}
+                    onSubmit=""
+                    recordType=""
+                    setRecordType=""
+                    recordPrice=""
+                    setRecordPrice=""
+                    recordTypeError=""
+                    recordPriceError=""
+                  />              
                   </Grid>
                 </Grid>
               </MDBox>

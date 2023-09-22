@@ -144,8 +144,7 @@ function Alumni_record_request() {
     { Header: "Ctrl No.", accessor: "ctrl_num"},
     { Header: "Student Name", accessor: "student_id"},
     { Header: "Record Type", accessor: "record_type" },
-    { Header: "Date Requested", accessor: "date_requested"},
-    { Header: "Date Releasing", accessor: "date_releasing"},
+    { Header: "Date", accessor: "date_requested"},
     { Header: "Processing Officer", accessor: "processing_officer"},
     { Header: "Payment Status", accessor: "payment_status"},
     { Header: "Request Status", accessor: "request_status"},
@@ -340,9 +339,35 @@ function Alumni_record_request() {
                     rows: data.map((item) => ({
                     ctrl_num: "CTRL-"+item.ctrl_number,
                     student_id: getStudentName(item.student_id),
-                    record_type: getTypeOfRecord(item.request_record_type_id),
-                    date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested
-                    date_releasing: new Date(item.date_releasing).toLocaleDateString(), // Format the date_releasing
+                    // record_type: getTypeOfRecord(item.request_record_type_id),
+                    record_type: (
+                      <MDBox lineHeight={1}>
+                          <MDTypography display="block" variant="button" fontWeight="medium">
+                            {getTypeOfRecord(item.request_record_type_id)}
+                          </MDTypography>
+                          <MDTypography variant="caption">For: {item.purpose}</MDTypography>
+                        </MDBox>
+                        
+                    ),
+                    
+                    // date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested
+                    date_requested: (
+                      <MDBox lineHeight={1}>
+                        <MDTypography variant="caption" >
+                         Requested: &nbsp;
+                        </MDTypography>
+                        <MDTypography variant="button" fontWeight="medium">
+                         {new Date(item.date_requested).toLocaleDateString()} <br/>
+                        </MDTypography>
+                        <MDTypography variant="caption">
+                         Releasing: &nbsp;
+                        </MDTypography>
+                        <MDTypography variant="button"  fontWeight="medium">
+                         {new Date(item.date_requested).toLocaleDateString()}
+                        </MDTypography>
+                      </MDBox>
+                      ),
+                    // date_releasing: new Date(item.date_releasing).toLocaleDateString(), // Format the date_releasing
                     processing_officer: getRegistrarName(item.processing_officer),
                     payment_status: (
                       <>

@@ -159,7 +159,7 @@ function Student_Management() {
                         ),
                         contact_info: (
                           <MDBox lineHeight={1} textAlign="left">
-                            <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+                            <MDTypography display="block" variant="caption" fontWeight="medium">
                               {item.email}
                             </MDTypography>
                             <MDTypography variant="caption">{item.mobile_number}</MDTypography>
@@ -167,15 +167,15 @@ function Student_Management() {
                         ),
                         course: (
                           <MDBox lineHeight={1} textAlign="left">
-                            <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+                            <MDTypography display="block" variant="caption"  fontWeight="medium">
                               {item.course}
                             </MDTypography>
                             <MDTypography variant="caption">{item.college}</MDTypography>
                           </MDBox>
                         ),
                         entry_year: item.entry_year_from + " - " + item.entry_year_to,
-                        date_of_graduation: item.date_of_graduation,
-                        permanent_address: item.permanent_address,
+                        date_of_graduation: new Date(item.date_of_graduation).toLocaleDateString(),
+                        permanent_address: (item.permanent_address == null ? "N/A" : item.permanent_address),
                         status: (
                           <>
                             <MDBox ml={-1}>

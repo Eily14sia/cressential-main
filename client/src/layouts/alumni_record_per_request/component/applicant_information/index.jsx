@@ -83,8 +83,8 @@ const index = (props) => {
                 <MDTypography variant="body2" fontWeight="medium">{applicantInfo.entry_year_from + " - " + applicantInfo.entry_year_to}</MDTypography>
 
                 <MDTypography variant="caption" mt={2}>Date of Graduation: </MDTypography>
-                <MDTypography variant="body2" fontWeight="medium">{applicantInfo.date_of_graduation}</MDTypography>
-        
+                <MDTypography variant="body2" fontWeight="medium">{new Date(applicantInfo.date_of_graduation).toLocaleDateString()}</MDTypography>
+                
                 <Divider />
                 <MDTypography variant="h6" fontWeight="medium">
                 Contact Information

@@ -25,7 +25,8 @@ import DocumentSelection from '../processing_officer';
 
 
 
-function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordIPFS, setRecordIPFS, recordId, recordStatus, setRecordStatus, recordPassword, setRecordPassword}) {
+function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordIPFS, setRecordIPFS, 
+recordId, recordStatus, setRecordStatus, recordPassword, setRecordPassword, payment_status}) {
 
 
 // =========== For the datatable =================
@@ -90,7 +91,7 @@ useEffect(() => {
               onChange={(e) => setRecordPassword(e.target.value)}
               required
               sx={{ width: '100%' }}
-              disabled={recordPassword != null ? true : false}
+              disabled={recordPassword != null || payment_status === "Unpaid" ? true : false}
             />
           </Grid>
           <Grid item textAlign="left" xs={11} mb={1} >
@@ -110,7 +111,7 @@ useEffect(() => {
             <MDInput fullWidth
               type="file"
               accept=".jpg, .png, .jpeg"
-              // Add more props as needed
+              disabled={payment_status === "Unpaid" ? true : false}
             />  
           </Grid>
         </Grid>

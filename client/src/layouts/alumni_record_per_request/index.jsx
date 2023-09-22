@@ -321,7 +321,8 @@ function Alumni_record_issuance() {
                     recordStatus={record_status}     
                     setRecordStatus={setRecordStatus}        
                     recordPassword={record_password}     
-                    setRecordPassword={setRecordPassword}        
+                    setRecordPassword={setRecordPassword}   
+                    payment_status={payment_status}     
                   />
                   {renderMenu}
                 </MDBox>
