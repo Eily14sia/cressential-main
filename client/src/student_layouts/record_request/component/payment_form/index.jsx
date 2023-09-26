@@ -39,18 +39,45 @@ import DialogBox from '../add_record_modal';
 import { useMaterialUIController } from "../../../../context";
 import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard';
 
+import axios from 'axios';
+
 const index = ( {totalAmount, cartItems}) => {
 
     const [controller] = useMaterialUIController();
+   const [redirectUrl, setRedirectUrl] = useState('');
+  // const [paymentResponse, setPaymentResponse] = useState(null);
     
     const [selectedOption, setSelectedOption] = useState('');
-
+  
     const handleOptionClick = (option) => {
       setSelectedOption(option);
     };
 
     console.log(selectedOption);
     console.log(totalAmount);
+
+    const handleProceedToPayment = async () => {
+      try {
+        // Send the selected payment method to the backend
+        const response = await axios.post('http://localhost:8081/payments/paymongoMethod', {
+          selectedOption,
+        });
+  
+        // Handle the response from the backend if needed
+        console.log('Response from the backend:', response.data);
+  
+        // Redirect the user to the payment method page
+        window.location.href = response.data.redirectUrl;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    const handleRedirect = () => {
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      }
+    };
 
   return (
     <>
@@ -75,6 +102,7 @@ const index = ( {totalAmount, cartItems}) => {
                           <CustomInfoCard
                             icon="account_balance"
                             title="GCash"
+                            name="gcash"
                             handleOptionClick={handleOptionClick}
                           />
                         </Grid>
@@ -82,6 +110,7 @@ const index = ( {totalAmount, cartItems}) => {
                           <CustomInfoCard
                             icon="paypal"
                             title="Maya"
+                            name="paymaya"
                             handleOptionClick={handleOptionClick}
                           />
                         </Grid>
@@ -89,6 +118,7 @@ const index = ( {totalAmount, cartItems}) => {
                           <CustomInfoCard
                             icon="paypal"
                             title="Online Bank"
+                            name="dob"
                             handleOptionClick={handleOptionClick}
                           />
                         </Grid>
@@ -145,13 +175,19 @@ const index = ( {totalAmount, cartItems}) => {
                     </Grid>
                   </MDBox>
               {/* END OF PURPOSE */}
-
+              {redirectUrl && (
+        <div>
+          <h2>Redirecting...</h2>
+          <button onClick={handleRedirect}>Click here to proceed with payment</button>
+        </div>
+      )}
               <Grid container spacing={2} px={3}>
                   <Grid item xs={7}></Grid>
                   <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >
-                      <MDButton variant="gradient" color="info" size="large" fullWidth >
+                      <MDButton onClick={handleProceedToPayment} variant="gradient" color="info" size="large" fullWidth >
                           <Icon>payment</Icon> &nbsp; Pay {totalAmount}
                       </MDButton>
+
                   </Grid>
               </Grid>            
               </Grid>

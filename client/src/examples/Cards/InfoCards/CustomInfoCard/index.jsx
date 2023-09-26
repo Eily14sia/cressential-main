@@ -12,11 +12,11 @@ import Icon from "@mui/material/Icon";
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 
-function DefaultInfoCard({ color, icon, title, description, value, handleOptionClick }) {
+function DefaultInfoCard({ color, icon, title, description, name, value, handleOptionClick }) {
   
   return (
     <Card style={{ backgroundColor: '#f0f2f5' }}>
-      <CardActionArea onClick={() => handleOptionClick(title)}>
+      <CardActionArea onClick={() => handleOptionClick(name)}>
         <CardContent>
           <MDBox p={2} mx={3} display="flex"  justifyContent="center">
             <MDBox

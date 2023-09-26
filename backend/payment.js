@@ -51,9 +51,9 @@ router.post('/paymongoIntent', async (req, res) => {
 });
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
-  const { selectedPaymentMethod } = req.body;
+  const { selectedOption } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
-  if (selectedPaymentMethod === 'gcash') {
+  if (selectedOption === 'gcash') {
     try {
       const options = {
         method: 'POST',
@@ -89,7 +89,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:3000'
+                return_url: 'http://localhost:5173'
               }
             }
           }
@@ -129,7 +129,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
   res.status(500).json({ error: 'Internal Server Error' });
   }
   } 
-  else if (selectedPaymentMethod === 'paymaya') {
+  else if (selectedOption === 'paymaya') {
     try {
       const options = {
         method: 'POST',
@@ -165,7 +165,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:3000'
+                return_url: 'http://localhost:5173'
               }
             }
           }
@@ -206,7 +206,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
   }
   } 
 
-  else if (selectedPaymentMethod === 'dob') {
+  else if (selectedOption === 'dob') {
     try {
       const options = {
         method: 'POST',
@@ -245,7 +245,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:3000'
+                return_url: 'http://localhost:5173'
               }
             }
           }

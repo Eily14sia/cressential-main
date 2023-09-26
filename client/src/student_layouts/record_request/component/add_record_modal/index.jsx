@@ -16,6 +16,8 @@ import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
 
+import React, { useState } from 'react';
+import axios from 'axios';
 
 
 function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, purposeCollege,
@@ -33,7 +35,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       student_id: 1,
       purpose: selectedPurpose,      
     };
-
+    
     try {
       const response = await fetch('http://localhost:8081/mysql/record-request/add-record', {
         method: 'POST',
@@ -62,6 +64,22 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       }
     } catch (error) {
       setIsError(true);
+      console.error('Error:', error);
+    }
+
+    try {
+      const tAmount = parseInt(totalAmount, 10);
+      const response = await axios.post('http://localhost:8081/payments/paymongoIntent', {
+        amount: tAmount * 100,
+      });
+
+      if (response.data && response.data.redirectUrl) {
+        setRedirectUrl(response.data.redirectUrl);
+        setPaymentResponse(response.data.paymentResponse);
+      } else {
+        console.error('Invalid response from the server');
+      }
+    } catch (error) {
       console.error('Error:', error);
     }
   };
