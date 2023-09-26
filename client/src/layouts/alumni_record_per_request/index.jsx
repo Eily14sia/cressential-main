@@ -290,7 +290,7 @@ function Alumni_record_issuance() {
                             />
                           </MDBox></>
                         ),
-                        date_issued: new Date(item.date_issued).toLocaleDateString(),
+                        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
                         action: (
                           <>
                           <Tooltip title="Update" >

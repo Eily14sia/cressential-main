@@ -54,7 +54,7 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
         setAlertMessage('Record updated successfully.');
 
         // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/payment-record-request")
+        fetch("http://localhost:8081/mysql/payment-alumni-record-request")
           .then((res) => res.json())
           .then((data) => {
             setData(data); // Set the fetched data into the state

@@ -89,9 +89,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   router.get('/payment-alumni-record-request', (req, res) => {
     const sql = `
       SELECT *
-      FROM payment AS p
-      INNER JOIN record_request AS r ON p.ctrl_number = r.ctrl_number
-      WHERE p.student_id IN (
+      FROM record_request AS r
+      INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
+      WHERE r.student_id IN (
         SELECT id
         FROM student_management
         WHERE is_alumni = 1
