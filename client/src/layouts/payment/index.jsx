@@ -34,7 +34,7 @@ function Payment() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment-record-request")
+    fetch("http://localhost:8081/mysql/payment")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state

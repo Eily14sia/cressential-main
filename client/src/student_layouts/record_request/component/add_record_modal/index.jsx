@@ -18,8 +18,53 @@ import MDTypography from '../../../../components/MDTypography';
 
 
 
-function DialogBox({ open, onClose, cartItems, totalAmount, onSubmit, selectedPurpose, purposeCollege, recordType, setRecordType, recordPrice, setRecordPrice, recordTypeError, recordPriceError }) {
+function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, purposeCollege,
+  setIsSuccess, setIsError, setAlertMessage, handleCloseDialog, setActiveStep, setData}) {
 
+  // Extract the IDs and join them with commas
+  const record_id = cartItems.map(item => item.id).join(',');
+
+  // Function to handle add record form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // Create a new record object to send to the server
+    const newRecord = {
+      record_id: record_id,
+      student_id: 1,
+      purpose: selectedPurpose,      
+    };
+
+    try {
+      const response = await fetch('http://localhost:8081/mysql/record-request/add-record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newRecord),
+      });
+
+      if (response.ok) {
+        handleCloseDialog();
+        setIsSuccess(true);
+        setAlertMessage('Record added successfully.');
+
+        // Fetch updated data and update the state
+        fetch("http://localhost:8081/mysql/record-request")
+        .then((res) => res.json())
+        .then((data) => {
+          setData(data); // Set the fetched data into the state
+        })
+        .catch((err) => console.log(err));
+
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      } else {
+        setAlertMessage('Failed to update record');
+      }
+    } catch (error) {
+      setIsError(true);
+      console.error('Error:', error);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -50,28 +95,27 @@ function DialogBox({ open, onClose, cartItems, totalAmount, onSubmit, selectedPu
           borderRadius="md"
           shadow="md"
           color="light"
-          bgColor="secondary"
-          variant="gradient"
+          bgColor="grey-300"
         >
-          <MDTypography variant="body2" color="white">You are requesting for the following document/s:</MDTypography>           
+          <MDTypography variant="body2" >You are requesting for the following document/s:</MDTypography>           
           
           <MDBox ml={5}>
           <ul>
             {cartItems.map((item, index) => (
               <li key={index} >
-                <MDTypography variant="body2" fontWeight="medium" color="white">
+                <MDTypography variant="body2" fontWeight="medium" >
                   {item.type}
                 </MDTypography>
               </li>
             ))}
           </ul>
           </MDBox>
-          <MDTypography variant="body2" mt={2} color="white"> Purpose: 
-          <MDTypography variant="body2" fontWeight="medium" color="white"> {selectedPurpose + " " + purposeCollege} </MDTypography> 
+          <MDTypography variant="body2" mt={2} > Purpose: 
+          <MDTypography variant="body2" fontWeight="medium" > {selectedPurpose + " " + purposeCollege} </MDTypography> 
           </MDTypography> 
           
-          <MDTypography variant="body2" mt={2}color="white"> Total Amount: </MDTypography> 
-          <MDTypography variant="body2" fontWeight="medium" color="white"> Php {totalAmount}</MDTypography> 
+          <MDTypography variant="body2" mt={2}> Total Amount: </MDTypography> 
+          <MDTypography variant="body2" fontWeight="medium" > Php {totalAmount}</MDTypography> 
           
           
         </MDBox>
@@ -94,8 +138,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, onSubmit, selectedPu
         <MDButton
           variant="contained"
           color="info"
-          onClick={onSubmit} 
-        >
+          onClick={handleSubmit}>        
             <Icon>send</Icon> &nbsp; Submit
         </MDButton>
       </DialogActions>

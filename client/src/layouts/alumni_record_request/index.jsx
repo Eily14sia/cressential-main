@@ -63,7 +63,7 @@ function Alumni_record_request() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment-record-request")
+    fetch("http://localhost:8081/mysql/payment-alumni-record-request")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -363,12 +363,12 @@ function Alumni_record_request() {
                          Releasing: &nbsp;
                         </MDTypography>
                         <MDTypography variant="button"  fontWeight="medium">
-                         {new Date(item.date_requested).toLocaleDateString()}
+                          {item.date_releasing ? (new Date(item.date_releasing).toLocaleDateString()) : ""}
                         </MDTypography>
                       </MDBox>
                       ),
                     // date_releasing: new Date(item.date_releasing).toLocaleDateString(), // Format the date_releasing
-                    processing_officer: getRegistrarName(item.processing_officer),
+                    processing_officer: (item.processing_officer ? getRegistrarName(item.processing_officer) : ""),
                     payment_status: (
                       <>
                         <MDBox ml={-1}>

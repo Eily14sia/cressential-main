@@ -27,6 +27,22 @@ router.get('/', (re, res)=> {
                             REGISTRAR
    =========================================================== */
 
+// ========================= Payment  =========================
+
+   
+  router.get('/payment', (req, res) => {
+    const sql = `
+      SELECT *
+      FROM record_request AS r
+      INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number      
+    `;
+  
+    db.query(sql, (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
 // ================== Alumni Record Issuance  ==================
 
 router.get('/record-per-request/:ctrl_number', (req, res) => {
@@ -53,9 +69,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   router.get('/payment-student-record-request', (req, res) => {
     const sql = `
       SELECT *
-      FROM payment AS p
-      INNER JOIN record_request AS r ON p.ctrl_number = r.ctrl_number
-      WHERE p.student_id IN (
+      FROM record_request AS r
+      INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number
+      WHERE r.student_id IN (
         SELECT id
         FROM student_management
         WHERE is_alumni = 0
@@ -68,8 +84,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     });
   });
 
+
 // ======================= Alumni Record Request =========================== 
-  router.get('/payment-record-request', (req, res) => {
+  router.get('/payment-alumni-record-request', (req, res) => {
     const sql = `
       SELECT *
       FROM payment AS p
@@ -254,5 +271,53 @@ router.get('/record-request', (req, res)=> {
         return res.json(data);
     })
 })
+
+// Add Record
+router.post('/record-request/add-record', (req, res) => {
+  const { record_id, student_id, purpose } = req.body;
+
+  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose) VALUES (?, ?, ?)";
+  const paymentSQL = "INSERT INTO payment (ctrl_number) VALUES (?)";
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to add record' });
+    }
+
+    db.query(recordRequestSQL, [student_id, record_id, purpose], (err, result) => {
+      if (err) {
+        db.rollback(() => {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to add record' });
+        });
+      }
+
+      const ctrl_number = result.insertId; // Get the auto-generated ctrl_number from the record_request
+
+      // Now, insert into the payment table using the ctrl_number
+      db.query(paymentSQL, [ctrl_number], (err, paymentResult) => {
+        if (err) {
+          db.rollback(() => {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to add record' });
+          });
+        }
+
+        db.commit((err) => {
+          if (err) {
+            db.rollback(() => {
+              console.error(err);
+              return res.status(500).json({ message: 'Failed to add record' });
+            });
+          }
+
+          return res.status(200).json({ message: 'Your request has been submitted.' });
+        });
+      });
+    });
+  });
+});
+
 
 module.exports = router;
