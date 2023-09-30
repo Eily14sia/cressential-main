@@ -13,8 +13,11 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import React, { useEffect, useState } from 'react';
+
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
+
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -45,9 +48,58 @@ import regeneratorRuntime from "regenerator-runtime";
 import authorsTableData from "../data/authorsTableData";
 import projectsTableData from "../data/projectsTableData";
 
+import axios from 'axios';
+
 function Graduate_Add_Record() {
-  const { columns, rows } = authorsTableData();
-  const { columns: pColumns, rows: pRows } = projectsTableData();
+  // const { columns, rows } = authorsTableData();
+  // const { columns: pColumns, rows: pRows } = projectsTableData();
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [uploadedCID, setUploadedCID] = useState(null);
+  const [multihash, setMultihash] = useState(null); // Added state for multihash
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    setUploadedCID(null); // Clear the uploaded CID
+    setErrorMessage('');
+    setMultihash(null); // Clear the multihash
+  };
+
+  const handleFileUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const response = await axios.post('http://localhost:8081/files/api/maindec', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.encrypted) {
+          // File is encrypted, proceed with the upload
+          setUploadedCID(response.data.cid);
+          setMultihash(response.data.multihash); // Set the multihash
+
+          // Reset the selectedFile state to clear the file input
+          setSelectedFile(null);
+        } else {
+          // File is not encrypted, display an error message
+          setErrorMessage('Only encrypted files are allowed.');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setErrorMessage('Error uploading file. Please try again.');
+      }
+    } else {
+      // If no file is selected, display an error message
+      setErrorMessage('Please choose an encrypted PDF file first.');
+    }
+  };
+
 
   return (
     <DashboardLayout>
@@ -77,24 +129,51 @@ function Graduate_Add_Record() {
                   </Select>
                 </FormControl>
               </MDBox>
-              <MDBox mb={2}>
+              {/* <MDBox mb={2}>
                 <MDInput fullWidth
                     type="file"
-                    accept=".jpg, .png, .jpeg"
+                    id="fileUpload"
+                    accept=".pdf"
+                    onChange={handleFileChange}
                     // Add more props as needed
-                  />              
-              </MDBox>
+                  />              </MDBox> */}
+
               <MDBox mb={2}>
-                
+                <input fullWidth
+                  type="file"
+                  id="fileUpload"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                <div>
+                  <MDButton onClick={() => document.getElementById('fileUpload').click()}>Select File</MDButton>
+                  {selectedFile && <span>{selectedFile.name}</span>}
+                </div>
               </MDBox>
+
               <MDBox mt={4} mb={1}>
                 <Grid container justifyContent="flex-end">
                   <Grid item>
                     <Link to="/graduate-record/add-record" component={RouterLink}>
-                      <MDButton variant="gradient" color="info" type="submit">
+                      <MDButton variant="gradient" color="info" type="submit" onClick={handleFileUpload}>
                         Submit&nbsp;
                         <Icon>add</Icon>
                       </MDButton>
+                      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                      {uploadedCID && (
+                      <div>
+                        <p>File uploaded successfully to IPFS.</p>
+                        <p>CID: {uploadedCID}</p>
+                        <p>Multihash: {multihash}</p> {/* Display the multihash */}
+                        <p>
+                          View the file on IPFS:
+                          <a target="_blank" rel="noopener noreferrer" href={`https://ipfs.io/ipfs/${uploadedCID}`}>
+                          https://dweb.link/ipfs/{uploadedCID}
+                          </a>
+                        </p>
+                      </div>
+                    )}
                     </Link>
                   </Grid>
                 </Grid>
