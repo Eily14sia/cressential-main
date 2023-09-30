@@ -23,6 +23,8 @@ import MDTypography from '../../../../components/MDTypography';
 import MDAvatar from '../../../../components/MDAvatar';
 import DocumentSelection from '../processing_officer';
 
+import axios from 'axios';
+
 
 
 function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordIPFS, setRecordIPFS, 
@@ -31,6 +33,10 @@ recordId, recordStatus, setRecordStatus, recordPassword, setRecordPassword, paym
 
 // =========== For the datatable =================
 const [data, setData] = useState([]);
+const [selectedFile, setSelectedFile] = useState(null);
+const [errorMessage, setErrorMessage] = useState('');
+const [uploadedCID, setUploadedCID] = useState(null);
+const [multihash, setMultihash] = useState(null); // Added state for multihash
 
 useEffect(() => {
   fetch("http://localhost:8081/mysql/registrar-management")
@@ -41,6 +47,47 @@ useEffect(() => {
     .catch((err) => console.log(err));
 }, []);  
 
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  setSelectedFile(file);
+  setUploadedCID(null); // Clear the uploaded CID
+  setErrorMessage('');
+  setMultihash(null); // Clear the multihash
+};
+
+const handleFileUpload = async () => {
+  if (selectedFile) {
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await axios.post('http://localhost:8081/files/api/maindec', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.encrypted) {
+        // File is encrypted, proceed with the upload
+        setUploadedCID(response.data.cid);
+        setMultihash(response.data.multihash); // Set the multihash
+
+
+        // Reset the selectedFile state to clear the file input
+        setSelectedFile(null);
+      } else {
+        // File is not encrypted, display an error message
+        setErrorMessage('Only encrypted files are allowed.');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setErrorMessage('Error uploading file. Please try again.');
+    }
+  } else {
+    // If no file is selected, display an error message
+    setErrorMessage('Please choose an encrypted PDF file first.');
+  }
+};
   // // Callback function to update the total amount
   // const updateSelectedItemID = (newSelectedItemID) => {
   //   setSelectedItemID(newSelectedItemID);
@@ -110,7 +157,9 @@ useEffect(() => {
           <Grid item textAlign="center" xs={11} >
             <MDInput fullWidth
               type="file"
-              accept=".jpg, .png, .jpeg"
+              id="fileUpload"
+              accept=".pdf"
+              onChange={handleFileChange}
               disabled={payment_status === "Unpaid" ? true : false}
             />  
           </Grid>
@@ -127,7 +176,7 @@ useEffect(() => {
         <MDButton
           variant="contained"
           color="info"
-          onClick={onSubmit} 
+          onClick={handleFileUpload} 
         >
             Update Record
         </MDButton>
