@@ -5,6 +5,7 @@ const cors = require('cors');
 const fileRoutes = require('./fileroutes');
 const mysqlRoutes = require('./server'); // Import the MySQL routes
 const paymentapi = require('./payment');
+const emailapi = require('./email');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 app.use('/files', fileRoutes); // File-related routes
 app.use('/mysql', mysqlRoutes); // MySQL-related routes (adjust the prefix as needed)
 app.use('/payments', paymentapi); //Payment API
+app.use('/emails', emailapi); //Email API
 
 // Start the server
 app.listen(PORT, () => {

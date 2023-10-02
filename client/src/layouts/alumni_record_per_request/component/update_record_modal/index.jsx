@@ -36,7 +36,7 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, data, setDat
 const [selectedFile, setSelectedFile] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [uploadedCID, setUploadedCID] = useState(null);
-const [finalCID, setFinalCID] = useState('');
+const [finalCID, setFinalCID] = useState(null);
 const [multihash, setMultihash] = useState(null); // Added state for multihash
 
 
@@ -65,8 +65,8 @@ const handleFileUpload = async () => {
         setUploadedCID(response.data.cid);
         setMultihash(response.data.multihash); // Set the multihash
         setFinalCID(response.data.cid);
-        console.log(response.data.cid);
-        handleUpdateSubmit();
+        // console.log(response.data.cid);
+        handleUpdateSubmit(response.data.cid);
         // Reset the selectedFile state to clear the file input
         setSelectedFile(null);
         
@@ -90,12 +90,31 @@ const handleFileUpload = async () => {
 
   const dateIssued = new Date();
 
-  const handleUpdateSubmit = async () => {
+  const sendEmail = async (toEmail, cid, password) => {
+    const emailData = {
+      to: toEmail,
+      subject: 'Your Record Information',
+      text: `Your Record Information:\nCID: ${cid}\nPassword: ${password}`,
+    };
+  
+    try {
+      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+
+  const handleUpdateSubmit = async (CID) => {
     // Create an updated record object to send to the server
 
     const updatedRecord = {
       recordPassword: recordPassword,
-      uploadedCID: finalCID,
+      uploadedCID: CID,
       recordStatus: recordStatus,
       dateIssued: dateIssued
     };
@@ -113,6 +132,7 @@ const handleFileUpload = async () => {
         handleCloseUpdateDialog();
         setIsSuccess(true);
         setAlertMessage('Record updated successfully.');
+        sendEmail('eilywow14@gmail.com', CID, recordPassword);
 
         // Fetch updated data and update the state
         fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
@@ -129,6 +149,8 @@ const handleFileUpload = async () => {
       console.error('Error:', error);
     }
   };
+
+
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
