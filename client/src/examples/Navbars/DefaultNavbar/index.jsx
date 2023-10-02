@@ -42,7 +42,7 @@ import { useMaterialUIController } from "../../../context";
 
 import LoginModal from '../../../layouts/authentication/components/LoginModal';
 
-function DefaultNavbar({ transparent, light, action }) {
+function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -176,7 +176,7 @@ function DefaultNavbar({ transparent, light, action }) {
               {action.label}
               <Icon sx={{ marginLeft: "0.5rem" }}>login</Icon> {/* Add margin to the right of the icon */}
             </MDButton>
-            <LoginModal open={isDialogOpen} onClose={handleCloseDialog} />
+            <LoginModal userID={userID} set_user_id={set_user_id} open={isDialogOpen} onClose={handleCloseDialog} />
           </MDBox>
 
           ))}

@@ -45,12 +45,12 @@ import BasicLayout from "../components/BasicLayout";
 import bgImage from "../../../assets/images/bg-sign-in-basic.jpeg";
 import Album from "../../../examples/Album";
 
-function Basic() {
+function Basic({userID, set_user_id} ) {
 
   const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   return (
     // <BasicLayout image={bgImage}>
-    <BasicLayout>
+    <BasicLayout userID={userID} set_user_id={set_user_id}>
       <Box mt={3} sx={{ pt: 8 }} >
         <Container maxWidth="sm" >
           <Grid container spacing={2}>

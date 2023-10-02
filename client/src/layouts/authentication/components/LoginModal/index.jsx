@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import {
   Dialog,
   DialogActions,
@@ -22,21 +23,88 @@ import login_registar from '../../../../assets/images/login_registrar.png';
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 import MDButton from "../../../../components/MDButton";
+// react-router-dom components
+import { useNavigate } from 'react-router-dom';
 
-
-
-const LoginModal = ({ open, onClose }) => {
-
+const LoginModal = ({ open, onClose, userID, set_user_id }) => {
   const [selectedOption, setSelectedOption] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const navigate = useNavigate();
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
+    
   };
 
   const handleClose = () => {
     setSelectedOption('');
     onClose();
   };
+
+  async function connectWallet() {
+    // Check if MetaMask is available
+    if (window.ethereum) {
+      // Access the MetaMask Ethereum provider
+      const ethereum = window.ethereum;
+  
+      try {
+        // Request permission to access the user's accounts
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+  
+        // Get the selected account's address
+        const account = accounts[0]; // Assuming the user selects the first account
+  
+        // Do something with the wallet address (e.g., store it in state)
+        setWalletAddress(account);
+        console.log(walletAddress);
+      } catch (error) {
+        console.error("Error connecting to MetaMask:", error);
+      }
+    } else {
+      console.error("MetaMask is not available in this browser.");
+    }
+  }
+  
+  // Define a function to handle form submission
+  const login = async () => {
+    try {
+      // Make an authentication request to your server or API
+      const response = await fetch('http://localhost:8081/mysql/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletAddress }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        const token = data.token; // Assuming the token is returned from the server
+        
+        // Save the token in localStorage or sessionStorage
+        localStorage.setItem('token', token);
+        
+        // Redirect the user to the dashboard or perform other actions
+        console.log('Login successful');
+        navigate('/dashboard');
+      } else {
+        // Authentication failed
+        // You can display an error message to the user
+        console.error('Login failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  // Use a useEffect to trigger login when walletAddress changes
+useEffect(() => {
+  if (walletAddress) {
+    login();
+  }
+}, [walletAddress]);
+
+
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
@@ -67,7 +135,10 @@ const LoginModal = ({ open, onClose }) => {
                   borderColor: selectedOption === 'student' ? 'light' : 'transparent',
                   borderWidth: selectedOption === 'student' ? 2 : 0,
                 }}
-                onClick={() => handleOptionClick('student')}
+                onClick={() => {
+                  handleOptionClick('student'); 
+                  set_user_id(2);                 
+                }}
                 className={selectedOption === 'student' ? 'selected-card' : ''}
               >
                 <CardActionArea   >
@@ -102,7 +173,10 @@ const LoginModal = ({ open, onClose }) => {
                   borderColor: selectedOption === 'registrar' ? 'light' : 'transparent',
                   borderWidth: selectedOption === 'registrar' ? 2 : 0,
                 }}
-                onClick={() => handleOptionClick('registrar')}
+                onClick={() => {
+                  handleOptionClick('registrar'); 
+                  set_user_id(1);                 
+                }}
                 className={selectedOption === 'registrar' ? 'selected-card' : ''}
               >
                 <CardActionArea>
@@ -145,6 +219,7 @@ const LoginModal = ({ open, onClose }) => {
           variant="contained"
           color="info"
           disabled={!selectedOption}
+          onClick={connectWallet}
         >
           Connect Wallet
         </MDButton>

@@ -18,6 +18,7 @@ import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import MDBadge from "../../components/MDBadge";
+import MDAlert from "../../components/MDAlert";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -134,6 +135,7 @@ function Alumni_record_issuance() {
 
   // Function to open the dialog
   const handleOpenUpdateDialog = (record_id, record_type, record_IPFS, record_status, record_password) => {
+    console.log(record_id);
     setIsSuccess(false);
     setIsError(false);
     setRecordType(record_type); // Reset other form fields 
@@ -195,7 +197,20 @@ function Alumni_record_issuance() {
           
           {/* Info Cards */}
           <Grid container spacing={3}> 
+            <Grid item xs={12} md={12} lg={12}>
+            {isSuccess && (
+                <MDAlert color="success" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsSuccess(false)}>
+                      {alertContent("success", alertMessage)}
+                </MDAlert>
+              )}
+              {isError && (
+                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                  {alertContent("error", alertMessage)}
+                </MDAlert>
+              )} 
+            </Grid>
             <Grid item xs={12} md={6} lg={3}>
+           
               <MDBox mb={1.5}>
                 <CustomCard
                   color="secondary"
@@ -294,7 +309,7 @@ function Alumni_record_issuance() {
                         action: (
                           <>
                           <Tooltip title="Update" >
-                              <IconButton color="info" onClick={() => handleOpenUpdateDialog(item.id, item.type, item.ipfs, item.record_status, item.password)} >
+                              <IconButton color="info" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status, item.password)} >
                                   <EditIcon />
                                 </IconButton>
                           </Tooltip>
@@ -312,17 +327,24 @@ function Alumni_record_issuance() {
                   <UpdateDialogBox
                     open={isUpdateDialogOpen}
                     onClose={handleCloseUpdateDialog}
-                    onSubmit={(event) => handleUpdateSubmit(event, record_id)}
+                    // onSubmit={(event) => handleUpdateSubmit(event, record_id)}
+                    ctrl_number = {ctrl_number}
                     recordType={record_type}
                     setRecordType={setRecordType}
                     recordIPFS={record_IPFS}
                     setrecordIPFS={setRecordIPFS}   
-                    recordId={record_id}    
+                    recordID={record_id}    
                     recordStatus={record_status}     
                     setRecordStatus={setRecordStatus}        
                     recordPassword={record_password}     
                     setRecordPassword={setRecordPassword}   
-                    payment_status={payment_status}     
+                    payment_status={payment_status}    
+                    setAlertMessage={setAlertMessage}
+                    setIsError={setIsError}
+                    setIsSuccess={setIsSuccess} 
+                    handleCloseUpdateDialog={handleCloseUpdateDialog}
+                    setData={setData}
+                    data={setData}
                   />
                   {renderMenu}
                 </MDBox>

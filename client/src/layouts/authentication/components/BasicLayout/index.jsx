@@ -29,10 +29,11 @@ import PageLayout from "../../../../examples/LayoutContainers/PageLayout";
 // Authentication pages components
 import Footer from "../Footer";
 
-function BasicLayout({ image, children }) {
+function BasicLayout({ image, children, set_user_id, userID}) {
   return (
     <PageLayout>
-      <DefaultNavbar
+      <DefaultNavbar 
+        userID={userID} set_user_id={set_user_id}
         action={{
           type: "external",
           route: "https://creative-tim.com/product/material-dashboard-react",

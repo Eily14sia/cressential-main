@@ -45,6 +45,8 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./
 // Images
 import brandWhite from "./assets/images/cressential-logo-light.png";
 import brandDark from "./assets/images/cressential-logo-dark.png";
+import RouteGuard  from "./route_guard";
+import Alumni_record_request from "./layouts/alumni_record_request";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -127,17 +129,19 @@ export default function App() {
       </Icon>
     </MDBox>
   );
-
+    const [userID, set_user_id] = useState('');
+   
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />      
         <Routes>
           {getRoutes(routes)}
-          <Route path="/" element={<Home/>} />       
+          <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
         </Routes>      
       {layout === "dashboard" && (
         <>
-          <Sidenav
+          <Sidenav 
+            userID={userID}
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName="Cressential"

@@ -42,9 +42,11 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import UpdateDialogBox from './component/update_record_modal';
+import RequestTable from '../request_table';
 import regeneratorRuntime from "regenerator-runtime";
+import { useLocation } from "react-router-dom";
 
-function Alumni_record_request() {
+function Alumni_record_request({user_id}) {
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -61,6 +63,14 @@ function Alumni_record_request() {
 
   // =========== For the Datatable =================
   const [data, setData] = useState([]);
+  const [student_data, setStudentData] = useState([]);
+  const [type_of_record, setTypeOfRecord] = useState([]);
+  
+  const pending_data = data.filter((record) => record.request_status === "Pending");
+  const received_data = data.filter((record) => record.request_status === "Received");
+  const declined_data = data.filter((record) => record.request_status === "Declined");
+  const completed_data = data.filter((record) => record.request_status === "Completed");
+
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/payment-alumni-record-request")
@@ -71,8 +81,6 @@ function Alumni_record_request() {
       .catch((err) => console.log(err));
   }, []);
 
-  const [student_data, setStudentData] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:8081/mysql/student-management")
       .then((res) => res.json())
@@ -81,15 +89,6 @@ function Alumni_record_request() {
       })
       .catch((err) => console.log(err));
   }, []);
-
-  function getStudentName(student_id) {
-    const last_name = student_data.find((item) => item.id == student_id)?.last_name;
-    const middle_name = student_data.find((item) => item.id == student_id)?.middle_name;
-    const first_name = student_data.find((item) => item.id == student_id)?.first_name
-    const fullname = first_name + " " + middle_name + " " + last_name;
-    return fullname;
-  }
-  const [registrar_data, setRegistrarData] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/registrar-management")
@@ -100,15 +99,6 @@ function Alumni_record_request() {
       .catch((err) => console.log(err));
   }, []);
 
-  function getRegistrarName(processing_officer) {
-    const last_name = registrar_data.find((item) => item.id == processing_officer)?.last_name;
-    const middle_name = registrar_data.find((item) => item.id == processing_officer)?.middle_name;
-    const first_name = registrar_data.find((item) => item.id == processing_officer)?.first_name
-    const fullname = first_name + " " + middle_name + " " + last_name;
-    return fullname;
-  }
-
-  const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/type-of-record")
@@ -156,57 +146,6 @@ function Alumni_record_request() {
     setTabValue(newValue);
   };
 
-  function getStatusColor(status) {
-    switch (status) {
-      case 'Pending':
-        return 'secondary'; // Set to your desired color for pending status
-      case 'Received':
-        return 'success'; // Set to your desired color for received status
-      case 'Declined':
-        return 'error'; // Set to your desired color for declined status
-      case 'Completed':
-        return 'info'; // Set to your desired color for completed status     
-    }
-  }  
-
-  function getPaymentStatusColor(payment_status) {
-    switch (payment_status) {
-      case 'Paid':
-        return 'success'; // Set to your desired color for pending status
-      default:
-        return 'secondary'; // Set a default color for other status values
-    }
-  }
-
-  /* =========================================
-               UPDATE RECORD
-   ========================================= */
-
-  // State to track whether the dialog is open
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-
-  // State for form inputs
-  const [processing_officer, updateProcessingOfficer] = useState('');
-  const [request_status, updateRequestStatus] = useState('');
-  const [date_releasing, updateDateReleasing] = useState('');
-
-  // Function to open the dialog
-  const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status,) => {
-    setIsSuccess(false);
-    setIsError(false);
-    updateProcessingOfficer(processing_officer); // Reset other form fields 
-    updateRequestStatus(request_status);
-    updateDateReleasing(date_releasing);
-    set_ctrl_number(ctrl_number); // Set the _ctrl_number state
-    setIsUpdateDialogOpen(true);    
-  };
-
-  // Function to close the dialog
-  const handleCloseUpdateDialog = () => {
-    setIsUpdateDialogOpen(false);
-  };
-
-  
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -301,141 +240,41 @@ function Alumni_record_request() {
                     </AppBar>
 
                     {tabValue === 0 && (
-                      // Render content for the "Pending" tab
+                      // Render content for the "All" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={data} setData={setData} />
                       </MDBox>
                     )}
 
                     {tabValue === 1 && (
-                      // Render content for the "Received" tab
+                      // Render content for the "Pending" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={pending_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 2 && (
-                      // Render content for the "Declined" tab
+                      // Render content for the "Received" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={received_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 3 && (
                       // Render content for the "Declined" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={declined_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 4 && (
-                      // Render content for the "Declined" tab
+                      // Render content for the "Completed" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={completed_data} />
                       </MDBox>
                     )}
                   </Grid>
-                  <DataTable table={{ columns, 
-                    rows: data.map((item) => ({
-                    ctrl_num: "CTRL-"+item.ctrl_number,
-                    student_id: getStudentName(item.student_id),
-                    // record_type: getTypeOfRecord(item.request_record_type_id),
-                    record_type: (
-                      <MDBox lineHeight={1}>
-                          <MDTypography display="block" variant="button" fontWeight="medium">
-                            {getTypeOfRecord(item.request_record_type_id)}
-                          </MDTypography>
-                          <MDTypography variant="caption">For: {item.purpose}</MDTypography>
-                        </MDBox>
-                        
-                    ),
-                    
-                    // date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested
-                    date_requested: (
-                      <MDBox lineHeight={1}>
-                        <MDTypography variant="caption" >
-                         Requested: &nbsp;
-                        </MDTypography>
-                        <MDTypography variant="button" fontWeight="medium">
-                         {new Date(item.date_requested).toLocaleDateString()} <br/>
-                        </MDTypography>
-                        <MDTypography variant="caption">
-                         Releasing: &nbsp;
-                        </MDTypography>
-                        <MDTypography variant="button"  fontWeight="medium">
-                          {item.date_releasing ? (new Date(item.date_releasing).toLocaleDateString()) : ""}
-                        </MDTypography>
-                      </MDBox>
-                      ),
-                    // date_releasing: new Date(item.date_releasing).toLocaleDateString(), // Format the date_releasing
-                    processing_officer: (item.processing_officer ? getRegistrarName(item.processing_officer) : ""),
-                    payment_status: (
-                      <>
-                        <MDBox ml={-1}>
-                          <MDBadge
-                            badgeContent={item.payment_status}
-                            color={getPaymentStatusColor(item.payment_status)} // Set the badge color dynamically
-                            variant="gradient"
-                            size="sm"
-                          />
-                        </MDBox>
-                      </>
-                    ),
-                    request_status: (
-                      <>
-                        <MDBox ml={-1}>
-                          <MDBadge
-                            badgeContent={item.request_status}
-                            color={getStatusColor(item.request_status)} // Set the badge color dynamically
-                            variant="gradient"
-                            size="sm"
-                          />
-                        </MDBox>
-                      </>
-                    ),
-                    action: (
-                      <>
-                        <Link to={`/alumni/record-per-request/${item.ctrl_number}`} component={RouterLink}>
-                          <Tooltip title="View" >
-                            <IconButton color="info" >
-                                <VisibilityIcon />
-                              </IconButton>
-                          </Tooltip>
-                        </Link>
-                        <Tooltip title="Update" >
-                          <IconButton color="success" onClick={() => 
-                            handleOpenUpdateDialog( 
-                              item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status
-                            )}>
-                            <EditIcon /> 
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete" >
-                          <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>                                 
-                    ), 
-                    })), 
-                  }} canSearch={true} />
-                  <UpdateDialogBox
-                    data={data}
-                    setData={setData}
-                    open={isUpdateDialogOpen}
-                    onClose={handleCloseUpdateDialog}
-                    processing_officer={processing_officer}
-                    setProcessingOfficer={updateProcessingOfficer}
-                    request_status={request_status}
-                    setRequest_status={updateRequestStatus}   
-                    setdate_releasing={updateDateReleasing}   
-                    ctrl_number={ctrl_number}     
-                    date_releasing={date_releasing}  
-                    setIsSuccess={setIsSuccess}
-                    setIsError={setIsError}   
-                    setAlertMessage={setAlertMessage}
-                    handleCloseUpdateDialog={handleCloseUpdateDialog}
-                  />
+                  
                 </MDBox>
               </Card>
             </Grid>

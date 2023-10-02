@@ -52,6 +52,7 @@ import SignIn from "./layouts/authentication/sign-in";
 import Home from "./layouts/authentication/home";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
 import Payment from "./layouts/payment";
+import Unauthorized from "./unauthorized_page";
 
 import Student_record_request from "./layouts/student_record_request";
 
@@ -82,6 +83,13 @@ const routes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
     component: <Dashboard />,
+  },
+  {
+    type: "hidden",
+    name: "unauthorized",
+    key: "unauthorized",
+    route: "/unauthorized",
+    component: <Unauthorized />,
   },
   {
     type: "collapse",

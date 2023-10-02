@@ -28,24 +28,17 @@ import axios from 'axios';
 
 
 function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordIPFS, setRecordIPFS, 
-recordId, recordStatus, setRecordStatus, recordPassword, setRecordPassword, payment_status}) {
+recordID, recordStatus, setRecordStatus, recordPassword, setRecordPassword, payment_status, ctrl_number,
+setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, data, setData}) {
 
 
 // =========== For the datatable =================
-const [data, setData] = useState([]);
 const [selectedFile, setSelectedFile] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [uploadedCID, setUploadedCID] = useState(null);
+const [finalCID, setFinalCID] = useState('');
 const [multihash, setMultihash] = useState(null); // Added state for multihash
 
-useEffect(() => {
-  fetch("http://localhost:8081/mysql/registrar-management")
-    .then((res) => res.json())
-    .then((data) => {
-      setData(data); // Set the fetched data into the state
-    })
-    .catch((err) => console.log(err));
-}, []);  
 
 const handleFileChange = (e) => {
   const file = e.target.files[0];
@@ -71,10 +64,12 @@ const handleFileUpload = async () => {
         // File is encrypted, proceed with the upload
         setUploadedCID(response.data.cid);
         setMultihash(response.data.multihash); // Set the multihash
-
-
+        setFinalCID(response.data.cid);
+        console.log(response.data.cid);
+        handleUpdateSubmit();
         // Reset the selectedFile state to clear the file input
         setSelectedFile(null);
+        
       } else {
         // File is not encrypted, display an error message
         setErrorMessage('Only encrypted files are allowed.');
@@ -92,7 +87,49 @@ const handleFileUpload = async () => {
   // const updateSelectedItemID = (newSelectedItemID) => {
   //   setSelectedItemID(newSelectedItemID);
   // };
-  
+
+  const dateIssued = new Date();
+
+  const handleUpdateSubmit = async () => {
+    // Create an updated record object to send to the server
+
+    const updatedRecord = {
+      recordPassword: recordPassword,
+      uploadedCID: finalCID,
+      recordStatus: recordStatus,
+      dateIssued: dateIssued
+    };
+
+    try {
+      const response = await fetch(`http://localhost:8081/mysql/update-record-per-request/${recordID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedRecord),
+      });
+
+      if (response.ok) {
+        handleCloseUpdateDialog();
+        setIsSuccess(true);
+        setAlertMessage('Record updated successfully.');
+
+        // Fetch updated data and update the state
+        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setData(data); // Set the fetched data into the state
+          })
+          .catch((err) => console.log(err));
+      } else {
+        setAlertMessage('Failed to update record');
+      }
+    } catch (error) {
+      setIsError(true);
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Update Record
@@ -119,21 +156,21 @@ const handleFileUpload = async () => {
           
           <Grid item textAlign="center" xs={12} mb={2}>
             
-            <Grid item>
+            <Grid item  mt={3}>
               <MDBox height="100%" mt={0.5} lineHeight={1}>
                 <MDTypography variant="h5" fontWeight="medium">
                   {recordType}
                 </MDTypography>
-                <MDTypography variant="button" color="text" fontWeight="regular">
+                <MDTypography variant="button" color="text" fontWeight="regular" >
                   {recordIPFS}
                 </MDTypography>
               </MDBox>
             </Grid>
           </Grid>
-          <Grid item textAlign="center" xs={11} >
+          <Grid item textAlign="center" xs={11} mt={3}>
             <MDInput
               label="Password"
-              type="text"
+              type="password"
               value={recordPassword || ''}
               onChange={(e) => setRecordPassword(e.target.value)}
               required
@@ -160,8 +197,9 @@ const handleFileUpload = async () => {
               id="fileUpload"
               accept=".pdf"
               onChange={handleFileChange}
-              disabled={payment_status === "Unpaid" ? true : false}
-            />  
+              disabled={(recordIPFS != null || payment_status === "Unpaid") ? true : false}
+            />          
+            
           </Grid>
         </Grid>
       </DialogContent>
@@ -176,10 +214,12 @@ const handleFileUpload = async () => {
         <MDButton
           variant="contained"
           color="info"
+          type="submit"
           onClick={handleFileUpload} 
         >
             Update Record
         </MDButton>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </DialogActions>
     </Dialog>
   );

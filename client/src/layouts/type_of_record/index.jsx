@@ -47,17 +47,60 @@ function Type_of_Record() {
     </MDTypography>
   );
 
-// =========== For the datatable =================
+  const getAuthenticatedData = async (url, options = {}) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Handle the case where the user is not authenticated
+      return null;
+    }
+  
+    // Include the token in the request headers
+    options.headers = {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  
+    try {
+      const response = await fetch(url, options);
+  
+      if (response.status === 401) {
+        // Handle authentication errors (e.g., token expired)
+        // You may want to redirect the user to the login page
+        return null;
+      }
+  
+      if (response.ok) {
+        return await response.json();
+      } else {
+        // Handle other errors
+        return null;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+  
+  // =========== For the datatable =================
   const [data, setData] = useState([]);
-
+  
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    getAuthenticatedData("http://localhost:8081/mysql/type-of-record")
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        if (data !== null) {
+          setData(data); // Set the fetched data into the state
+        } else {
+          // Handle the error, such as displaying an error message to the user
+          console.error('Authentication or network error');
+        }
       })
-      .catch((err) => console.log(err));
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        // Handle the error, such as displaying an error message to the user
+      });
   }, []);
+  
+  
 
   const columns = [
     { Header: "id", accessor: "id", width: "10%" },

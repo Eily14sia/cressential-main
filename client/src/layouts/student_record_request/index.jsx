@@ -39,12 +39,18 @@ import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
+import RequestTable from '../request_table';
+
 import regeneratorRuntime from "regenerator-runtime";
 
 function Student_record_request() {
   // const { columns, rows } = authorsTableData();
 
   const [data, setData] = useState([]);
+  const pending_data = data.filter((record) => record.request_status === "Pending");
+  const received_data = data.filter((record) => record.request_status === "Received");
+  const declined_data = data.filter((record) => record.request_status === "Declined");
+  const completed_data = data.filter((record) => record.request_status === "Completed");
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/payment-student-record-request")
@@ -71,28 +77,6 @@ function Student_record_request() {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
-
-  function getStatusColor(status) {
-    switch (status) {
-      case 'Pending':
-        return 'secondary'; // Set to your desired color for pending status
-      case 'Received':
-        return 'success'; // Set to your desired color for received status
-      case 'Declined':
-        return 'error'; // Set to your desired color for declined status
-      case 'Completed':
-        return 'info'; // Set to your desired color for completed status     
-    }
-  }  
-
-  function getPaymentStatusColor(payment_status) {
-    switch (payment_status) {
-      case 'Paid':
-        return 'success'; // Set to your desired color for pending status
-      default:
-        return 'secondary'; // Set a default color for other status values
-    }
-  }
 
   return (
     <DashboardLayout>
@@ -178,87 +162,41 @@ function Student_record_request() {
                     </AppBar>
 
                     {tabValue === 0 && (
-                      // Render content for the "Pending" tab
+                      // Render content for the "All" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={data} />
                       </MDBox>
                     )}
 
                     {tabValue === 1 && (
-                      // Render content for the "Received" tab
+                      // Render content for the "Pending" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={pending_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 2 && (
-                      // Render content for the "Declined" tab
+                      // Render content for the "Received" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={received_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 3 && (
                       // Render content for the "Declined" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={declined_data} />
                       </MDBox>
                     )}
 
                     {tabValue === 4 && (
-                      // Render content for the "Declined" tab
+                      // Render content for the "Completed" tab
                       <MDBox pt={3}>
-                        {/* ... your DataTable code ... */}
+                        <RequestTable table_data={completed_data} />
                       </MDBox>
                     )}
                   </Grid>
-                  <DataTable table={{ columns, 
-                  rows: data.map((item) => ({
-                    ctrl_num: "CTRL-"+item.ctrl_number,
-                    student_id: item.student_id,
-                    record_type: item.request_record_type_id,
-                    date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested
-                    date_releasing: new Date(item.date_releasing).toLocaleDateString(), // Format the date_releasing
-                    processing_officer: item.processing_officer,
-                    payment_status: (
-                      <>
-                      <MDBox ml={-1}>
-                        <MDBadge
-                          badgeContent={item.payment_status}
-                          color={getPaymentStatusColor(item.payment_status)} // Set the badge color dynamically
-                          variant="gradient"
-                          size="sm"
-                        />
-                      </MDBox></>
-                    ),
-                    request_status: (
-                      <>
-                        <MDBox ml={-1}>
-                          <MDBadge
-                            badgeContent={item.request_status}
-                            color={getStatusColor(item.request_status)} // Set the badge color dynamically
-                            variant="gradient"
-                            size="sm"
-                          />
-                        </MDBox>
-                      </>
-                    ),
-                    action: (
-                      <>
-                        <Link to={`/alumni/record-per-request/${item.ctrl_number}`} component={RouterLink}>
-                          <IconButton color="info" >
-                              <EditIcon />
-                            </IconButton>
-                        </Link>
-                        <Tooltip title="Delete" >
-                          <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>                                 
-                    ), 
-                    })), 
-                  }} canSearch={true} />
+                  
                 </MDBox>
               </Card>
             </Grid>

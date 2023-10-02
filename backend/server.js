@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
-
+const jwt = require('jsonwebtoken');
+const authenticateToken = require('./authenticateToken');
+const crypto = require('crypto');
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -23,6 +25,66 @@ router.get('/', (re, res)=> {
     return res.json("From Backend Server");
 })
 
+
+// Secret key for JWT (replace with a long, secure random string)
+const secretKey = 'your-secret-key';
+
+// Login route
+// router. post('/login', async (req, res) => {
+//   const { walletAddress } = req.body;
+//   // const wallet_address = '0x7116dc333ce11831a3c84a6079a657e849b35e5f';
+//   try {
+
+//     // Find the user by email (you would typically query your user database here)
+//     // const user = users.find((u) => u.email === email);
+//     const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
+//     const { rows } = await pool.query(sql, [walletAddress]);
+  
+//     if (rows.length === 0) {
+//       return res.status(401).json({ message: 'Authentication failed' });
+//     }
+  
+//     const user = rows[0];
+  
+//     // Generate a JWT token for authentication
+//     const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
+//       expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+//     });
+  
+//     // Return the token to the client
+//     res.json({ token });
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
+
+// Define a route to get user data by wallet_address
+router.post('/login', (req, res) => {
+  const { walletAddress } = req.body;
+  const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
+
+  db.query(sql, [walletAddress], (err, results) => {
+    if (err) {
+      console.error('Error fetching user data:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = results[0];
+
+    // Generate a JWT token
+    const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
+      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+    });
+
+    // Include the token in the response
+    res.json({ user, token });
+  });
+});
 /* ===========================================================
                             REGISTRAR
    =========================================================== */
@@ -128,10 +190,10 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   router.get('/record-per-request', (req, res) => {
     const sql = `
     SELECT *
-    FROM record_per_request
-    INNER JOIN record_request as r ON record_per_request.ctrl_number = r.ctrl_number
-    INNER JOIN payment ON record_per_request.ctrl_number = payment.ctrl_number
-    INNER JOIN type_of_record ON record_per_request.record_type_id = type_of_record.id
+    FROM record_per_request as rpr
+    INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+    INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
+    INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
     WHERE r.student_id IN (
         SELECT id
         FROM student_management
@@ -145,9 +207,38 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     });
   });
 
+   // Update Record
+router.put('/update-record-per-request/:recordID', (req, res) => {
+  const recordID = req.params.recordID;
+  const { recordPassword, uploadedCID, recordStatus, dateIssued } = req.body;
+
+  // Hash the password using SHA-256
+  const hashedPassword = hashPassword(recordPassword);
+
+  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, record_status = ?, date_issued = ? WHERE rpr_id = ?";
+
+  db.query(sql, [hashedPassword, uploadedCID, recordStatus, dateIssued, recordID], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to update record' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+    return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
+
+// Function to hash a password using SHA-256
+function hashPassword(password) {
+  const sha256 = crypto.createHash('sha256');
+  sha256.update(password);
+  return sha256.digest('hex');
+}
+
 // ================ Type of Record Tab =======================
 
-    router.get('/type-of-record', (req, res)=> {
+    router.get('/type-of-record', authenticateToken, (req, res)=> {
         const sql = "SELECT * FROM type_of_record";
         db.query(sql, (err, data)=> {
             if(err) return res.json(err);
