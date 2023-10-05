@@ -50,6 +50,10 @@ import {
 } from "../../context";
 
 function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
+
+  // Retrieve the user_role from localStorage
+  const user_role = localStorage.getItem('user_role');
+
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
@@ -90,9 +94,11 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
-  console.log(parseInt(userID))
+
+
+  // console.log(parseInt(userID))
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = (parseInt(userID) === 1) ? [
+  const renderRoutes = (parseInt(user_role) === 1) ? [
 
     // Example of a "collapse" type
     <NavLink key="dashboard" to="/dashboard" onClick={() => setCollapseName("dashboard")}>
@@ -188,13 +194,18 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
     <SidenavCollapse name="User Management" icon={<Icon fontSize="small">group</Icon>} active={collapseName === "user-management"} />
     </NavLink>,
 
-  ] : [
+  ] : (parseInt(user_role) === 2) ? [
 // ==================  STUDENT  =======================
 
   <NavLink key="record-request" to="/record-request" onClick={() => setCollapseName("record-request")}>
     <SidenavCollapse name="Record Request" icon={<Icon fontSize="small">assignment</Icon>} active={collapseName === "record-request"} />
   </NavLink>,
+  <NavLink key="student-request-table" to="/student-request-table" onClick={() => setCollapseName("student-request-table")}>
+    <SidenavCollapse name="Request Table" icon={<Icon fontSize="small">assignment</Icon>} active={collapseName === "student-request-table"} />
+  </NavLink>,
   
+]: [
+  // Code to execute if none of the conditions are met
 ];
     
 

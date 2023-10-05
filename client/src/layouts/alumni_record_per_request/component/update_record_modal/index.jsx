@@ -109,14 +109,11 @@ const handleFileUpload = async () => {
     }
   };
 
-  const handleUpdateSubmit = async (CID) => {
+  const handleUpdateSubmit = async () => {
     // Create an updated record object to send to the server
 
     const updatedRecord = {
-      recordPassword: recordPassword,
-      uploadedCID: CID,
       recordStatus: recordStatus,
-      dateIssued: dateIssued
     };
 
     try {
@@ -132,10 +129,10 @@ const handleFileUpload = async () => {
         handleCloseUpdateDialog();
         setIsSuccess(true);
         setAlertMessage('Record updated successfully.');
-        sendEmail('eilywow14@gmail.com', CID, recordPassword);
+        // sendEmail('eilywow14@gmail.com', CID, recordPassword);
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
+        fetch(`http://localhost:8081/mysql/student-record-request/${ctrl_number}`)
           .then((res) => res.json())
           .then((data) => {
             setData(data); // Set the fetched data into the state
@@ -189,17 +186,7 @@ const handleFileUpload = async () => {
               </MDBox>
             </Grid>
           </Grid>
-          <Grid item textAlign="center" xs={11} mt={3}>
-            <MDInput
-              label="Password"
-              type="password"
-              value={recordPassword || ''}
-              onChange={(e) => setRecordPassword(e.target.value)}
-              required
-              sx={{ width: '100%' }}
-              disabled={recordPassword != null || payment_status === "Unpaid" ? true : false}
-            />
-          </Grid>
+         
           <Grid item textAlign="left" xs={11} mb={1} >
             <FormControl variant="outlined" fullWidth margin="normal">
               <InputLabel>Status</InputLabel>
@@ -213,16 +200,7 @@ const handleFileUpload = async () => {
             </FormControl>
             
           </Grid>
-          <Grid item textAlign="center" xs={11} >
-            <MDInput fullWidth
-              type="file"
-              id="fileUpload"
-              accept=".pdf"
-              onChange={handleFileChange}
-              disabled={(recordIPFS != null || payment_status === "Unpaid") ? true : false}
-            />          
-            
-          </Grid>
+          
         </Grid>
       </DialogContent>
       <MDBox
@@ -237,7 +215,7 @@ const handleFileUpload = async () => {
           variant="contained"
           color="info"
           type="submit"
-          onClick={handleFileUpload} 
+          onClick={handleUpdateSubmit} 
         >
             Update Record
         </MDButton>

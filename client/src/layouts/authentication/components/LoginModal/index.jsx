@@ -25,11 +25,13 @@ import MDTypography from "../../../../components/MDTypography";
 import MDButton from "../../../../components/MDButton";
 // react-router-dom components
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../context2';
 
 const LoginModal = ({ open, onClose, userID, set_user_id }) => {
   const [selectedOption, setSelectedOption] = useState('');
-  const [walletAddress, setWalletAddress] = useState('');
+  // const [walletAddress, setWalletAddress] = useState('');
   const navigate = useNavigate();
+  const { user, connectWallet, logout } = useAuth();
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -41,68 +43,49 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
     onClose();
   };
 
-  async function connectWallet() {
-    // Check if MetaMask is available
-    if (window.ethereum) {
-      // Access the MetaMask Ethereum provider
-      const ethereum = window.ethereum;
-  
-      try {
-        // Request permission to access the user's accounts
-        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-  
-        // Get the selected account's address
-        const account = accounts[0]; // Assuming the user selects the first account
-  
-        // Do something with the wallet address (e.g., store it in state)
-        setWalletAddress(account);
-        console.log(walletAddress);
-      } catch (error) {
-        console.error("Error connecting to MetaMask:", error);
-      }
-    } else {
-      console.error("MetaMask is not available in this browser.");
-    }
-  }
+  const handleLogin = () => {
+    // Call the login function
+    connectWallet();
+  };
   
   // Define a function to handle form submission
-  const login = async () => {
-    try {
-      // Make an authentication request to your server or API
-      const response = await fetch('http://localhost:8081/mysql/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ walletAddress }),
-      });
+  // const login = async () => {
+  //   try {
+  //     // Make an authentication request to your server or API
+  //     const response = await fetch('http://localhost:8081/mysql/login', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ walletAddress }),
+  //     });
   
-      if (response.ok) {
-        const data = await response.json();
-        const token = data.token; // Assuming the token is returned from the server
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       const token = data.token; // Assuming the token is returned from the server
         
-        // Save the token in localStorage or sessionStorage
-        localStorage.setItem('token', token);
+  //       // Save the token in localStorage or sessionStorage
+  //       localStorage.setItem('token', token);
         
-        // Redirect the user to the dashboard or perform other actions
-        console.log('Login successful');
-        navigate('/dashboard');
-      } else {
-        // Authentication failed
-        // You can display an error message to the user
-        console.error('Login failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  //       // Redirect the user to the dashboard or perform other actions
+  //       console.log('Login successful');
+  //       navigate('/dashboard');
+  //     } else {
+  //       // Authentication failed
+  //       // You can display an error message to the user
+  //       console.error('Login failed');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
   // Use a useEffect to trigger login when walletAddress changes
-useEffect(() => {
-  if (walletAddress) {
-    login();
-  }
-}, [walletAddress]);
+// useEffect(() => {
+//   if (walletAddress) {
+//     login();
+//   }
+// }, [walletAddress]);
 
 
 
@@ -219,7 +202,7 @@ useEffect(() => {
           variant="contained"
           color="info"
           disabled={!selectedOption}
-          onClick={connectWallet}
+          onClick={handleLogin}
         >
           Connect Wallet
         </MDButton>

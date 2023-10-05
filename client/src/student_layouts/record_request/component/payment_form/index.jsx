@@ -182,7 +182,15 @@ const index = ( {totalAmount, cartItems}) => {
         </div>
       )}
               <Grid container spacing={2} px={3}>
-                  <Grid item xs={7}></Grid>
+                  
+                  <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >
+                      <Link to="/dashboard" component={RouterLink}>
+                        <MDButton onClick={handleProceedToPayment} variant="gradient" color="secondary" size="large" fullWidth >
+                            <Icon>arrow_back</Icon> &nbsp; Pay Later
+                        </MDButton>
+                      </Link>
+                  </Grid>
+                  <Grid item xs={2}></Grid>
                   <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >
                       <MDButton onClick={handleProceedToPayment} variant="gradient" color="info" size="large" fullWidth >
                           <Icon>payment</Icon> &nbsp; Pay {totalAmount}

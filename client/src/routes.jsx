@@ -66,6 +66,7 @@ import Student_Magement_Add from "./layouts/student_management/add_record";
 
 // ================ Student ====================
 import Record_request from "./student_layouts/record_request";
+import Request_table from "./student_layouts/student_request_table";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -82,6 +83,7 @@ const routes = [
     key: "dashboard",
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
+    role: 1,
     component: <Dashboard />,
   },
   {
@@ -282,6 +284,22 @@ const routes = [
     route: "/record-request",
     component: <Record_request />,
   },
+  {
+    type: "collapse",
+    name: "Record Request",
+    key: "student-request-table",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/student-request-table",
+    component: <Request_table />,
+  },
+  {
+    type: "collapse",
+    name: "Record per Request",
+    key: "record-per-request",
+    icon: icon4,
+    route: "/record-per-request/:ctrl_number",
+    component: <Alumni_record_per_request />,
+  }, 
 
 ];
 

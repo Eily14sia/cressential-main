@@ -28,6 +28,7 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -42,54 +43,21 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import UpdateDialogBox from './component/update_record_modal';
+import CancelDialogBox from './component/cancel_request_modal';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
-function Request_table({table_data, setData}) {
-  // =========== For the MDAlert =================
-  const [alertMessage, setAlertMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
+function Request_table({table_data, setData, setAlertMessage, setIsError, setIsSuccess}) {
+
 
   // State for form inputs
   const [ctrl_number, set_ctrl_number] = useState('');
 
-  const alertContent = (name) => (
-    <MDTypography variant="body2" color="white">
-      {alertMessage}
-    </MDTypography>
-  );
+
 
   // =========== For the Datatable =================
-  // const [data, setData] = useState([]);
-  const [student_request_data, setStudentRequestData] = useState([]);
-  const [student_id_request_data, setStudentIDRequestData] = useState([]);
-  // const location = useLocation();
-  // const user_id = location.state?.user_id;
-  // const user_id = props.user_id;
-  // const new_user_id = parseInt(user_id);
-  // console.log("user_id:", user_id);
-
-  // console.log("new_user_id:", new_user_id);
-  // if (user_id === 1) {
-  //     useEffect(() => {
-  //   fetch("http://localhost:8081/mysql/payment-alumni-record-request")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setData(data); // Set the fetched data into the state
-  //     })
-  //     .catch((err) => console.log(err));
-  // }, []);
-  // } else {
-  //     useEffect(() => {
-  //   fetch("http://localhost:8081/mysql/payment-student-record-request")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setData(data); // Set the fetched data into the state
-  //     })
-  //     .catch((err) => console.log(err));
-  // }, []);
-  // }
+  // Retrieve the user_role from localStorage
+  const user_role = localStorage.getItem('user_role');
 
   const [student_data, setStudentData] = useState([]);
 
@@ -183,6 +151,8 @@ function Request_table({table_data, setData}) {
         return 'success'; // Set to your desired color for received status
       case 'Declined':
         return 'error'; // Set to your desired color for declined status
+      case 'Cancelled':
+        return 'error'; // Set to your desired color for declined status
       case 'Completed':
         return 'info'; // Set to your desired color for completed status     
     }
@@ -223,6 +193,26 @@ function Request_table({table_data, setData}) {
   // Function to close the dialog
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
+  };
+
+  /* =========================================
+               CANCEL RECORD
+   ========================================= */
+
+  // State to track whether the dialog is open
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+  // Function to open the dialog
+  const handleOpenCancelDialog = (ctrl_number) => {
+    setIsSuccess(false);
+    setIsError(false);
+    set_ctrl_number(ctrl_number); // Set the _ctrl_number state
+    setIsCancelDialogOpen(true);    
+  };
+
+  // Function to close the dialog
+  const handleCloseCancelDialog = () => {
+    setIsCancelDialogOpen(false);
   };
 
   
@@ -288,7 +278,9 @@ function Request_table({table_data, setData}) {
         ),
         action: (
           <>
-            <Link to={`/alumni/record-per-request/${item.ctrl_number}`} component={RouterLink}>
+          {parseInt(user_role) === 1 ? (
+            <>
+            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
               <Tooltip title="View" >
                 <IconButton color="info" >
                     <VisibilityIcon />
@@ -308,6 +300,24 @@ function Request_table({table_data, setData}) {
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
+            </>
+            ) : ( 
+              <>
+              <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
+                <Tooltip title="View" >
+                  <IconButton color="info" >
+                      <VisibilityIcon />
+                    </IconButton>
+                </Tooltip>
+              </Link>
+              <Tooltip title="Cancel Request" >
+                <IconButton disabled={item.request_status !== 'Pending'} color="secondary" 
+                onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
+                  <CancelIcon />
+                </IconButton>
+              </Tooltip>
+              </>
+            )}
           </>                                 
         ), 
         })), 
@@ -328,7 +338,17 @@ function Request_table({table_data, setData}) {
         setIsError={setIsError}   
         setAlertMessage={setAlertMessage}
         handleCloseUpdateDialog={handleCloseUpdateDialog}
-      />                
+      />   
+      <CancelDialogBox
+        setData={setData}
+        open={isCancelDialogOpen}
+        onClose={handleCloseCancelDialog}
+        // onSubmit={(event) => handleCancelSubmit(event, ctrl_number)}                      
+        ctrl_number={ctrl_number}   
+        setIsSuccess={setIsSuccess}
+        setIsError={setIsError}   
+        setAlertMessage={setAlertMessage}              
+      />             
     </>
   );
 }

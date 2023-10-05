@@ -10,8 +10,8 @@ router.use(bodyParser.json());
 const transporter = nodemailer.createTransport({
   service: 'Gmail', // e.g., 'Gmail' for Gmail
   auth: {
-    user: 'dhargrefiel@gmail.com', // your email address
-    pass: 'igxwurneeriejqci',    // your email password or app password
+    user: 'cressentials.record@gmail.com', // your email address
+    pass: 'pfcsrhcayoyyzzyf',    // your email password or app password
   },
   secure: true,
   tls: {

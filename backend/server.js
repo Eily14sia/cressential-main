@@ -29,42 +29,12 @@ router.get('/', (re, res)=> {
 // Secret key for JWT (replace with a long, secure random string)
 const secretKey = 'your-secret-key';
 
-// Login route
-// router. post('/login', async (req, res) => {
-//   const { walletAddress } = req.body;
-//   // const wallet_address = '0x7116dc333ce11831a3c84a6079a657e849b35e5f';
-//   try {
-
-//     // Find the user by email (you would typically query your user database here)
-//     // const user = users.find((u) => u.email === email);
-//     const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
-//     const { rows } = await pool.query(sql, [walletAddress]);
-  
-//     if (rows.length === 0) {
-//       return res.status(401).json({ message: 'Authentication failed' });
-//     }
-  
-//     const user = rows[0];
-  
-//     // Generate a JWT token for authentication
-//     const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
-//       expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
-//     });
-  
-//     // Return the token to the client
-//     res.json({ token });
-//   } catch (error) {
-//     console.error('Error:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
-
 // Define a route to get user data by wallet_address
 router.post('/login', (req, res) => {
-  const { walletAddress } = req.body;
+  const { wallet_address } = req.body;
   const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
 
-  db.query(sql, [walletAddress], (err, results) => {
+  db.query(sql, [wallet_address], (err, results) => {
     if (err) {
       console.error('Error fetching user data:', err);
       return res.status(500).json({ message: 'Internal server error' });
@@ -85,6 +55,36 @@ router.post('/login', (req, res) => {
     res.json({ user, token });
   });
 });
+
+
+router.post('/verify', (req, res) => {
+  const { password, hash } = req.body;
+
+  // Hash the password using SHA-256
+  const hashedPassword = hashPassword(password);
+
+  // Query the database to retrieve user data
+  const sql = 'SELECT * FROM record_per_request WHERE hash = ? AND password = ?';
+  db.query(sql, [hash, hashedPassword], (err, results) => {
+    if (err) {
+      console.error('MySQL query error:', err);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
+    }
+
+    if (results.length > 0) {
+      // Record found in the database
+      const data = results[0];
+      res.json({ success: true, record_status: data.record_status, date_issued: data.date_issued });
+    } else {
+      // Record not found in the database
+      res.status(401).json({ success: false }); // Return a 401 status code
+    }
+  });
+});
+
+
+
 /* ===========================================================
                             REGISTRAR
    =========================================================== */
@@ -208,16 +208,34 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   });
 
    // Update Record
-router.put('/update-record-per-request/:recordID', (req, res) => {
+router.put('/upload-record-per-request/:recordID', (req, res) => {
   const recordID = req.params.recordID;
-  const { recordPassword, uploadedCID, recordStatus, dateIssued } = req.body;
+  const { recordPassword, uploadedCID, hash, dateIssued } = req.body;
 
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, record_status = ?, date_issued = ? WHERE rpr_id = ?";
+  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, hash = ? , date_issued = ? WHERE rpr_id = ?";
 
-  db.query(sql, [hashedPassword, uploadedCID, recordStatus, dateIssued, recordID], (err, result) => {
+  db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, recordID], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to update record' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+    return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
+   // Update Record
+router.put('/update-record-per-request/:recordID', (req, res) => {
+  const recordID = req.params.recordID;
+  const { recordStatus } = req.body;
+
+  const sql = "UPDATE record_per_request SET record_status = ? WHERE rpr_id = ?";
+
+  db.query(sql, [recordStatus, recordID], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to update record' });
@@ -238,7 +256,7 @@ function hashPassword(password) {
 
 // ================ Type of Record Tab =======================
 
-    router.get('/type-of-record', authenticateToken, (req, res)=> {
+    router.get('/type-of-record', (req, res)=> {
         const sql = "SELECT * FROM type_of_record";
         db.query(sql, (err, data)=> {
             if(err) return res.json(err);
@@ -363,12 +381,41 @@ router.get('/record-request', (req, res)=> {
     })
 })
 
+router.get('/student-record-request/:user_id', (req, res) => {
+  const user_id = req.params.user_id;
+
+  const sql = `
+    SELECT *
+    FROM record_request AS r
+    INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
+    WHERE r.student_id IN (
+      SELECT id
+      FROM student_management
+      WHERE user_id = ?
+    )
+  `;
+  
+  db.query(sql, [user_id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
 // Add Record
 router.post('/record-request/add-record', (req, res) => {
   const { record_id, student_id, purpose } = req.body;
 
-  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose) VALUES (?, ?, ?)";
+  // Split the comma-separated record_ids into an array
+  const recordIds = record_id.split(',');
+
+  // Calculate the date_releasing 15 days after the date_requested
+  const date_requested = new Date();
+  const date_releasing = new Date(date_requested);
+  date_releasing.setDate(date_releasing.getDate() + 15);
+
+  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES (?, ?, ?, ?, ?)";
   const paymentSQL = "INSERT INTO payment (ctrl_number) VALUES (?)";
+  const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES (?, ?)";
 
   db.beginTransaction((err) => {
     if (err) {
@@ -376,7 +423,10 @@ router.post('/record-request/add-record', (req, res) => {
       return res.status(500).json({ message: 'Failed to add record' });
     }
 
-    db.query(recordRequestSQL, [student_id, record_id, purpose], (err, result) => {
+    const ctrlNumbers = []; // Store the generated ctrl_numbers
+
+    // Insert into record_request table
+    db.query(recordRequestSQL, [student_id, record_id, purpose, date_requested, date_releasing], (err, result) => {
       if (err) {
         db.rollback(() => {
           console.error(err);
@@ -386,7 +436,7 @@ router.post('/record-request/add-record', (req, res) => {
 
       const ctrl_number = result.insertId; // Get the auto-generated ctrl_number from the record_request
 
-      // Now, insert into the payment table using the ctrl_number
+      // Insert into payment table using the ctrl_number
       db.query(paymentSQL, [ctrl_number], (err, paymentResult) => {
         if (err) {
           db.rollback(() => {
@@ -395,20 +445,61 @@ router.post('/record-request/add-record', (req, res) => {
           });
         }
 
-        db.commit((err) => {
-          if (err) {
-            db.rollback(() => {
-              console.error(err);
-              return res.status(500).json({ message: 'Failed to add record' });
-            });
-          }
+        // Iterate through recordIds and insert into record_per_request for each ID
+        recordIds.forEach((recordId, index) => {
+          // Replace 'recordTypeId' with the actual record type ID for each recordId
+          const recordTypeId = 'your_record_type_id'; // Replace with the actual value
 
-          return res.status(200).json({ message: 'Your request has been submitted.' });
+          db.query(
+            recordPerRequestSQL,
+            [ctrl_number, recordId],
+            (err, recordPerRequestResult) => {
+              if (err) {
+                db.rollback(() => {
+                  console.error(err);
+                  return res.status(500).json({ message: 'Failed to add record' });
+                });
+              }
+
+              // Check if all insertions into record_per_request are complete
+              if (index === recordIds.length - 1) {
+                db.commit((err) => {
+                  if (err) {
+                    db.rollback(() => {
+                      console.error(err);
+                      return res.status(500).json({ message: 'Failed to add record' });
+                    });
+                  }
+
+                  return res.status(200).json({ message: 'Your request has been submitted.' });
+                });
+              }
+            }
+          );
         });
+
       });
     });
   });
 });
 
+// Update Record
+router.put('/cancel-record-request/:ctrl_number', (req, res) => {
+  const ctrl_number = req.params.ctrl_number;
+  const { type, price } = req.body;
+
+  const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = ?";
+
+  db.query(sql, [ctrl_number], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
 
 module.exports = router;

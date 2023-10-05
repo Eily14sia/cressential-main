@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useParams  } from "react-router-dom";
+import { Link as RouterLink, useParams, useNavigate   } from "react-router-dom";
 import { Link } from "@mui/material";
 
 // @mui material components
@@ -12,6 +12,7 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Tooltip from '@mui/material/Tooltip';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -33,8 +34,16 @@ import DeleteDialogBox from './component/delete_record_modal';
 import ApplicantInformation from './component/applicant_information';
 import regeneratorRuntime from "regenerator-runtime";
 
-function Alumni_record_issuance() {
+function Alumni_record_per_request() {
   const { ctrl_number } = useParams();
+
+  // Retrieve the user_role from localStorage
+  const user_role = localStorage.getItem('user_role');
+  const navigate = useNavigate();
+  const goBack = () => {    
+    navigate(-1);
+  };
+
 
   const [data, setData] = useState([]);
   useEffect(() => {
@@ -60,8 +69,12 @@ function Alumni_record_issuance() {
     // { Header: "Processing Officer", accessor: "processing_officer", width: "30%" },
     { Header: "Status", accessor: "status", width: "10%" },
     { Header: "Date Issued", accessor: "date_issued", width: "10%" },
-    { Header: "Action", accessor: "action", width: "10%" },
   ];
+  
+  if (parseInt(user_role) === 1) {
+    columns.push({ Header: "Action", accessor: "action", width: "10%" });
+  }
+  
 
   const [menu, setMenu] = useState(null);
 
@@ -90,14 +103,11 @@ function Alumni_record_issuance() {
   );
   function getStatusColor(status) {
     switch (status) {
-      case 'Pending':
-        return 'secondary'; // Set to your desired color for pending status
-      case 'Received':
-        return 'success'; // Set to your desired color for received status
-      case 'Declined':
-        return 'error'; // Set to your desired color for declined status
-      case 'Completed':
-        return 'info'; // Set to your desired color for completed status     
+      case 'Valid':
+        return 'info'; 
+      case 'Invalid':
+        return 'error'; 
+   
     }
   } 
 
@@ -128,14 +138,21 @@ function Alumni_record_issuance() {
 
   // State to track whether the dialog is open
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  // State for form inputs
-  const [recordUpdateType, setUpdateRecordType] = useState('');
-  const [recordUpdatePrice, setUpdaterecordIPFS] = useState('');
 
   // Function to open the dialog
-  const handleOpenUpdateDialog = (record_id, record_type, record_IPFS, record_status, record_password) => {
-    console.log(record_id);
+  const handleOpenUploadDialog = (record_id, record_type, record_IPFS, record_password) => {
+    setIsSuccess(false);
+    setIsError(false);
+    setRecordType(record_type); // Reset other form fields 
+    setRecordIPFS(record_IPFS);
+    setRecordId(record_id); // Set the record_id state
+    setIsUploadDialogOpen(true);
+    setRecordPassword(record_password);
+  };
+  // Function to open the dialog
+  const handleOpenUpdateDialog = (record_id, record_type, record_IPFS, record_status) => {
     setIsSuccess(false);
     setIsError(false);
     setRecordType(record_type); // Reset other form fields 
@@ -143,51 +160,15 @@ function Alumni_record_issuance() {
     setRecordId(record_id); // Set the record_id state
     setIsUpdateDialogOpen(true);
     setRecordStatus(record_status);
-    setRecordPassword(record_password);
   };
 
   // Function to close the dialog
+  const handleCloseUploadDialog = () => {
+    setIsUploadDialogOpen(false);
+  };
+  // Function to close the dialog
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
-  };
-
-  // Function to handle update record form submission
-  const handleUpdateSubmit = async (event, record_id, record_IPFS, record_status ) => {
-    event.preventDefault();
-    // Create an updated record object to send to the server
-    const updatedRecord = {
-      type: recordUpdateType,
-      price: recordUpdatePrice,
-    };
-
-    try {
-      const response = await fetch(`http://localhost:8081/mysql/update-record/${record_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedRecord),
-      });
-
-      if (response.ok) {
-        handleCloseUpdateDialog();
-        setIsSuccess(true);
-        setAlertMessage('Record updated successfully.');
-
-        // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/type-of-record")
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
-          })
-          .catch((err) => console.log(err));
-      } else {
-        setAlertMessage('Failed to update record');
-      }
-    } catch (error) {
-      setIsError(true);
-      console.error('Error:', error);
-    }
   };
 
   return (
@@ -267,11 +248,11 @@ function Alumni_record_issuance() {
                   <MDTypography variant="h6" fontWeight="medium">
                     Record per Request
                   </MDTypography>
-                  <Link to="/alumni/record-request" component={RouterLink}>
-                    <MDButton variant="outlined" color="info" size="small">
+                   
+                    <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                       <Icon>arrow_back</Icon>&nbsp; Record Request
                     </MDButton>
-                  </Link>
+                  
                 </MDBox>
                 <MDBox >
                   {/* <DataTable
@@ -286,9 +267,11 @@ function Alumni_record_issuance() {
                       rows: data.map((item) => ({
                        
                         record: (
-                          <MDBox ml={2} lineHeight={1}>
+                          <MDBox ml={1} lineHeight={1}>
                             <MDTypography display="block" variant="button" fontWeight="medium">
-                             {item.ipfs}
+                            <a target="_blank" rel="noopener noreferrer" href={`http://localhost:8080/ipfs/${item.ipfs}`}>
+                            {item.ipfs}
+                            </a>
                             </MDTypography>
                             <MDTypography variant="caption">{item.type}</MDTypography>
                           </MDBox>
@@ -308,8 +291,17 @@ function Alumni_record_issuance() {
                         date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
                         action: (
                           <>
+                          {parseInt(user_role) === 1 ? (
+                            <>
+                          <Tooltip title="Upload" >
+                              <IconButton color="info" 
+                              disabled={item.ipfs != null || payment_status === "Unpaid" ? true : false}
+                              onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)} >
+                                <UploadFileIcon />
+                                </IconButton>
+                          </Tooltip>
                           <Tooltip title="Update" >
-                              <IconButton color="info" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status, item.password)} >
+                              <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
                                   <EditIcon />
                                 </IconButton>
                           </Tooltip>
@@ -318,26 +310,43 @@ function Alumni_record_issuance() {
                               <DeleteIcon />
                             </IconButton>
                           </Tooltip>
-                          </>     
+                          </> 
+                          ) : (null)}
+                          </>    
                         )
                       })), 
                     }}
                     canSearch={true}
                   />
-                  <UpdateDialogBox
-                    open={isUpdateDialogOpen}
-                    onClose={handleCloseUpdateDialog}
-                    // onSubmit={(event) => handleUpdateSubmit(event, record_id)}
+                  <AddDialogBox
+                    open={isUploadDialogOpen}
+                    onClose={handleCloseUploadDialog}
                     ctrl_number = {ctrl_number}
                     recordType={record_type}
                     setRecordType={setRecordType}
                     recordIPFS={record_IPFS}
                     setrecordIPFS={setRecordIPFS}   
-                    recordID={record_id}    
-                    recordStatus={record_status}     
-                    setRecordStatus={setRecordStatus}        
+                    recordID={record_id}                               
                     recordPassword={record_password}     
                     setRecordPassword={setRecordPassword}   
+                    payment_status={payment_status}    
+                    setAlertMessage={setAlertMessage}
+                    setIsError={setIsError}
+                    setIsSuccess={setIsSuccess} 
+                    handleCloseUploadDialog={handleCloseUploadDialog}
+                    setData={setData}
+                    data={setData}
+                  />
+                  <UpdateDialogBox
+                    open={isUpdateDialogOpen}
+                    onClose={handleCloseUpdateDialog}
+                    ctrl_number = {ctrl_number}
+                    recordType={record_type}
+                    setRecordType={setRecordType}   
+                    recordIPFS={record_IPFS}
+                    recordID={record_id}    
+                    recordStatus={record_status}     
+                    setRecordStatus={setRecordStatus}  
                     payment_status={payment_status}    
                     setAlertMessage={setAlertMessage}
                     setIsError={setIsError}
@@ -358,4 +367,4 @@ function Alumni_record_issuance() {
   );
 }
 
-export default Alumni_record_issuance;
+export default Alumni_record_per_request;

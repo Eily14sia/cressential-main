@@ -1,29 +1,16 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-import * as React from 'react';
 // react-router-dom components
 import { Link } from "react-router-dom";
-
+import React, { useEffect, useState } from 'react';
 
 import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import MDInput from "../../../components/MDInput";
 import MDButton from "../../../components/MDButton";
+import MDAlert from "../../../components/MDAlert";
 
 // Authentication layout components
 import CoverLayout from "../components/CoverLayout";
@@ -33,7 +20,133 @@ import bgImage from "../../../assets/images/university.jpg";
 // Authentication pages components
 import Footer from "../components/Footer";
 
-function Cover() {
+function Verifier_portal() {
+
+  const [password, setPassword] = useState('');
+
+  // =========== For the MDAlert =================
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const alertContent = (name) => (
+    <MDTypography variant="body2" color="white">
+      {alertMessage}
+    </MDTypography>
+  );
+
+  const [file, setFile] = useState('');
+  const [hash, setHash] = useState('');
+  
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      setFile(selectedFile);
+
+      try {
+        // Read the contents of the selected file
+        const fileBuffer = await selectedFile.arrayBuffer();
+
+        // Calculate the hash (multihash) of the file using SHA-256
+        const hashBuffer = await crypto.subtle.digest("SHA-256", fileBuffer);
+
+        // Convert the hash buffer to a hexadecimal string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+
+        // Set the calculated hash in state
+        setHash("0x1220" + hashHex);
+      } catch (error) {
+        console.error("Error calculating hash:", error);
+        setHash(null);
+      }
+    } else {
+      setFile(null);
+      setHash(null);
+    }
+  };
+
+
+
+  const handleSubmit = async (password, hash) => {
+
+    // Reset the success and error states before making the API request
+    setIsSuccess(false);
+    setIsError(false);
+
+    // Create an updated record object to send to the server
+    const verifyRecord = {
+      password: password,
+      hash: hash,
+    };
+  
+      // Check if password is empty
+    if (!password) {
+      setIsError(true);
+      setAlertMessage('Password is required.');
+      return;
+    }
+
+    // Check if file is empty
+    if (!file) {
+      setIsError(true);
+      setAlertMessage('File is required.');
+      return;
+    }
+
+
+    try {
+      const response = await fetch("http://localhost:8081/mysql/verify", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(verifyRecord),
+      });
+  
+      if (response.ok) {
+        const nodes = await response.json();
+        const record_status = nodes.record_status;
+        const date_issued = new Date(nodes.date_issued);
+  
+        const date_today = new Date();
+        const oneYearInMilliseconds = 365 * 24 * 60 * 60 * 1000; // One year in milliseconds
+  
+        /* Will compare the date_issued and date_today and get its difference to show
+         if the record is still valid for one year */
+        const date_difference = date_today - date_issued;
+  
+        if (record_status === 'Valid') {
+          if (date_difference < oneYearInMilliseconds) {
+            setIsSuccess(true);
+            setIsError(false); // Reset the error state
+            setAlertMessage('The Record is Valid.');
+          } else {
+            setIsSuccess(false); // Reset the success state
+            setIsError(true);
+            setAlertMessage("The Record's validity has expired.");
+          }
+        } else {
+          setIsSuccess(false); // Reset the success state
+          setIsError(true);
+          setAlertMessage('The Record is Invalid');
+        }
+      } else {
+        // Handle other HTTP error status codes (e.g., 401)
+        setIsSuccess(false); // Reset both success and error states
+        setIsError(true);
+        setAlertMessage('The Record is Invalid.');
+      }
+    } catch (error) {
+      setIsSuccess(false); // Reset both success and error states
+      setIsError(true);
+      setAlertMessage('Failed to verify record. Please input the correct information.');
+      console.error('Error:', error);
+    }
+  };
+  
+  
 
 
   return (
@@ -58,76 +171,63 @@ function Cover() {
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form">
+          <MDBox >
             <MDBox mb={2}>
               <MDInput type="text" label="Transaction Number" variant="standard" fullWidth />
             </MDBox>
             <MDBox mb={4}>
-              <MDInput type="password" label="Password" variant="standard" fullWidth />
+              <MDInput type="password" value={password} label="Password" variant="standard" onChange={(e) => setPassword(e.target.value)} fullWidth />
             </MDBox>
             <MDBox mb={2}>
-                <MDInput fullWidth variant="standard" 
-                    type="file"
-                    accept=".jpg, .png, .jpeg"
-                    // Add more props as needed
-                  />              
+              <MDInput fullWidth variant="standard" 
+                type="file"
+                id="fileUpload"
+                accept=".pdf"
+                onChange={handleFileChange}
+              />           
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
-                Verify Record
-              </MDButton>
+              
+            <Grid container spacing={2}>
+              
+              <Grid item xs={12} sm={6}>
+                <MDButton variant="gradient" color="light" size="large" fullWidth onClick={() => {
+                  setPassword('');
+                  setHash('');
+                  const fileInput = document.getElementById('fileUpload');
+                  if (fileInput) {
+                    fileInput.value = ''; // Reset the file input field
+                  }
+                }}>
+                  Reset Input
+                </MDButton>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <MDButton variant="gradient" color="info" size="large" fullWidth type="submit" onClick={() => handleSubmit(password, hash)}>
+                  Verify Record
+                </MDButton>
+              </Grid>
+            </Grid>
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
-                Results will show here                
-              </MDTypography>
+              
+              {isSuccess && (
+                <MDAlert color="success" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsSuccess(false)}>
+                      {alertContent("success", alertMessage)}
+                </MDAlert>
+              )}
+              {isError && (
+                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                  {alertContent("error", alertMessage)}
+                </MDAlert>
+              )} 
             </MDBox>
           </MDBox>
         </MDBox>
-        {/* <MDBox pt={3} px={3}>
-            <MDBox component="form" role="form">
-              <MDBox mb={2}>
-                <MDInput type="text" label="Text" fullWidth />
-              </MDBox>
-              <MDBox>
-                <MDInput type="password" label="Password" fullWidth />
-              </MDBox>              
-              <MDBox mb={1}>
-                <FormControl variant="outlined" fullWidth margin="normal">
-                  <InputLabel>Select an option</InputLabel>
-                  <Select style={{ height: "40px" }}
-                    label="Select an option"
-                    // Add more props as needed
-                  >
-                    <MenuItem value="option1">Option 1</MenuItem>
-                    <MenuItem value="option2">Option 2</MenuItem>
-                    <MenuItem value="option3">Option 3</MenuItem>
-                  </Select>
-                </FormControl>
-              </MDBox>
-              <MDBox mb={2}>
-                <MDInput fullWidth
-                    type="file"
-                    accept=".jpg, .png, .jpeg"
-                    // Add more props as needed
-                  />              </MDBox>
-              <MDBox mt={4} mb={1}>
-                <Grid container justifyContent="flex-end">
-                  <Grid item>
-                    <Link to="/graduate-record/add-record" component={RouterLink}>
-                      <MDButton variant="gradient" color="info" type="submit">
-                        Submit&nbsp;
-                        <Icon>add</Icon>
-                      </MDButton>
-                    </Link>
-                  </Grid>
-                </Grid>
-              </MDBox>
-            </MDBox>
-          </MDBox> */}
+       
       </Card>
     </CoverLayout>
   );
 }
 
-export default Cover;
+export default Verifier_portal;

@@ -1,17 +1,17 @@
-import React, { useContext } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from './context2';
+import { Navigate, Route } from 'react-router-dom';
 
-const RouteGuard = ({ route }) => {
-  // Get the user's role from local storage or your authentication context
-  const userRole = localStorage.getItem('user_role'); // Update this to your actual implementation
+const RouteGuard = ({ role, ...props }) => {
+  // Retrieve the user_role from localStorage
+  const user_role = localStorage.getItem('user_role');
 
-  if (!userRole || userRole !== route.requiredRole) {
-    // Redirect to an unauthorized page or handle the error as needed
-    return <Navigate to="/unauthorized" />;
+  // Check if the user's role matches the required role for the route
+  if (user_role === role) {
+    return <Route {...props} />;
+  } else {
+    // Redirect to a different route (e.g., unauthorized or home) only if the user's role doesn't match
+    return user_role ? null : <Navigate to="/unauthorized" />;
   }
-
-  // Render the route's content if the user has the required role
-  return <Outlet />;
 };
 
 export default RouteGuard;
