@@ -12,10 +12,13 @@ import Icon from "@mui/material/Icon";
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 
-function DefaultInfoCard({ color, icon, title, description, name, value, handleOptionClick }) {
-  
+function DefaultInfoCard({ color, icon, title, description, name, value, handleOptionClick,  selectedOption}) {
+  const cardClasses = selectedOption  === name ? "selected-card" : "";
+  const selectedCardStyle = {
+    border: '2px solid #1A73E8'
+  };
   return (
-    <Card style={{ backgroundColor: '#f0f2f5' }}>
+    <Card style={{ backgroundColor: '#f0f2f5', ...(selectedOption === name ? selectedCardStyle : {}) }} className={cardClasses}>
       <CardActionArea onClick={() => handleOptionClick(name)}>
         <CardContent>
           <MDBox p={2} mx={3} display="flex"  justifyContent="center">

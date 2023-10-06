@@ -146,6 +146,26 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     });
   });
 
+  router.get('/student/record-issuance', (req, res) => {
+    const sql = `
+      SELECT *
+      FROM record_per_request as rpr
+      INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+      INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
+      INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
+      WHERE r.student_id IN (
+        SELECT id
+        FROM student_management
+        WHERE is_alumni = 0
+      )
+    `;
+  
+    db.query(sql, (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
 
 // ======================= Alumni Record Request =========================== 
   router.get('/payment-alumni-record-request', (req, res) => {
@@ -187,28 +207,29 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
 
   
 
-  router.get('/record-per-request', (req, res) => {
-    const sql = `
+ // Define the GET route for '/mysql/record-issuance'
+router.get('/alumni/record-issuance', (req, res) => {
+  const sql = `
     SELECT *
     FROM record_per_request as rpr
     INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
     INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
     INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
     WHERE r.student_id IN (
-        SELECT id
-        FROM student_management
-        WHERE is_alumni = 1
-      )
-    `;
-    
-    db.query(sql, (err, data) => {
-      if (err) return res.json(err);
-      return res.json(data);
-    });
+      SELECT id
+      FROM student_management
+      WHERE is_alumni = 1
+    )
+  `;
+
+  db.query(sql, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
   });
+});
 
    // Update Record
-router.put('/upload-record-per-request/:recordID', (req, res) => {
+  router.put('/upload-record-per-request/:recordID', (req, res) => {
   const recordID = req.params.recordID;
   const { recordPassword, uploadedCID, hash, dateIssued } = req.body;
 

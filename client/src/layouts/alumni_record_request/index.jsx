@@ -109,42 +109,67 @@ function Alumni_record_request({user_id}) {
       .catch((err) => console.log(err));
   }, []);
 
-  function getTypeOfRecord(type_ids) {
-    // Split the type_ids into an array of individual IDs
-    const idsArray = type_ids.split(',');
-  
-    // Initialize an array to store the fetched type values
-    const typeValues = [];
-  
-    // Loop through each ID and fetch the corresponding type value
-    idsArray.forEach((id) => {
-      // Find the type record that matches the current ID
-      const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
-  
-      // If a matching record is found, push its type value to the typeValues array
-      if (typeRecord) {
-        typeValues.push(typeRecord.type);
-      }
-    });
-  
-    return(typeValues.join(', '));
-  }
-
-  const columns = [
-    { Header: "Ctrl No.", accessor: "ctrl_num"},
-    { Header: "Student Name", accessor: "student_id"},
-    { Header: "Record Type", accessor: "record_type" },
-    { Header: "Date", accessor: "date_requested"},
-    { Header: "Processing Officer", accessor: "processing_officer"},
-    { Header: "Payment Status", accessor: "payment_status"},
-    { Header: "Request Status", accessor: "request_status"},
-    { Header: "action", accessor: "action"}
-  ];
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  // =================  UPDATE =======================
+
+  const [processing_officer, setProcessingOfficer] = useState('');
+  const [request_status, updateRequestStatus] = useState('');
+  const [date_releasing, updateDateReleasing] = useState('');
+  // State to track whether the dialog is open
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+
+  // Create a new Date object from the date string
+  const parsedDate = new Date(date_releasing);
+
+    // Function to handle update record form submission
+    const handleUpdateSubmit = async (event) => {
+      event.preventDefault();
+      // Create an updated record object to send to the server
+      const updatedRecord = {
+        date_releasing: date_releasing,
+        processing_officer: processing_officer,
+        request_status: request_status,      
+      };
+      try {
+        const response = await fetch(`http://localhost:8081/mysql/update-record-request/${ctrl_number}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedRecord),
+        });
+  
+        if (response.ok) {
+          handleCloseUpdateDialog();
+          setIsSuccess(true);
+          setAlertMessage('Record updated successfully.');
+  
+          // Fetch updated data and update the state
+          fetch("http://localhost:8081/mysql/payment-alumni-record-request")
+            .then((res) => res.json())
+            .then((data) => {
+              setData(data); // Set the fetched data into the state
+            })
+            .catch((err) => console.log(err));
+        } else {
+          setAlertMessage('Failed to update record');
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error('Error:', error);
+      }
+    };
+  
+  // Function to close the dialog
+  const handleCloseUpdateDialog = () => {
+    setIsUpdateDialogOpen(false);
+  };
+  
 
   return (
     <DashboardLayout>
@@ -181,22 +206,14 @@ function Alumni_record_request({user_id}) {
                 </MDTypography>
                 
                 {/* <Link to="/graduate-record/add-record" component={RouterLink}> */}
-                <Link to="/graduate-record/add-record" component={RouterLink}>
+                {/* <Link to="/graduate-record/add-record" component={RouterLink}>
                   <MDButton variant="gradient" color="dark">
                     Add Record&nbsp;
                     <Icon>add</Icon>
                   </MDButton>
-                </Link>
+                </Link> */}
               </MDBox>
-                <MDBox p={3}>
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
-                  
+                <MDBox p={3}>                  
                   <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       <Tabs
@@ -245,7 +262,19 @@ function Alumni_record_request({user_id}) {
                         <RequestTable table_data={data} setData={setData} 
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage}/>
+                        setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
+                        />
                       </MDBox>
                     )}
 
@@ -256,7 +285,18 @@ function Alumni_record_request({user_id}) {
                         setData={setData} 
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage}/>
+                        setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
                       </MDBox>
                     )}
 
@@ -268,6 +308,17 @@ function Alumni_record_request({user_id}) {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -280,6 +331,17 @@ function Alumni_record_request({user_id}) {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -292,6 +354,17 @@ function Alumni_record_request({user_id}) {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}

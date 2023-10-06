@@ -232,7 +232,10 @@ function Request_table() {
                         setData={setData} 
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage} />
+                        setAlertMessage={setAlertMessage} 
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        />
                       </MDBox>
                     )}
 
@@ -244,6 +247,8 @@ function Request_table() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
                         />
                       </MDBox>
                     )}
@@ -256,6 +261,8 @@ function Request_table() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
                         />
                       </MDBox>
                     )}
@@ -268,6 +275,8 @@ function Request_table() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
                         />
                       </MDBox>
                     )}
@@ -280,6 +289,8 @@ function Request_table() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
                         />
                       </MDBox>
                     )}

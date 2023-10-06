@@ -29,6 +29,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CancelIcon from '@mui/icons-material/Cancel';
+import PaymentsIcon from '@mui/icons-material/Payments';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -47,13 +48,10 @@ import CancelDialogBox from './component/cancel_request_modal';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
-function Request_table({table_data, setData, setAlertMessage, setIsError, setIsSuccess}) {
-
-
-  // State for form inputs
-  const [ctrl_number, set_ctrl_number] = useState('');
-
-
+function Request_table({table_data, setData, setAlertMessage, setIsError, setIsSuccess,
+  processing_officer, updateProcessingOfficer, request_status, updateRequestStatus,
+  date_releasing, updateDateReleasing, isUpdateDialogOpen, setIsUpdateDialogOpen,
+  ctrl_number, set_ctrl_number, handleUpdateSubmit }) {
 
   // =========== For the Datatable =================
   // Retrieve the user_role from localStorage
@@ -171,13 +169,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
                UPDATE RECORD
    ========================================= */
 
-  // State to track whether the dialog is open
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-
-  // State for form inputs
-  const [processing_officer, updateProcessingOfficer] = useState('');
-  const [request_status, updateRequestStatus] = useState('');
-  const [date_releasing, updateDateReleasing] = useState('');
 
   // Function to open the dialog
   const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status,) => {
@@ -214,7 +205,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const handleCloseCancelDialog = () => {
     setIsCancelDialogOpen(false);
   };
-
   
   return (
     <>
@@ -280,7 +270,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
           <>
           {parseInt(user_role) === 1 ? (
             <>
-            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
+            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
               <Tooltip title="View" >
                 <IconButton color="info" >
                     <VisibilityIcon />
@@ -310,11 +300,23 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
                     </IconButton>
                 </Tooltip>
               </Link>
+              <Link to={`/record-request`} component={RouterLink} state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id }}>
+                <Tooltip title="Pay now" >
+                  <span>
+                  <IconButton disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success" 
+                    >
+                    <PaymentsIcon />
+                  </IconButton>
+                  </span>
+                </Tooltip>
+              </Link>
               <Tooltip title="Cancel Request" >
+                <span>
                 <IconButton disabled={item.request_status !== 'Pending'} color="secondary" 
-                onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
+                  onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
                   <CancelIcon />
                 </IconButton>
+                </span>
               </Tooltip>
               </>
             )}
@@ -338,6 +340,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         setIsError={setIsError}   
         setAlertMessage={setAlertMessage}
         handleCloseUpdateDialog={handleCloseUpdateDialog}
+        handleUpdateSubmit={handleUpdateSubmit}
       />   
       <CancelDialogBox
         setData={setData}

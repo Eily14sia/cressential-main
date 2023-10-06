@@ -26,50 +26,7 @@ import ProcessingOfficer from '../processing_officer';
 
 
 function DialogBox({ data, setData, open, onClose, processing_officer, setProcessingOfficer, request_status, setRequest_status, ctrl_number, date_releasing, setdate_releasing
-                     , setIsSuccess, setIsError, setAlertMessage, handleCloseUpdateDialog}) {
-
-                      
-  // Function to handle update record form submission
-  const handleUpdateSubmit = async (event, new_ctrl_number) => {
-    event.preventDefault();
-    // Create an updated record object to send to the server
-    const updatedRecord = {
-      date_releasing: date_releasing,
-      processing_officer: processing_officer,
-      request_status: request_status,      
-    };
-  console.log(new_ctrl_number);
-    try {
-      const response = await fetch(`http://localhost:8081/mysql/update-record-request/${new_ctrl_number}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedRecord),
-      });
-
-      if (response.ok) {
-        handleCloseUpdateDialog();
-        setIsSuccess(true);
-        setAlertMessage('Record updated successfully.');
-
-        // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/payment-alumni-record-request")
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
-          })
-          .catch((err) => console.log(err));
-      } else {
-        setAlertMessage('Failed to update record');
-      }
-    } catch (error) {
-      setIsError(true);
-      console.error('Error:', error);
-    }
-  };
-
-
+                     , setIsSuccess, setIsError, setAlertMessage, handleCloseUpdateDialog, handleUpdateSubmit}) {
 
   // Create a new Date object from the date string
   const parsedDate = new Date(date_releasing);
@@ -167,7 +124,7 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
         <MDButton
           variant="contained"
           color="info"
-          onClick={(event) => handleUpdateSubmit(event, ctrl_number)}
+          onClick={handleUpdateSubmit}
         >
             Update Record
         </MDButton>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate} from "react-router-dom";
 import { Link } from "@mui/material";
 
 // @mui material components
@@ -43,7 +43,7 @@ import axios from 'axios';
 
 const index = ( {totalAmount, cartItems}) => {
 
-    const [controller] = useMaterialUIController();
+   const [controller] = useMaterialUIController();
    const [redirectUrl, setRedirectUrl] = useState('');
   // const [paymentResponse, setPaymentResponse] = useState(null);
     
@@ -53,8 +53,8 @@ const index = ( {totalAmount, cartItems}) => {
       setSelectedOption(option);
     };
 
-    console.log(selectedOption);
-    console.log(totalAmount);
+    // console.log(selectedOption);
+    // console.log(totalAmount);
 
     const handleProceedToPayment = async () => {
       try {
@@ -77,6 +77,11 @@ const index = ( {totalAmount, cartItems}) => {
       if (redirectUrl) {
         window.location.href = redirectUrl;
       }
+    };
+
+   const navigate = useNavigate();
+    const goBack = () => {    
+      navigate(-1);
     };
 
   return (
@@ -103,7 +108,8 @@ const index = ( {totalAmount, cartItems}) => {
                             icon="account_balance"
                             title="GCash"
                             name="gcash"
-                            handleOptionClick={handleOptionClick}
+                            handleOptionClick={handleOptionClick}    
+                            selectedOption={selectedOption}                                                  
                           />
                         </Grid>
                         <Grid item xs={12} md={6} xl={4}>
@@ -112,14 +118,16 @@ const index = ( {totalAmount, cartItems}) => {
                             title="Maya"
                             name="paymaya"
                             handleOptionClick={handleOptionClick}
+                            selectedOption={selectedOption} 
                           />
                         </Grid>
                         <Grid item xs={12} md={6} xl={4}>
                           <CustomInfoCard
-                            icon="paypal"
+                            icon="payments"
                             title="Online Bank"
                             name="dob"
                             handleOptionClick={handleOptionClick}
+                            selectedOption={selectedOption} 
                           />
                         </Grid>
                         
@@ -183,12 +191,10 @@ const index = ( {totalAmount, cartItems}) => {
       )}
               <Grid container spacing={2} px={3}>
                   
-                  <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >
-                      <Link to="/dashboard" component={RouterLink}>
-                        <MDButton onClick={handleProceedToPayment} variant="gradient" color="secondary" size="large" fullWidth >
-                            <Icon>arrow_back</Icon> &nbsp; Pay Later
-                        </MDButton>
-                      </Link>
+                  <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >                      
+                    <MDButton onClick={goBack} variant="gradient" color="secondary" size="large" fullWidth >
+                        <Icon>arrow_back</Icon> &nbsp; Pay Later
+                    </MDButton>                      
                   </Grid>
                   <Grid item xs={2}></Grid>
                   <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >

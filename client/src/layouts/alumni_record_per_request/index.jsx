@@ -36,6 +36,8 @@ import regeneratorRuntime from "regenerator-runtime";
 
 function Alumni_record_per_request() {
   const { ctrl_number } = useParams();
+  const [student_email, setStudentEmail] = useState();
+
 
   // Retrieve the user_role from localStorage
   const user_role = localStorage.getItem('user_role');
@@ -237,7 +239,7 @@ function Alumni_record_per_request() {
 
             {/* Applicant Infomation */}
             <Grid item lg={3} xs={12}>
-              <ApplicantInformation student_id={student_id}/>
+              <ApplicantInformation student_id={student_id} setStudentEmail={setStudentEmail}/>
             </Grid>
             {/* End of Applicant Information */}
 
@@ -246,7 +248,7 @@ function Alumni_record_per_request() {
               <Card sx={{marginTop: "20px"}}>
                 <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
                   <MDTypography variant="h6" fontWeight="medium">
-                    Record per Request
+                    Record per Request 
                   </MDTypography>
                    
                     <MDButton onClick={goBack} variant="outlined" color="info" size="small">
@@ -336,6 +338,7 @@ function Alumni_record_per_request() {
                     handleCloseUploadDialog={handleCloseUploadDialog}
                     setData={setData}
                     data={setData}
+                    student_email={student_email}
                   />
                   <UpdateDialogBox
                     open={isUpdateDialogOpen}

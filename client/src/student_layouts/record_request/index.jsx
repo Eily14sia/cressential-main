@@ -2,18 +2,11 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from "@mui/material/IconButton";
-import EditIcon from '@mui/icons-material/Edit';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -44,8 +37,66 @@ import PaymentForm from './component/payment_form';
 import { useMaterialUIController } from "../../context";
 
 function Record_request() {
+
+  const [cartItems, setCartItems] = useState([]);
+  const [type_of_record, setTypeOfRecord] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/type-of-record")
+      .then((res) => res.json())
+      .then((type_of_record) => {
+        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+
   const [controller] = useMaterialUIController();
   const [totalAmount, setTotalAmount] = useState(0);
+
+  const location = useLocation();
+
+  const activeSteps = location.state?.activeStep || 0;
+  const stateAmount= location.state?.total_amount;
+  const stateRecordIDs = location.state?.recordIDs;
+
+  // Split the comma-separated IDs into an array
+  const recordIDsArray = stateRecordIDs ? stateRecordIDs.split(',') : [];
+  
+  // Initialize an array to store the cart items
+  const newCartItems = [];
+
+  console.log("Cart Items:"+cartItems);
+  console.log("recordIDsArray:"+recordIDsArray);
+
+  useEffect(() => {
+    if (stateAmount) {
+      setTotalAmount(stateAmount+".00");      
+    }
+  }, [stateAmount]); 
+
+
+  useEffect(() => {
+  if (stateRecordIDs) {
+    const newCartItems = recordIDsArray.map((id) => {
+      const new_id = parseInt(id);
+      const type = type_of_record.find((item) => item.id === new_id)?.type;
+      const price = type_of_record.find((item) => item.id === new_id)?.price;
+
+      // If type and price are found, create and return a new item
+      if (type && price) {
+        return {
+          id: id,
+          type: type,
+          price: price,
+        };
+      }
+      return null; // Return null for items that couldn't be found
+    }).filter(Boolean); // Remove null values from the array
+
+    setCartItems((prevCartItems) => [...prevCartItems, ...newCartItems]);
+  }
+}, [stateRecordIDs, type_of_record]);
 
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -58,16 +109,7 @@ function Record_request() {
     </MDTypography>
   );
 
-  useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data); // Set the fetched data into the state
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(activeSteps ? activeSteps : 0);
 
   const steps = [
     'Request Form',
@@ -75,7 +117,7 @@ function Record_request() {
     'Completed',
   ];
 
-  const [cartItems, setCartItems] = useState([]);
+
 
 
   return (

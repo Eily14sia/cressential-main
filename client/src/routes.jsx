@@ -55,7 +55,7 @@ import Payment from "./layouts/payment";
 import Unauthorized from "./unauthorized_page";
 
 import Student_record_request from "./layouts/student_record_request";
-
+import Student_record_issuance from "./layouts/student_record_issuance";
 
 import Alumni_record_request from "./layouts/alumni_record_request";
 import Alumni_record_per_request from "./layouts/alumni_record_per_request";
@@ -131,14 +131,14 @@ const routes = [
       //   route: "/student/record-per-request/:ctrl_number",
       //   component: <Student_record_request />,
       // },      
-      // {
-      //   type: "collapse",
-      //   name: "Student Record Issuance",
-      //   key: "registrar-student-record-issuance",
-      //   icon: icon4,
-      //   route: "/student/record-issuance",
-      //   component: <Student_record_request />,
-      // },
+      {
+        type: "collapse",
+        name: "Student Record Issuance",
+        key: "registrar-student-record-issuance",
+        icon: icon4,
+        route: "/student/record-issuance",
+        component: <Student_record_issuance />,
+      },
     ],
   },
   {

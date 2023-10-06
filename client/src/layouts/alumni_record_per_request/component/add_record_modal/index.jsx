@@ -29,7 +29,7 @@ import axios from 'axios';
 
 function DialogBox({ open, onClose, recordType, recordIPFS, 
 recordID, recordPassword, setRecordPassword, payment_status, ctrl_number,
-setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setData}) {
+setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setData, student_email}) {
 
 
 // =========== For the datatable =================
@@ -142,7 +142,7 @@ const handleFileUpload = async () => {
         handleCloseUploadDialog();
         setIsSuccess(true);
         setAlertMessage('Record updated successfully.');
-        // sendEmail('eilywow14@gmail.com', CID, recordPassword);
+        // sendEmail(student_email, CID, recordPassword);
 
         // Fetch updated data and update the state
         fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)

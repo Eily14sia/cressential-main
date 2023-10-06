@@ -38,7 +38,6 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
       processing_officer: processing_officer,
       request_status: request_status,      
     };
-  console.log(new_ctrl_number);
     try {
       const response = await fetch(`http://localhost:8081/mysql/update-record-request/${new_ctrl_number}`, {
         method: 'PUT',

@@ -1,17 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -42,7 +28,7 @@ import DataTable from "../../examples/Tables/DataTable";
 import IssuanceTable from  "../issuance_table";
 import regeneratorRuntime from "regenerator-runtime";
 
-function Alumni_record_issuance() {
+function Student_record_issuance() {
 
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -63,7 +49,7 @@ function Alumni_record_issuance() {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/alumni/record-issuance")
+    fetch("http://localhost:8081/mysql/student/record-issuance")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -94,7 +80,7 @@ function Alumni_record_issuance() {
         // sendEmail('eilywow14@gmail.com', CID, recordPassword);
 
         // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/alumni/record-issuance")
+        fetch("http://localhost:8081/mysql/student/record-issuance")
         .then((res) => res.json())
           .then((data) => {
             setData(data); // Set the fetched data into the state
@@ -175,4 +161,4 @@ function Alumni_record_issuance() {
   );
 }
 
-export default Alumni_record_issuance;
+export default Student_record_issuance;

@@ -26,7 +26,7 @@ import {
   import MDTypography from '../../../../components/MDTypography';
   import MDAvatar from '../../../../components/MDAvatar';
 
-const index = ({student_id,  setStudentEmail}) => {
+const index = (props) => {
     const [data, setData] = useState([]); // Initialize data as an empty array
     const [applicantInfo, setApplicantInfo] = useState(null);
 
@@ -42,22 +42,16 @@ const index = ({student_id,  setStudentEmail}) => {
     useEffect(() => {
     // Check if data has been loaded before finding the applicant_info
     if (data.length > 0) {
-      const foundApplicantInfo  = data.find((item) => item.id == student_id);     
-      setApplicantInfo(foundApplicantInfo ); // Set the applicant_info state   
-
-      if (foundApplicantInfo && foundApplicantInfo.email) {
-        setStudentEmail(foundApplicantInfo.email);
-      }
+      const applicantInfo = data.find((item) => item.id == props.student_id);
+      setApplicantInfo(applicantInfo); // Set the applicant_info state
     }
-  }, [data, student_id]);  
+  }, [data, props]);  
 
   // Check if applicantInfo is available before accessing its properties
   if (!applicantInfo) {
     // Handle the case when applicantInfo is not available yet
     return <div>Loading...</div>;
   }
-
-  
 
  
   const fullName = `${applicantInfo.first_name} ${applicantInfo.last_name}`;
@@ -68,7 +62,7 @@ const index = ({student_id,  setStudentEmail}) => {
                
               
                 <MDTypography variant="h6" fontWeight="medium">
-                Applicant Information 
+                Applicant Information
                 </MDTypography>
             </MDBox>
             <MDBox p={2}>
@@ -89,8 +83,8 @@ const index = ({student_id,  setStudentEmail}) => {
                 <MDTypography variant="body2" fontWeight="medium">{applicantInfo.entry_year_from + " - " + applicantInfo.entry_year_to}</MDTypography>
 
                 <MDTypography variant="caption" mt={2}>Date of Graduation: </MDTypography>
-                <MDTypography variant="body2" fontWeight="medium">{new Date(applicantInfo.date_of_graduation).toLocaleDateString()}</MDTypography>
-                
+                <MDTypography variant="body2" fontWeight="medium">{applicantInfo.date_of_graduation ? applicantInfo.date_of_graduation : "N/A"}</MDTypography>
+        
                 <Divider />
                 <MDTypography variant="h6" fontWeight="medium">
                 Contact Information

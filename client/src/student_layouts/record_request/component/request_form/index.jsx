@@ -282,8 +282,8 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
                 {/* END OF PURPOSE */}
 
                 <Grid container spacing={2}>
-                    <Grid item xs={9}></Grid>
-                    <Grid item xs={3} sx={{marginTop:"10px"}} >
+                    <Grid item xs={7}></Grid>
+                    <Grid item xs={5} sx={{marginTop:"10px"}} >
                         <MDButton variant="gradient" color="info" fullWidth onClick={handleOpenDialog}
                             disabled={selectedPurpose == "" || cartItems.length == 0}>
                             <Icon>arrow_forward</Icon> &nbsp; Next

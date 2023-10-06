@@ -27,24 +27,24 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import MDBadge from "../../components/MDBadge";
+import MDAlert from '../../components/MDAlert';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import DataTable from "../../examples/Tables/DataTable";
 import RequestTable from '../request_table';
-
 import regeneratorRuntime from "regenerator-runtime";
+import { useLocation } from "react-router-dom";
 
-function Student_record_request() {
-  // const { columns, rows } = authorsTableData();
+function Student_record_request({user_id}) {
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -58,12 +58,17 @@ function Student_record_request() {
       {alertMessage}
     </MDTypography>
   );
-  
+
+  // =========== For the Datatable =================
   const [data, setData] = useState([]);
+  const [student_data, setStudentData] = useState([]);
+  const [type_of_record, setTypeOfRecord] = useState([]);
+  
   const pending_data = data.filter((record) => record.request_status === "Pending");
   const received_data = data.filter((record) => record.request_status === "Received");
-  const declined_data = data.filter((record) => record.request_status === "Declined");
+  const declined_data = data.filter((record) => record.request_status === "Declined" || record.request_status === "Cancelled");
   const completed_data = data.filter((record) => record.request_status === "Completed");
+
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/payment-student-record-request")
@@ -74,22 +79,95 @@ function Student_record_request() {
       .catch((err) => console.log(err));
   }, []);
 
-  const columns = [
-    { Header: "Ctrl No.", accessor: "ctrl_num"},
-    { Header: "Student ID", accessor: "student_id"},
-    { Header: "Record Type", accessor: "record_type" },
-    { Header: "Date Requested", accessor: "date_requested"},
-    { Header: "Date Releasing", accessor: "date_releasing"},
-    { Header: "Processing Officer", accessor: "processing_officer"},
-    { Header: "Payment Status", accessor: "payment_status"},
-    { Header: "Request Status", accessor: "request_status"},
-    { Header: "action", accessor: "action"}
-  ];
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/student-management")
+      .then((res) => res.json())
+      .then((student_data) => {
+        setStudentData(student_data); // Set the fetched student_data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/registrar-management")
+      .then((res) => res.json())
+      .then((registrar_data) => {
+        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/type-of-record")
+      .then((res) => res.json())
+      .then((type_of_record) => {
+        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  // =================  UPDATE =======================
+
+  const [processing_officer, setProcessingOfficer] = useState('');
+  const [request_status, updateRequestStatus] = useState('');
+  const [date_releasing, updateDateReleasing] = useState('');
+  // State to track whether the dialog is open
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+
+  // Create a new Date object from the date string
+  const parsedDate = new Date(date_releasing);
+
+    // Function to handle update record form submission
+    const handleUpdateSubmit = async (event) => {
+      event.preventDefault();
+      // Create an updated record object to send to the server
+      const updatedRecord = {
+        date_releasing: date_releasing,
+        processing_officer: processing_officer,
+        request_status: request_status,      
+      };
+      try {
+        const response = await fetch(`http://localhost:8081/mysql/update-record-request/${ctrl_number}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedRecord),
+        });
+  
+        if (response.ok) {
+          handleCloseUpdateDialog();
+          setIsSuccess(true);
+          setAlertMessage('Record updated successfully.');
+  
+          // Fetch updated data and update the state
+          fetch("http://localhost:8081/mysql/payment-alumni-record-request")
+            .then((res) => res.json())
+            .then((data) => {
+              setData(data); // Set the fetched data into the state
+            })
+            .catch((err) => console.log(err));
+        } else {
+          setAlertMessage('Failed to update record');
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error('Error:', error);
+      }
+    };
+  
+  // Function to close the dialog
+  const handleCloseUpdateDialog = () => {
+    setIsUpdateDialogOpen(false);
+  };
+  
 
   return (
     <DashboardLayout>
@@ -126,22 +204,14 @@ function Student_record_request() {
                 </MDTypography>
                 
                 {/* <Link to="/graduate-record/add-record" component={RouterLink}> */}
-                <Link to="/graduate-record/add-record" component={RouterLink}>
+                {/* <Link to="/graduate-record/add-record" component={RouterLink}>
                   <MDButton variant="gradient" color="dark">
                     Add Record&nbsp;
                     <Icon>add</Icon>
                   </MDButton>
-                </Link>
+                </Link> */}
               </MDBox>
-                <MDBox p={3}>
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
-                  
+                <MDBox p={3}>                  
                   <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       <Tabs
@@ -187,11 +257,21 @@ function Student_record_request() {
                     {tabValue === 0 && (
                       // Render content for the "All" tab
                       <MDBox pt={3}>
-                        <RequestTable table_data={data} 
-                        setData={setData} 
+                        <RequestTable table_data={data} setData={setData} 
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -204,7 +284,17 @@ function Student_record_request() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
-                        />
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
                       </MDBox>
                     )}
 
@@ -216,6 +306,17 @@ function Student_record_request() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -228,6 +329,17 @@ function Student_record_request() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -240,6 +352,17 @@ function Student_record_request() {
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
                         setAlertMessage={setAlertMessage}
+                        ctrl_number={ctrl_number}
+                        set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
