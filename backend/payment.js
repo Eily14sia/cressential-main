@@ -51,7 +51,7 @@ router.post('/paymongoIntent', async (req, res) => {
 });
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
-  const { selectedOption } = req.body;
+  const { selectedOption, totalAmount, ctrl_number } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {
@@ -108,11 +108,36 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
           const paymentMethodsURL = next_action.redirect.url;
            res.json({ redirectUrl: paymentMethodsURL });
           // Now, you can use `redirectUrl` in your frontend to perform the redirection.
+
+          const updatedRecord = {
+            payment_method: selectedOption,
+            total_amount: totalAmount,
+            payment_id: req.clientKey,  
+          };
+          const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+          try {
+            const response = await axios.put(apiUrl, updatedRecord, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          
+            if (response.status === 200) {
+              console.log('Successfully updated the payment:', response.data);
+              // Handle success here
+            } else {
+              console.error('Error:', response.statusText);
+              // Handle error here
+            }
+          } catch (error) {
+            console.error('An error occurred:', error);
+            // Handle the error
+          }
         }
         // Render your modal for 3D Secure Authentication since next_action has a value. You can access the next action via paymentIntent.attributes.next_action.
       } else if (paymentIntentStatus === 'succeeded') {
+      
 
-        // You already received your customer's payment. You can show a success message from this condition.
       } else if(paymentIntentStatus === 'awaiting_payment_method') {
         // The PaymentIntent encountered a processing error. You can refer to paymentIntent.attributes.last_payment_error to check the error and render the appropriate error message.
       }  else if (paymentIntentStatus === 'processing'){
@@ -183,7 +208,32 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
         if (next_action && next_action.type === 'redirect' && next_action.redirect) {
           const paymentMethodsURL = next_action.redirect.url;
            res.json({ redirectUrl: paymentMethodsURL });
-          // Now, you can use `redirectUrl` in your frontend to perform the redirection.
+          
+           const updatedRecord = {
+            payment_method: selectedOption,
+            total_amount: totalAmount,
+            payment_id: req.clientKey,  
+          };
+          const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+          try {
+            const response = await axios.put(apiUrl, updatedRecord, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          
+            if (response.status === 200) {
+              console.log('Successfully updated the payment:', response.data);
+              // Handle success here
+            } else {
+              console.error('Error:', response.statusText);
+              // Handle error here
+            }
+          } catch (error) {
+            console.error('An error occurred:', error);
+            // Handle the error
+          }
+        
         }
         // Render your modal for 3D Secure Authentication since next_action has a value. You can access the next action via paymentIntent.attributes.next_action.
       } else if (paymentIntentStatus === 'succeeded') {
@@ -263,7 +313,32 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
         if (next_action && next_action.type === 'redirect' && next_action.redirect) {
           const paymentMethodsURL = next_action.redirect.url;
            res.json({ redirectUrl: paymentMethodsURL });
-          // Now, you can use `redirectUrl` in your frontend to perform the redirection.
+          
+           const updatedRecord = {
+            payment_method: selectedOption,
+            total_amount: totalAmount,
+            payment_id: req.clientKey,  
+          };
+          const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+          try {
+            const response = await axios.put(apiUrl, updatedRecord, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          
+            if (response.status === 200) {
+              console.log('Successfully updated the payment:', response.data);
+              // Handle success here
+            } else {
+              console.error('Error:', response.statusText);
+              // Handle error here
+            }
+          } catch (error) {
+            console.error('An error occurred:', error);
+            // Handle the error
+          }
+        
         }
         // Render your modal for 3D Secure Authentication since next_action has a value. You can access the next action via paymentIntent.attributes.next_action.
       } else if (paymentIntentStatus === 'succeeded') {

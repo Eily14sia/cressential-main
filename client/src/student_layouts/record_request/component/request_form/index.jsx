@@ -38,7 +38,7 @@ import DialogBox from '../add_record_modal';
 
 import { useMaterialUIController } from "../../../../context";
 
-const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems}) => {
+const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
 
     const [controller] = useMaterialUIController();
     const { darkMode } = controller;
@@ -304,6 +304,8 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
                 setAlertMessage={setAlertMessage}
                 handleCloseDialog={handleCloseDialog}
                 setActiveStep={setActiveStep}
+                ctrl_number={ctrl_number}
+                setCtrlNumber={setCtrlNumber}
                 />              
                 </Grid>
             </Grid>

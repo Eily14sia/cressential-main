@@ -41,7 +41,7 @@ import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard'
 
 import axios from 'axios';
 
-const index = ( {totalAmount, cartItems}) => {
+const index = ( {totalAmount, cartItems, ctrl_number}) => {
 
    const [controller] = useMaterialUIController();
    const [redirectUrl, setRedirectUrl] = useState('');
@@ -60,7 +60,7 @@ const index = ( {totalAmount, cartItems}) => {
       try {
         // Send the selected payment method to the backend
         const response = await axios.post('http://localhost:8081/payments/paymongoMethod', {
-          selectedOption,
+          selectedOption, totalAmount, ctrl_number
         });
   
         // Handle the response from the backend if needed

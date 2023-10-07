@@ -46,6 +46,7 @@ function Request_table() {
   const [data, setData] = useState([]);
   const [student_data, setStudentData] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   
   // Retrieve the user_role from localStorage
   const user_id = localStorage.getItem('user_id');
@@ -235,6 +236,8 @@ function Request_table() {
                         setAlertMessage={setAlertMessage} 
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -249,6 +252,8 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -263,6 +268,8 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -277,6 +284,8 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}
@@ -291,6 +300,8 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        isUpdateDialogOpen={isUpdateDialogOpen}
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
                       </MDBox>
                     )}

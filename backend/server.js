@@ -424,7 +424,7 @@ router.get('/student-record-request/:user_id', (req, res) => {
 
 // Add Record
 router.post('/record-request/add-record', (req, res) => {
-  const { record_id, student_id, purpose } = req.body;
+  const { record_id, student_id, purpose, total_amount } = req.body;
 
   // Split the comma-separated record_ids into an array
   const recordIds = record_id.split(',');
@@ -435,7 +435,7 @@ router.post('/record-request/add-record', (req, res) => {
   date_releasing.setDate(date_releasing.getDate() + 15);
 
   const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES (?, ?, ?, ?, ?)";
-  const paymentSQL = "INSERT INTO payment (ctrl_number) VALUES (?)";
+  const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES (?, ?)";
   const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES (?, ?)";
 
   db.beginTransaction((err) => {
@@ -443,8 +443,6 @@ router.post('/record-request/add-record', (req, res) => {
       console.error(err);
       return res.status(500).json({ message: 'Failed to add record' });
     }
-
-    const ctrlNumbers = []; // Store the generated ctrl_numbers
 
     // Insert into record_request table
     db.query(recordRequestSQL, [student_id, record_id, purpose, date_requested, date_releasing], (err, result) => {
@@ -458,7 +456,7 @@ router.post('/record-request/add-record', (req, res) => {
       const ctrl_number = result.insertId; // Get the auto-generated ctrl_number from the record_request
 
       // Insert into payment table using the ctrl_number
-      db.query(paymentSQL, [ctrl_number], (err, paymentResult) => {
+      db.query(paymentSQL, [ctrl_number, total_amount], (err, paymentResult) => {
         if (err) {
           db.rollback(() => {
             console.error(err);
@@ -492,19 +490,18 @@ router.post('/record-request/add-record', (req, res) => {
                     });
                   }
 
-                  return res.status(200).json({ message: 'Your request has been submitted.' });
+                  return res.status(200).json({ message: 'Your request has been submitted.', ctrl_number:  ctrl_number});
                 });
               }
             }
           );
         });
-
       });
     });
   });
 });
 
-// Update Record
+// Cancel Request
 router.put('/cancel-record-request/:ctrl_number', (req, res) => {
   const ctrl_number = req.params.ctrl_number;
   const { type, price } = req.body;
@@ -512,6 +509,26 @@ router.put('/cancel-record-request/:ctrl_number', (req, res) => {
   const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = ?";
 
   db.query(sql, [ctrl_number], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
+
+// Update Record
+router.put('/update-payment/:ctrl_number', (req, res) => {
+  const ctrl_number = req.params.ctrl_number;
+  const {total_amount, payment_method, payment_id } = req.body;
+
+  const payment_date = new Date();
+  const sql = "UPDATE payment SET payment_id = ?, payment_date = ?, total_amount = ?, payment_method = ?, payment_status = 'Paid'  WHERE ctrl_number = ?";
+
+  db.query(sql, [payment_id, payment_date, total_amount, payment_method, ctrl_number], (err, result) => {
       if (err) {
           console.error(err);
           return res.status(500).json({ message: 'Failed to update record' });

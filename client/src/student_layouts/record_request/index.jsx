@@ -33,6 +33,7 @@ import DocumentSelection from "./component/document_selection";
 import DialogBox from './component/add_record_modal';
 import RequestForm from './component/request_form';
 import PaymentForm from './component/payment_form';
+import axios from 'axios';
 
 import { useMaterialUIController } from "../../context";
 
@@ -40,6 +41,7 @@ function Record_request() {
 
   const [cartItems, setCartItems] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);
+  const [ctrl_number, setCtrlNumber] = useState('');
 
   useEffect(() => {
     fetch("http://localhost:8081/mysql/type-of-record")
@@ -59,6 +61,7 @@ function Record_request() {
   const activeSteps = location.state?.activeStep || 0;
   const stateAmount= location.state?.total_amount;
   const stateRecordIDs = location.state?.recordIDs;
+  const stateCtrlNumber = location.state?.ctrl_number;
 
   // Split the comma-separated IDs into an array
   const recordIDsArray = stateRecordIDs ? stateRecordIDs.split(',') : [];
@@ -66,14 +69,39 @@ function Record_request() {
   // Initialize an array to store the cart items
   const newCartItems = [];
 
-  console.log("Cart Items:"+cartItems);
-  console.log("recordIDsArray:"+recordIDsArray);
-
   useEffect(() => {
     if (stateAmount) {
       setTotalAmount(stateAmount+".00");      
     }
   }, [stateAmount]); 
+
+  useEffect(() => {
+    if (stateCtrlNumber) {
+      setCtrlNumber(stateCtrlNumber);   
+      handlePaymentIntent(stateAmount);     
+    }
+  }, [stateCtrlNumber]);
+  
+  const handlePaymentIntent = async (total_amount) => {
+
+    try {
+      const tAmount = parseInt(total_amount, 10);
+      const response = await axios.post('http://localhost:8081/payments/paymongoIntent', {
+        amount: tAmount * 100,
+      });
+  
+      if (response.data && response.data.redirectUrl) {
+        setRedirectUrl(response.data.redirectUrl);
+        setPaymentResponse(response.data.paymentResponse);
+        
+      } else {
+        console.error('Invalid response from the server');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+  
 
 
   useEffect(() => {
@@ -162,9 +190,11 @@ function Record_request() {
                  setTotalAmount={setTotalAmount} 
                  setActiveStep={setActiveStep}
                  cartItems={cartItems}
-                 setCartItems={setCartItems}/>
+                 setCartItems={setCartItems}
+                 ctrl_number={ctrl_number}
+                 setCtrlNumber={setCtrlNumber}/>
               ) : steps[activeStep] === 'Payment' ? (
-                <PaymentForm totalAmount={totalAmount} cartItems={cartItems}/>
+                <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number}/>
               ) : null}
               
             

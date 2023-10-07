@@ -47,6 +47,7 @@ import UpdateDialogBox from './component/update_record_modal';
 import CancelDialogBox from './component/cancel_request_modal';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
+import axios from 'axios';
 
 function Request_table({table_data, setData, setAlertMessage, setIsError, setIsSuccess,
   processing_officer, updateProcessingOfficer, request_status, updateRequestStatus,
@@ -206,6 +207,8 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
     setIsCancelDialogOpen(false);
   };
   
+
+
   return (
     <>
       <DataTable table={{ columns, 
@@ -300,11 +303,11 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
                     </IconButton>
                 </Tooltip>
               </Link>
-              <Link to={`/record-request`} component={RouterLink} state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id }}>
+              <Link to={`/record-request`} component={RouterLink} state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}>
                 <Tooltip title="Pay now" >
                   <span>
-                  <IconButton disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success" 
-                    >
+                  <IconButton disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
+                     >
                     <PaymentsIcon />
                   </IconButton>
                   </span>

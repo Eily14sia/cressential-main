@@ -21,7 +21,7 @@ import axios from 'axios';
 
 
 function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, purposeCollege,
-  setIsSuccess, setIsError, setAlertMessage, handleCloseDialog, setActiveStep, setData}) {
+  setIsSuccess, setIsError, setAlertMessage, handleCloseDialog, setActiveStep, setData, ctrl_number, setCtrlNumber}) {
 
   // Extract the IDs and join them with commas
   const record_id = cartItems.map(item => item.id).join(',');
@@ -33,7 +33,8 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
     const newRecord = {
       record_id: record_id,
       student_id: 1,
-      purpose: selectedPurpose,      
+      purpose: selectedPurpose,   
+      total_amount: totalAmount
     };
     
     try {
@@ -49,6 +50,11 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         handleCloseDialog();
         setIsSuccess(true);
         setAlertMessage('Record added successfully.');
+
+        const data_ctrl_number = await response.json();
+        const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
+        console.log(ctrl_num); // Use the ctrl_number as needed
+        setCtrlNumber(ctrl_num);
 
         // Fetch updated data and update the state
         fetch("http://localhost:8081/mysql/record-request")
