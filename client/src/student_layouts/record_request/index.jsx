@@ -33,6 +33,7 @@ import DocumentSelection from "./component/document_selection";
 import DialogBox from './component/add_record_modal';
 import RequestForm from './component/request_form';
 import PaymentForm from './component/payment_form';
+import Complete from './component/complete';
 import axios from 'axios';
 
 import { useMaterialUIController } from "../../context";
@@ -194,7 +195,9 @@ function Record_request() {
                  ctrl_number={ctrl_number}
                  setCtrlNumber={setCtrlNumber}/>
               ) : steps[activeStep] === 'Payment' ? (
-                <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number}/>
+                <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number} setActiveStep={setActiveStep}/>              
+              ) : steps[activeStep] === 'Completed' ? (
+                <Complete/>
               ) : null}
               
             

@@ -288,11 +288,11 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
                 <EditIcon /> 
               </IconButton>
             </Tooltip>
-            <Tooltip title="Delete" >
+            {/* <Tooltip title="Delete" >
               <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
                 <DeleteIcon />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
             </>
             ) : ( 
               <>

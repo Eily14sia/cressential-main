@@ -30,7 +30,7 @@ router.get('/', (re, res)=> {
 const secretKey = 'your-secret-key';
 
 // Define a route to get user data by wallet_address
-router.post('/login', (req, res) => {
+router.post('/login-metamask', (req, res) => {
   const { wallet_address } = req.body;
   const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
 
@@ -56,6 +56,42 @@ router.post('/login', (req, res) => {
   });
 });
 
+
+router.post('/login', (req, res) => {
+  const { email, password } = req.body.loginRecord;
+
+  // Hash the password using SHA-256
+  const hashedPassword = hashPassword(password);
+  
+  // Query the database to retrieve user data
+  const sql = 'SELECT * FROM user_management WHERE email = ? AND password = ?';
+  db.query(sql, [email, hashedPassword], (err, results) => {
+    if (err) {
+      console.error('MySQL query error:', err);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = results[0];
+    const userData = {
+      userId: user.user_id,
+      role: user.role,
+      status: user.status,
+    };
+
+    // Generate a JWT token
+    const token = jwt.sign(userData, secretKey, {
+      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+    });
+
+    // Include the token in the response
+    res.json({ user: userData, token });
+  });
+});
 
 router.post('/verify', (req, res) => {
   const { password, hash } = req.body;
@@ -344,6 +380,7 @@ function hashPassword(password) {
         });
     });
 
+// ================ User Management =======================
 
     // User Management Tab
     router.get('/users', (req, res)=> {
@@ -358,6 +395,8 @@ function hashPassword(password) {
             return res.json(data);
         })
     })
+
+// ================ Student Management =======================
 
   // Student Management Tab
     router.get('/student-management', (req, res)=> {
@@ -374,6 +413,76 @@ function hashPassword(password) {
         })
     })
 
+  // Student Management with UserID
+  router.get('/student-management/:user_id', (req, res) => {
+    const user_id = req.params.user_id;
+        
+        const sql = `
+            SELECT *
+            FROM student_management 
+            JOIN user_management ON student_management.user_id = user_management.user_id
+            WHERE student_management.user_id = ?;              
+        `;
+
+        db.query(sql, [user_id], (err, data)=> {
+            if(err) return res.json(err);
+            return res.json(data);
+        })
+    })
+
+    // Add Record
+    router.post('/student-management/add-record', (req, res) => {
+    const formData = req.body;
+
+    const email = formData.emailAddress;
+    const password = hashPassword(formData.studentNumber);
+    const wallet_address = formData.walletAddress;
+  
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES (?, ?, ?, 2)";
+    
+    db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
+    if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to add record' });
+    }
+    
+
+    const user_id = result.insertId;
+    const values = [
+      user_id,
+      formData.studentNumber,
+      formData.lastName,
+      formData.firstName,
+      formData.middleName,
+      formData.college,
+      formData.course,
+      formData.entryYearFrom,
+      formData.entryYearTo,
+      formData.graduationDate,
+      formData.permanentAddress,
+      formData.mobileNumber,
+      formData.emailAddress,
+      0
+    ];
+
+    const student_management_sql = `INSERT INTO student_management (user_id, student_number, last_name, 
+      first_name, middle_name, college, course, entry_year_from,  entry_year_to, 
+      date_of_graduation, permanent_adddress, mobile_number, email, is_alumni) VALUES 
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    db.query(student_management_sql, values, (err, result2) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to add record' });
+      }      
+
+      return res.status(200).json({ message: 'Record added successfully' });
+    });
+  });
+});
+
+// ================ Registrar Management =======================
+
   // Registrar Management Tab
     router.get('/registrar-management', (req, res)=> {
         
@@ -388,6 +497,66 @@ function hashPassword(password) {
             return res.json(data);
         })
     })
+
+      // Student Management with UserID
+  router.get('/registrar-management/:user_id', (req, res) => {
+    const user_id = req.params.user_id;
+        
+        const sql = `
+            SELECT *
+            FROM registrar_management 
+            JOIN user_management ON registrar_management.user_id = user_management.user_id
+            WHERE registrar_management.user_id = ?;              
+        `;
+
+        db.query(sql, [user_id], (err, data)=> {
+            if(err) return res.json(err);
+            return res.json(data);
+        })
+    })
+
+  // Add Record
+  router.post('/registrar-management/add-record', (req, res) => {
+    const formData = req.body;
+
+    const email = formData.emailAddress;
+    const password = hashPassword('Registrar123');
+    const wallet_address = formData.walletAddress;
+  
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES (?, ?, ?, 1)";
+    
+    db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
+    if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to add record' });
+    }
+    
+
+    const user_id = result.insertId;
+    const values = [
+      user_id,
+      formData.lastName,
+      formData.firstName,
+      formData.middleName,      
+      formData.emailAddress,
+      formData.mobileNumber,
+      0
+    ];
+
+    const registrar_management_sql = `INSERT INTO registrar_management (user_id, last_name, 
+      first_name, middle_name, email, mobile_number) VALUES 
+      (?, ?, ?, ?, ?, ?)`;
+
+    db.query(registrar_management_sql, values, (err, result2) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to add record' });
+      }      
+
+      return res.status(200).json({ message: 'Record added successfully' });
+    });
+  });
+});
 
 /* ===========================================================
                             STUDENT

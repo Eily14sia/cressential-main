@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -48,7 +33,7 @@ function Student_Management() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
+    fetch("http://localhost:8081/mysql/registrar-management")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -58,12 +43,8 @@ function Student_Management() {
 
   const columns = [
     { Header: "User ID", accessor: "user_id", align: "center", width: "10%", },
-    { Header: "Name", accessor: "name" },
+    { Header: "Name", accessor: "name", align: "left", width: "20%",  },
     { Header: "Contact Info", accessor: "contact_info", align: "left",},
-    { Header: "Course", accessor: "course", },
-    { Header: "Entry Year", accessor: "entry_year" },
-    { Header: "Date of Graduation", accessor: "date_of_graduation" },
-    { Header: "Permanent Address", accessor: "permanent_address", },
     { Header: "Status", accessor: "status" },
     { Header: "Action", accessor: "action" },
   ];
@@ -128,10 +109,10 @@ function Student_Management() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Student Management Table
+                  Registrar Management Table
                 </MDTypography>
                 
-                <Link to="/student-management/add-record" component={RouterLink}>
+                <Link to="/registrar-management/add-record" component={RouterLink}>
                   <MDButton variant="gradient" color="dark">                    
                     <Icon>add</Icon> &nbsp;Add record
                   </MDButton>
@@ -149,13 +130,12 @@ function Student_Management() {
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({
-                        user_id: item.user_id,
+                       
                         name: (
                         <MDBox lineHeight={1}>
                           <MDTypography display="block" variant="button" fontWeight="medium">
                            {item.first_name + " " + item.middle_name + " " + item.last_name}
-                          </MDTypography>
-                          <MDTypography variant="caption">{item.student_number}</MDTypography>
+                          </MDTypography>                          
                         </MDBox>
                         ),
                         contact_info: (
@@ -166,17 +146,7 @@ function Student_Management() {
                             <MDTypography variant="caption">{item.mobile_number}</MDTypography>
                           </MDBox>
                         ),
-                        course: (
-                          <MDBox lineHeight={1} textAlign="left">
-                            <MDTypography display="block" variant="caption"  fontWeight="medium">
-                              {item.course}
-                            </MDTypography>
-                            <MDTypography variant="caption">{item.college}</MDTypography>
-                          </MDBox>
-                        ),
-                        entry_year: item.entry_year_from + " - " + item.entry_year_to,
-                        date_of_graduation: new Date(item.date_of_graduation).toLocaleDateString(),
-                        permanent_address: (item.permanent_address == null ? "N/A" : item.permanent_address),
+                        user_id: item.user_id,                       
                         status: (
                           <>
                             <MDBox ml={-1}>
@@ -196,11 +166,10 @@ function Student_Management() {
                           <>
                           <Tooltip title="Update" >
                             <IconButton color="info" component={RouterLink}
-                              to="/student-management/update-record" state={{ user_id: item.user_id, status: item.status}}>
+                              to="/registrar-management/update-record" state={{ user_id: item.user_id, status: item.status, }}>
                               <EditIcon />
                             </IconButton>
-                          </Tooltip>
-                          
+                          </Tooltip>                     
                           </>     
                         )
                       })), 

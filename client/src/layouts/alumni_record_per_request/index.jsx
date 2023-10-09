@@ -307,11 +307,11 @@ function Alumni_record_per_request() {
                                   <EditIcon />
                                 </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete" >
+                          {/* <Tooltip title="Delete" >
                             <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
                               <DeleteIcon />
                             </IconButton>
-                          </Tooltip>
+                          </Tooltip> */}
                           </> 
                           ) : (null)}
                           </>    

@@ -190,6 +190,10 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
     <SidenavCollapse name="Student Management" icon={<Icon fontSize="small">backpack</Icon>} active={collapseName === "student-management"} />
     </NavLink>,
 
+    <NavLink key="registrar-management" to="/registrar-management" onClick={() => setCollapseName("registrar-management")}>
+    <SidenavCollapse name="Registrar Management" icon={<Icon fontSize="small">admin_panel_settings</Icon>} active={collapseName === "registrar-management"} />
+    </NavLink>,
+
     <NavLink key="user-management" to="/user-management" onClick={() => setCollapseName("user-management")}>
     <SidenavCollapse name="User Management" icon={<Icon fontSize="small">group</Icon>} active={collapseName === "user-management"} />
     </NavLink>,

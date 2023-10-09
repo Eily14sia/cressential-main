@@ -140,9 +140,9 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
             route="/authentication/sign-in"
             light={light}
           /> */}
-          <DefaultNavbarLink icon="home" name="home" route="/home" light={light} />
-          <DefaultNavbarLink icon="info" name="about" route="/dashboard"  light={light} />
-          <DefaultNavbarLink icon="call" name="contact" route="/dashboard"  light={light} />
+          <DefaultNavbarLink icon="home" name="home" route="/" light={light} />
+          <DefaultNavbarLink icon="info" name="about" route="/"  light={light} />
+          <DefaultNavbarLink icon="call" name="contact" route="/"  light={light} />
         </MDBox>
         {action &&
           (action.type === "internal" ? (
@@ -155,28 +155,24 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
                 size="small"
                 onClick={handleOpenDialog}
               >
-                {action.label}
-                <Icon>login</Icon>                
+                <Icon>login</Icon>  
+                {action.label}                              
               </MDButton>
               <LoginModal open={isDialogOpen} onClose={handleCloseDialog} />
             </MDBox>
           ) : (
             <MDBox display={{ xs: "none", lg: "inline-block" }}>
             <MDButton
-              // component="a"
-              // href={action.route}
-              onClick={handleOpenDialog}
-              target="_blank"
-              rel="noreferrer"
+              component={Link}
+              to={action.route}             
               variant="gradient"
               color={action.color ? action.color : "info"}
               size="small"
               sx={{ mt: -0.3, display: "flex", alignItems: "center" }} // Added display and alignItems for vertical centering
             >
+              <Icon >login</Icon> {/* Add margin to the right of the icon */} &nbsp;
               {action.label}
-              <Icon sx={{ marginLeft: "0.5rem" }}>login</Icon> {/* Add margin to the right of the icon */}
             </MDButton>
-            <LoginModal userID={userID} set_user_id={set_user_id} open={isDialogOpen} onClose={handleCloseDialog} />
           </MDBox>
 
           ))}

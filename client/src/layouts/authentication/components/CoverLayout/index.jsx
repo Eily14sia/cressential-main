@@ -34,11 +34,14 @@ function CoverLayout({ coverHeight, image, children }) {
   return (
     <PageLayout>
       <DefaultNavbar
-        action={{
+       action={{
           type: "external",
-          route: "https://creative-tim.com/product/material-dashboard-react",
-          label: "Login as",
+          route: "/authentication/log-in",
+          label: "Login",
+          color: "dark",
+          
         }}
+        disabled
         transparent
         light
       />

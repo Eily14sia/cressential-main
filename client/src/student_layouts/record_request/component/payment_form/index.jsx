@@ -41,7 +41,7 @@ import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard'
 
 import axios from 'axios';
 
-const index = ( {totalAmount, cartItems, ctrl_number}) => {
+const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep}) => {
 
    const [controller] = useMaterialUIController();
    const [redirectUrl, setRedirectUrl] = useState('');
@@ -65,9 +65,10 @@ const index = ( {totalAmount, cartItems, ctrl_number}) => {
   
         // Handle the response from the backend if needed
         console.log('Response from the backend:', response.data);
-  
-        // Redirect the user to the payment method page
-        window.location.href = response.data.redirectUrl;
+        
+         // Open the payment method page in a new tab
+        window.open(response.data.redirectUrl, '_blank');
+        setActiveStep(2);
       } catch (error) {
         console.error('Error:', error);
       }

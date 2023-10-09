@@ -63,6 +63,7 @@ function User_Management() {
 
   const columns = [
     { Header: "user_id", accessor: "user_id", width: "10%" },
+    { Header: "email", accessor: "email", width: "10%" },
     { Header: "Wallet Address", accessor: "wallet", width: "30%" },
     { Header: "Status", accessor: "status", width: "10%" },
     { Header: "Role", accessor: "role", width: "10%" },
@@ -138,12 +139,8 @@ function User_Management() {
               >
                 <MDTypography variant="h6" color="white">
                   User Management Table
-                </MDTypography>
+                </MDTypography>                
                 
-                <MDButton variant="gradient" color="dark">
-                  Add Record&nbsp;
-                  <Icon>add</Icon>
-                </MDButton>
               </MDBox>
 
                 <MDBox pt={3}>
@@ -163,9 +160,9 @@ function User_Management() {
                           <MDTypography display="block" variant="button" fontWeight="medium">
                            {item.user_id}
                           </MDTypography>
-                          <MDTypography variant="caption">{item.email}</MDTypography>
                         </MDBox>
                         ),
+                        email: item.email,                        
                         wallet: item.wallet_address,
                         status: (
                           <>
@@ -193,11 +190,31 @@ function User_Management() {
                         ),
                         action: (
                           <>
-                            <Tooltip title="Update" >
-                              <IconButton color="info" onClick={() => handleOpenUpdateDialog(item)}>
-                                <EditIcon />
-                              </IconButton>
+                            <Tooltip title="Update">
+                              {parseInt(item.role) === 1 ? (
+                                <IconButton
+                                  color="info"
+                                  component={RouterLink}
+                                  to="/registrar-management/update-record"
+                                  state={{ user_id: item.user_id, status: item.status }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              ) : (
+                                <IconButton
+                                  color="info"
+                                  component={RouterLink}
+                                  to="/student-management/update-record"
+                                  state={{
+                                    user_id: item.user_id,
+                                    status: item.status,                                    
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              )}
                             </Tooltip>
+
                             <Tooltip title="Delete" >
                               <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
                                 <DeleteIcon />

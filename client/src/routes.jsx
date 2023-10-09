@@ -48,7 +48,7 @@ import Billing from "./layouts/billing";
 import RTL from "./layouts/rtl";
 import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
-import SignIn from "./layouts/authentication/sign-in";
+import LogIn from "./layouts/authentication/log_in";
 import Home from "./layouts/authentication/home";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
 import Payment from "./layouts/payment";
@@ -62,7 +62,11 @@ import Alumni_record_per_request from "./layouts/alumni_record_per_request";
 import Alumni_record_issuance from "./layouts/alumni_record_issuance";
 
 import Student_Management from "./layouts/student_management";
-import Student_Magement_Add from "./layouts/student_management/add_record";
+import Student_Management_Add from "./layouts/student_management/component/add_record";
+import Student_Management_Update from "./layouts/student_management/component/update_record";
+import Registrar_Management from "./layouts/registrar_management";
+import Registrar_Magement_Add from "./layouts/registrar_management/component/add_record";
+import Registrar_Management_Update from "./layouts/registrar_management/component/update_record";
 
 // ================ Student ====================
 import Record_request from "./student_layouts/record_request";
@@ -202,7 +206,36 @@ const routes = [
     name: "Student Management Add",
     key: "student-management-add",
     route: "/student-management/add-record",
-    component: <Student_Magement_Add />,
+    component: <Student_Management_Add />,
+  },
+  {
+    type: "collapse",
+    name: "Student Management Update",
+    key: "student-management-update",
+    route: "/student-management/update-record",
+    component: <Student_Management_Update />,
+  },
+  {
+    type: "collapse",
+    name: "Registrar Management",
+    key: "registrar-management",
+    icon: <Icon fontSize="small">backpack</Icon>,
+    route: "/registrar-management",
+    component: <Registrar_Management />,    
+  },
+  {
+    type: "collapse",
+    name: "Registrar Management Add",
+    key: "registrar-management-add",
+    route: "/registrar-management/add-record",
+    component: <Registrar_Magement_Add />,
+  },
+  {
+    type: "collapse",
+    name: "Registrar Management Update",
+    key: "registrar-management-update",
+    route: "/registrar-management/update-record",
+    component: <Registrar_Management_Update />,
   },
   {
     type: "collapse",
@@ -300,6 +333,14 @@ const routes = [
     route: "/record-per-request/:ctrl_number",
     component: <Alumni_record_per_request />,
   }, 
+  {
+    type: "collapse",
+    name: "Log In",
+    key: "log-in",
+    icon: <Icon fontSize="small">login</Icon>,
+    route: "/authentication/log-in",
+    component: <LogIn />,
+  },
 
 ];
 
