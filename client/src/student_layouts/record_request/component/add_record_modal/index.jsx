@@ -16,7 +16,7 @@ import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 
@@ -26,13 +26,37 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
   // Extract the IDs and join them with commas
   const record_id = cartItems.map(item => item.id).join(',');
 
+  // Retrieve the user_id from localStorage
+  const user_id = localStorage.getItem('user_id');
+  const [user_data, setUserData] = useState([]);
+  const [student_id, setStudentId] = useState(null); // Initialize student_id to null
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/student-management")
+      .then((res) => res.json())
+      .then((data) => {
+        setUserData(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  // Add a conditional check for user_data before finding student_id
+  useEffect(() => {
+    if (user_data.length > 0) {
+      const foundStudent = user_data.find((item) => item.user_id == user_id);
+      if (foundStudent) {
+        setStudentId(foundStudent.id);
+      }
+    }
+  }, [user_data, user_id]);
+
   // Function to handle add record form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
     // Create a new record object to send to the server
     const newRecord = {
       record_id: record_id,
-      student_id: 1,
+      student_id: student_id,
       purpose: selectedPurpose,   
       total_amount: totalAmount
     };
@@ -53,7 +77,6 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
 
         const data_ctrl_number = await response.json();
         const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
-        console.log(ctrl_num); // Use the ctrl_number as needed
         setCtrlNumber(ctrl_num);
 
         // Fetch updated data and update the state

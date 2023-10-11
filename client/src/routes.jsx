@@ -333,14 +333,14 @@ const routes = [
     route: "/record-per-request/:ctrl_number",
     component: <Alumni_record_per_request />,
   }, 
-  {
-    type: "collapse",
-    name: "Log In",
-    key: "log-in",
-    icon: <Icon fontSize="small">login</Icon>,
-    route: "/authentication/log-in",
-    component: <LogIn />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Log In",
+  //   key: "log-in",
+  //   icon: <Icon fontSize="small">login</Icon>,
+  //   route: "/authentication/log-in",
+  //   component: <LogIn />,
+  // },
 
 ];
 

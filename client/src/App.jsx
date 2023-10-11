@@ -46,9 +46,12 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./
 import brandWhite from "./assets/images/cressential-logo-light.png";
 import brandDark from "./assets/images/cressential-logo-dark.png";
 import RouteGuard  from "./route_guard";
-import Alumni_record_request from "./layouts/alumni_record_request";
+import LogIn from "./layouts/authentication/log_in";
 
 export default function App() {
+  const isAuthenticated = !!localStorage.getItem("token");
+
+  console.log(localStorage.getItem("token"));
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -94,17 +97,30 @@ export default function App() {
   }, [pathname]);
 
   const getRoutes = (allRoutes) =>
-    allRoutes.map((route) => {
-      if (route.collapse) {
-        return getRoutes(route.collapse);
-      }
+  allRoutes.map((route) => {
+    if (route.collapse) {
+      return getRoutes(route.collapse);
+    }
 
-      if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
-      }
+    if (route.route) {
+      return (
+        <Route
+          path={route.route}
+          element={
+            isAuthenticated ? (
+              route.component
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+          key={route.key}
+        />
+      );
+    }
 
-      return null;
-    });
+    return null;
+  });
+
 
   const configsButton = (
     <MDBox
@@ -137,6 +153,12 @@ export default function App() {
         <Routes>
           {getRoutes(routes)}
           <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
+          <Route path="/authentication/log-in" element={<LogIn/>} />   
+          {isAuthenticated ? (
+            <Route path="/*" element={<Navigate to="/unauthorized" />} />
+          ) : (
+            <Route path="/*" element={<Navigate to="/" />} />
+          )}
         </Routes>      
       {layout === "dashboard" && (
         <>

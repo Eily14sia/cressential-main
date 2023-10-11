@@ -29,6 +29,7 @@ import DataTable from "../../examples/Tables/DataTable";
 import CustomCard from "../../examples/Cards/CustomCard";
 
 import AddDialogBox from './component/add_record_modal';
+import UploadDialogBox from './component/upload_record_modal';
 import UpdateDialogBox from './component/update_record_modal';
 import DeleteDialogBox from './component/delete_record_modal';
 import ApplicantInformation from './component/applicant_information';
@@ -141,8 +142,15 @@ function Alumni_record_per_request() {
   // State to track whether the dialog is open
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
 
+  // Function to open the dialog
+  const handleOpenAddDialog = () => {
+    setIsSuccess(false);
+    setIsError(false);    
+    setIsAddDialogOpen(true);
+  };
   // Function to open the dialog
   const handleOpenUploadDialog = (record_id, record_type, record_IPFS, record_password) => {
     setIsSuccess(false);
@@ -164,6 +172,10 @@ function Alumni_record_per_request() {
     setRecordStatus(record_status);
   };
 
+  // Function to close the dialog
+  const handleCloseAddDialog = () => {
+    setIsAddDialogOpen(false);
+  };
   // Function to close the dialog
   const handleCloseUploadDialog = () => {
     setIsUploadDialogOpen(false);
@@ -247,23 +259,17 @@ function Alumni_record_per_request() {
             <Grid item lg={9} sm={12}>
               <Card sx={{marginTop: "20px"}}>
                 <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
-                  <MDTypography variant="h6" fontWeight="medium">
-                    Record per Request 
-                  </MDTypography>
+                  
                    
                     <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                       <Icon>arrow_back</Icon>&nbsp; Record Request
                     </MDButton>
-                  
+                    <MDButton onClick={() => handleOpenAddDialog()} variant="gradient" color="dark" size="small">
+                      <Icon>add</Icon>&nbsp; Add Record
+                    </MDButton>
                 </MDBox>
+                
                 <MDBox >
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({
@@ -321,6 +327,26 @@ function Alumni_record_per_request() {
                     canSearch={true}
                   />
                   <AddDialogBox
+                    open={isAddDialogOpen}
+                    onClose={handleCloseAddDialog}
+                    ctrl_number = {ctrl_number}
+                    recordType={record_type}
+                    setRecordType={setRecordType}
+                    recordIPFS={record_IPFS}
+                    setrecordIPFS={setRecordIPFS}   
+                    recordID={record_id}                               
+                    recordPassword={record_password}     
+                    setRecordPassword={setRecordPassword}   
+                    payment_status={payment_status}    
+                    setAlertMessage={setAlertMessage}
+                    setIsError={setIsError}
+                    setIsSuccess={setIsSuccess} 
+                    handleCloseAddDialog={handleCloseAddDialog}
+                    setData={setData}
+                    data={setData}
+                    student_email={student_email}
+                  />
+                  <UploadDialogBox
                     open={isUploadDialogOpen}
                     onClose={handleCloseUploadDialog}
                     ctrl_number = {ctrl_number}
@@ -349,14 +375,12 @@ function Alumni_record_per_request() {
                     recordIPFS={record_IPFS}
                     recordID={record_id}    
                     recordStatus={record_status}     
-                    setRecordStatus={setRecordStatus}  
-                    payment_status={payment_status}    
+                    setRecordStatus={setRecordStatus}                     
                     setAlertMessage={setAlertMessage}
                     setIsError={setIsError}
                     setIsSuccess={setIsSuccess} 
                     handleCloseUpdateDialog={handleCloseUpdateDialog}
                     setData={setData}
-                    data={setData}
                   />
                   {renderMenu}
                 </MDBox>

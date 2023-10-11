@@ -78,7 +78,7 @@ router.post('/login', (req, res) => {
 
     const user = results[0];
     const userData = {
-      userId: user.user_id,
+      user_id: user.user_id,
       role: user.role,
       status: user.status,
     };
@@ -139,6 +139,29 @@ router.post('/verify', (req, res) => {
       if (err) return res.json(err);
       return res.json(data);
     });
+  });
+
+    // Update Record
+    router.put('/payment/update-record/:ctrl_number', (req, res) => {
+      const ctrl_number = req.params.ctrl_number;
+      const { 
+        payment_id,
+        payment_date,
+        payment_method,
+        payment_status, } = req.body;
+
+      const sql = "UPDATE payment SET payment_id = ?, payment_date = ?, payment_method = ?, payment_status = ? WHERE ctrl_number = ?";
+
+      db.query(sql, [payment_id, payment_date, payment_method, payment_status, ctrl_number], (err, result) => {
+          if (err) {
+              console.error(err);
+              return res.status(500).json({ message: 'Failed to update record' });
+          }
+          if (result.affectedRows === 0) {
+              return res.status(404).json({ message: 'Record not found' });
+          }
+          return res.status(200).json({ message: 'Record updated successfully' });
+      });
   });
 
 // ================== Alumni Record Issuance  ==================
@@ -264,6 +287,26 @@ router.get('/alumni/record-issuance', (req, res) => {
   });
 });
 
+   // Add Record
+  router.post('/record-per-request/add-record', (req, res) => {
+  const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued } = req.body;
+
+  // Hash the password using SHA-256
+  const hashedPassword = hashPassword(recordPassword);
+
+  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued) VALUES (?, ?, ?, ?, ?, ?)";
+
+  db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to update record' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+    return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
    // Update Record
   router.put('/upload-record-per-request/:recordID', (req, res) => {
   const recordID = req.params.recordID;

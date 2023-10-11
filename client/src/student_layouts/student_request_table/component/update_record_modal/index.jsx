@@ -38,7 +38,7 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
       processing_officer: processing_officer,
       request_status: request_status,      
     };
-  console.log(new_ctrl_number);
+
     try {
       const response = await fetch(`http://localhost:8081/mysql/update-record-request/${new_ctrl_number}`, {
         method: 'PUT',
@@ -146,6 +146,7 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
               <MenuItem value="Pending">Pending</MenuItem>
               <MenuItem value="Received">Received</MenuItem>
               <MenuItem value="Declined">Declined</MenuItem>
+              <MenuItem value="Cancelled">Cancelled</MenuItem>
               <MenuItem value="Completed">Completed</MenuItem>
             </Select>
           </FormControl>

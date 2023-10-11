@@ -27,87 +27,10 @@ import axios from 'axios';
 
 
 
-function DialogBox({ open, onClose, onSubmit, recordType, setRecordType, recordIPFS, setRecordIPFS, 
-recordID, recordStatus, setRecordStatus, recordPassword, setRecordPassword, payment_status, ctrl_number,
-setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, data, setData}) {
+function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS, 
+recordID, recordStatus, setRecordStatus, ctrl_number,
+setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
 
-
-// =========== For the datatable =================
-const [selectedFile, setSelectedFile] = useState(null);
-const [errorMessage, setErrorMessage] = useState('');
-const [uploadedCID, setUploadedCID] = useState(null);
-const [finalCID, setFinalCID] = useState(null);
-const [multihash, setMultihash] = useState(null); // Added state for multihash
-
-
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  setSelectedFile(file);
-  setUploadedCID(null); // Clear the uploaded CID
-  setErrorMessage('');
-  setMultihash(null); // Clear the multihash
-};
-
-const handleFileUpload = async () => {
-  if (selectedFile) {
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    try {
-      const response = await axios.post('http://localhost:8081/files/api/maindec', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.data.encrypted) {
-        // File is encrypted, proceed with the upload
-        setUploadedCID(response.data.cid);
-        setMultihash(response.data.multihash); // Set the multihash
-        setFinalCID(response.data.cid);
-        // console.log(response.data.cid);
-        handleUpdateSubmit(response.data.cid);
-        // Reset the selectedFile state to clear the file input
-        setSelectedFile(null);
-        
-      } else {
-        // File is not encrypted, display an error message
-        setErrorMessage('Only encrypted files are allowed.');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setErrorMessage('Error uploading file. Please try again.');
-    }
-  } else {
-    // If no file is selected, display an error message
-    setErrorMessage('Please choose an encrypted PDF file first.');
-  }
-};
-  // // Callback function to update the total amount
-  // const updateSelectedItemID = (newSelectedItemID) => {
-  //   setSelectedItemID(newSelectedItemID);
-  // };
-
-  const dateIssued = new Date();
-
-  const sendEmail = async (toEmail, cid, password) => {
-    const emailData = {
-      to: toEmail,
-      subject: 'Your Record Information',
-      text: `Your Record Information:\nCID: ${cid}\nPassword: ${password}`,
-    };
-  
-    try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
-      if (response.status === 200) {
-        console.log('Email sent successfully.');
-      } else {
-        console.error('Failed to send email.');
-      }
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
-  };
 
   const handleUpdateSubmit = async () => {
     // Create an updated record object to send to the server
@@ -129,15 +52,17 @@ const handleFileUpload = async () => {
         handleCloseUpdateDialog();
         setIsSuccess(true);
         setAlertMessage('Record updated successfully.');
-        // sendEmail('eilywow14@gmail.com', CID, recordPassword);
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/student-record-request/${ctrl_number}`)
+        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
           .then((res) => res.json())
           .then((data) => {
             setData(data); // Set the fetched data into the state
           })
           .catch((err) => console.log(err));
+
+          setRecordType('');
+          setRecordStatus('');
       } else {
         setAlertMessage('Failed to update record');
       }
@@ -219,7 +144,7 @@ const handleFileUpload = async () => {
         >
             Update Record
         </MDButton>
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        
       </DialogActions>
     </Dialog>
   );

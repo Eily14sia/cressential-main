@@ -193,7 +193,7 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
             </MDBox>            
         ),
         student_id: getStudentName(item.student_id),
-        date_issued: new Date(item.date_issued).toLocaleDateString(), // Format the date_releasing
+        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "N/A", // Format the date_releasing
         processing_officer: (item.processing_officer ? getRegistrarName(item.processing_officer) : ""),
         record_status: (
           <>
@@ -212,11 +212,6 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
                 <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
                     <EditIcon />
                   </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete" >
-              <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
-                <DeleteIcon />
-              </IconButton>
             </Tooltip>
           </>                                 
         ), 

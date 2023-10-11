@@ -315,7 +315,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
               </Link>
               <Tooltip title="Cancel Request" >
                 <span>
-                <IconButton disabled={item.request_status !== 'Pending'} color="secondary" 
+                <IconButton disabled={item.request_status !== 'Pending' || item.payment_status !== 'Unpaid'} color="secondary" 
                   onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
                   <CancelIcon />
                 </IconButton>

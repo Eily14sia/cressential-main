@@ -148,7 +148,7 @@ function Student_record_request({user_id}) {
           setAlertMessage('Record updated successfully.');
   
           // Fetch updated data and update the state
-          fetch("http://localhost:8081/mysql/payment-alumni-record-request")
+          fetch("http://localhost:8081/mysql/payment-student-record-request")
             .then((res) => res.json())
             .then((data) => {
               setData(data); // Set the fetched data into the state

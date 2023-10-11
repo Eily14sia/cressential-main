@@ -20,15 +20,16 @@ import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
-import DocumentSelection from "../document_selection";
+import MDAvatar from '../../../../components/MDAvatar';
+import DocumentSelection from '../processing_officer';
 
 import axios from 'axios';
 
 
 
-function DialogBox({ open, onClose, recordType, setRecordType, student_email, 
-recordID, recordPassword, setRecordPassword, ctrl_number,
-setAlertMessage, setIsError, setIsSuccess, handleCloseAddDialog, setData}) {
+function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS, 
+recordID, recordPassword, setRecordPassword, payment_status, ctrl_number,
+setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setData, student_email}) {
 
 
 // =========== For the datatable =================
@@ -60,7 +61,7 @@ const handleFileUpload = async () => {
       });
 
       if (recordPassword === null ) {
-        handleCloseAddDialog();
+        handleCloseUploadDialog();
         setIsError(true);
         setAlertMessage('Password is required.');
       } else {
@@ -74,11 +75,10 @@ const handleFileUpload = async () => {
           handleUpdateSubmit(response.data.cid, response.data.multihash);
           // Reset the selectedFile state to clear the file input
           setSelectedFile(null);
-          setRecordType('');
-          setRecordPassword('');
+          
         } else {
           // File is not encrypted, display an error message
-          handleCloseAddDialog();
+          handleCloseUploadDialog();
           setIsError(true);
           setAlertMessage('Only encrypted files are allowed.');
           setRecordType('');
@@ -88,7 +88,7 @@ const handleFileUpload = async () => {
 
     } catch (error) {
       console.error('Error uploading file:', error);
-      handleCloseAddDialog();
+      handleCloseUploadDialog();
       setIsError(true);
       setAlertMessage('Error uploading file. Please try again.');
       setRecordType('');
@@ -96,7 +96,7 @@ const handleFileUpload = async () => {
     }
   } else {
     // If no file is selected, display an error message
-    handleCloseAddDialog();
+    handleCloseUploadDialog();
     setIsError(true);
     setAlertMessage('Please choose an encrypted PDF file first.');
     setRecordType('');
@@ -104,27 +104,10 @@ const handleFileUpload = async () => {
   }
 };
 
-// =========== For Record Type =================
-const [record_data, setRecordData] = useState([]);
-
-useEffect(() => {
-  fetch("http://localhost:8081/mysql/type-of-record")
-    .then((res) => res.json())
-    .then((data) => {
-      setRecordData(data); // Set the fetched student_data into the state
-    })
-    .catch((err) => console.log(err));
-}, []);
-
-function getRecordName(record_type_id) {
-  const type = record_data.find((item) => item.id == record_type_id)?.type;  
-  return type;
-}
   const dateIssued = new Date();
 
   const sendEmail = async (toEmail, cid, password, recordType) => {
 
-    const type = getRecordName(recordType);
     const ipfsLink = `http://localhost:8080/ipfs/${cid}`; // Replace with the IPFS link to the record    
 
     const emailData = {
@@ -135,7 +118,7 @@ function getRecordName(record_type_id) {
 
       We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
 
-        • Record Type: ${type}
+        • Record Type: ${recordType}
         • IPFS Link: ${ipfsLink}
         • Password: ${password}
 
@@ -167,8 +150,6 @@ function getRecordName(record_type_id) {
     // Create an updated record object to send to the server
 
     const updatedRecord = {
-      ctrl_number: ctrl_number,
-      recordType: recordType,
       recordPassword: recordPassword,
       uploadedCID: CID,
       hash: hash,
@@ -176,8 +157,8 @@ function getRecordName(record_type_id) {
     };
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/record-per-request/add-record`, {
-        method: 'POST',
+      const response = await fetch(`http://localhost:8081/mysql/upload-record-per-request/${recordID}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -185,8 +166,9 @@ function getRecordName(record_type_id) {
       });
 
       if (response.ok) {
-        handleCloseAddDialog();
-        setIsSuccess(true);        
+        handleCloseUploadDialog();
+        setIsSuccess(true);
+        setAlertMessage('Record updated successfully.');
         sendEmail(student_email, CID, recordPassword, recordType);
 
         // Fetch updated data and update the state
@@ -196,19 +178,27 @@ function getRecordName(record_type_id) {
             setData(data); // Set the fetched data into the state
           })
           .catch((err) => console.log(err));
-          setAlertMessage('Record updated successfully.');
+          setRecordType('');
+          setRecordPassword('');
+          
       } else {
         setAlertMessage('Failed to update record');
+        setRecordType('');
+        setRecordPassword('');
       }
     } catch (error) {
       setIsError(true);
       console.error('Error:', error);
+      setRecordType('');
+      setRecordPassword('');
     }
   };
 
+
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Record
+      <DialogTitle>Upload Record
         <IconButton
           sx={{
             position: 'absolute',
@@ -233,17 +223,17 @@ function getRecordName(record_type_id) {
           <Grid item textAlign="center" xs={12} mb={2}>
             
             <Grid item  mt={3}>
-              <MDBox height="100%"  lineHeight={1}>
+              <MDBox height="100%" mt={0.5} lineHeight={1}>
                 <MDTypography variant="h5" fontWeight="medium">
-                 CTRL-{ctrl_number}
-                </MDTypography>                
+                  {recordType}
+                </MDTypography>
+                <MDTypography variant="button" color="text" fontWeight="regular" >
+                  {recordIPFS}
+                </MDTypography>
               </MDBox>
             </Grid>
           </Grid>
-          <Grid item textAlign="center" xs={11}>
-            <DocumentSelection recordType={recordType} setRecordType={setRecordType}/>
-          </Grid>
-          <Grid item textAlign="center" xs={11} mt={2}>
+          <Grid item textAlign="center" xs={11} mt={3}>
             <MDInput
               label="Password"
               type="password"
@@ -278,7 +268,7 @@ function getRecordName(record_type_id) {
           type="submit"
           onClick={handleFileUpload} 
         >
-            Add Record
+            Upload Record
         </MDButton>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </DialogActions>
