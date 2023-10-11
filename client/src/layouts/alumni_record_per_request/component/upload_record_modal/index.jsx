@@ -154,7 +154,8 @@ const handleFileUpload = async () => {
       recordPassword: recordPassword,
       uploadedCID: CID,
       hash: hash,
-      dateIssued: dateIssued
+      dateIssued: dateIssued,
+      transactionHash: '0xfa48efae8435d0a50c3bd7e284212f1e1ace81e3ff9726b0243787f7fa851847'
     };
 
     try {

@@ -94,31 +94,46 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/verify', (req, res) => {
-  const { password, hash } = req.body;
+  const { transaction_hash, password, hash } = req.body;
 
-  // Hash the password using SHA-256
-  const hashedPassword = hashPassword(password);
-
-  // Query the database to retrieve user data
-  const sql = 'SELECT * FROM record_per_request WHERE hash = ? AND password = ?';
-  db.query(sql, [hash, hashedPassword], (err, results) => {
-    if (err) {
-      console.error('MySQL query error:', err);
+  // First query to check if a record with the provided transaction_hash exists
+  const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = ?';
+  db.query(checkHashSql, [transaction_hash], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('MySQL query error:', checkErr);
       res.status(500).json({ success: false, message: 'Internal server error' });
       return;
     }
 
-    if (results.length > 0) {
-      // Record found in the database
-      const data = results[0];
-      res.json({ success: true, record_status: data.record_status, date_issued: data.date_issued });
-    } else {
-      // Record not found in the database
-      res.status(401).json({ success: false }); // Return a 401 status code
+    if (checkResults.length === 0) {
+      // Transaction hash not found in the database
+      return res.status(404).json({ message: 'Transaction hash not found' });
     }
+
+    // If the transaction hash exists, proceed to the second query
+    // Hash the password using SHA-256
+    const hashedPassword = hashPassword(password);
+
+    // Query the database to retrieve user data
+    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = ? AND hash = ? AND password = ?';
+    db.query(sql, [transaction_hash, hash, hashedPassword], (err, results) => {
+      if (err) {
+        console.error('MySQL query error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+        return;
+      }
+
+      if (results.length > 0) {
+        // Record found in the database
+        const data = results[0];
+        res.json({ success: true, record_status: data.record_status, date_issued: data.date_issued });
+      } else {
+        // Record not found in the database or invalid password
+        res.status(401).json({ success: false }); // Return a 401 status code
+      }
+    });
   });
 });
-
 
 
 /* ===========================================================
@@ -289,14 +304,14 @@ router.get('/alumni/record-issuance', (req, res) => {
 
    // Add Record
   router.post('/record-per-request/add-record', (req, res) => {
-  const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued } = req.body;
+  const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued) VALUES (?, ?, ?, ?, ?, ?)";
+  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-  db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued], (err, result) => {
+  db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued, transactionHash], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to update record' });
@@ -310,14 +325,14 @@ router.get('/alumni/record-issuance', (req, res) => {
    // Update Record
   router.put('/upload-record-per-request/:recordID', (req, res) => {
   const recordID = req.params.recordID;
-  const { recordPassword, uploadedCID, hash, dateIssued } = req.body;
+  const { recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, hash = ? , date_issued = ? WHERE rpr_id = ?";
+  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, hash = ? , date_issued = ?, transaction_hash = ? WHERE rpr_id = ?";
 
-  db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, recordID], (err, result) => {
+  db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, transactionHash, recordID], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to update record' });

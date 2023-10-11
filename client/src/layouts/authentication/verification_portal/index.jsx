@@ -78,10 +78,18 @@ function Verifier_portal() {
 
     // Create an updated record object to send to the server
     const verifyRecord = {
+      transaction_hash: transaction_hash,
       password: password,
       hash: hash,
     };
   
+    // Check if password is empty
+    if (!transaction_hash) {
+      setIsError(true);
+      setAlertMessage('Password is required.');
+      return;
+    }
+
       // Check if password is empty
     if (!password) {
       setIsError(true);
@@ -133,6 +141,11 @@ function Verifier_portal() {
           setIsError(true);
           setAlertMessage('The Record is Invalid');
         }
+      } else if (response.status === 404) {
+        // Handle the case when transaction_hash is not found (HTTP 404)
+        setIsSuccess(false); // Reset both success and error states
+        setIsError(true);
+        setAlertMessage('Transaction hash not found.');
       } else {
         // Handle other HTTP error status codes (e.g., 401)
         setIsSuccess(false); // Reset both success and error states

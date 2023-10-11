@@ -260,13 +260,25 @@ function Alumni_record_per_request() {
               <Card sx={{marginTop: "20px"}}>
                 <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
                   
-                   
+                {parseInt(user_role) === 1 ? (
+                  <>
                     <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                       <Icon>arrow_back</Icon>&nbsp; Record Request
                     </MDButton>
                     <MDButton onClick={() => handleOpenAddDialog()} variant="gradient" color="dark" size="small">
                       <Icon>add</Icon>&nbsp; Add Record
                     </MDButton>
+                  </>
+                ) : (
+                  <>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Record per Request 
+                    </MDTypography>
+                    <MDButton onClick={goBack} variant="outlined" color="info" size="small">
+                      <Icon>arrow_back</Icon>&nbsp; Record Request
+                    </MDButton>
+                  </>
+                )}
                 </MDBox>
                 
                 <MDBox >
@@ -287,14 +299,17 @@ function Alumni_record_per_request() {
                         
                         status: (
                           <>
-                          <MDBox ml={-1}>
-                            <MDBadge
-                              badgeContent={item.record_status}
-                              color={getStatusColor(item.record_status)} // Set the badge color dynamically
-                              variant="gradient"
-                              size="sm"
-                            />
-                          </MDBox></>
+                          {item.ipfs ? (
+                            <MDBox ml={-1}>
+                              <MDBadge
+                                badgeContent={item.record_status}
+                                color={getStatusColor(item.record_status)} // Set the badge color dynamically
+                                variant="gradient"
+                                size="sm"
+                              />
+                            </MDBox>
+                          ) : ""}
+                          </>
                         ),
                         date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
                         action: (

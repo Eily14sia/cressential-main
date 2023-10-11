@@ -303,16 +303,17 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
                     </IconButton>
                 </Tooltip>
               </Link>
-              <Link to={`/record-request`} component={RouterLink} state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}>
-                <Tooltip title="Pay now" >
-                  <span>
-                  <IconButton disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
-                     >
-                    <PaymentsIcon />
-                  </IconButton>
-                  </span>
-                </Tooltip>
-              </Link>
+              <Tooltip title="Pay now" >
+                <span>
+                <IconButton  
+                  to={`/record-request`} component={RouterLink} 
+                  state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}
+                  disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
+                    >
+                  <PaymentsIcon />
+                </IconButton>
+                </span>
+              </Tooltip>
               <Tooltip title="Cancel Request" >
                 <span>
                 <IconButton disabled={item.request_status !== 'Pending' || item.payment_status !== 'Unpaid'} color="secondary" 
