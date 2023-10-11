@@ -178,7 +178,7 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
                   />
                   <CardContent>
                     <MDTypography gutterBottom variant="h5" component="div">
-                      Registar
+                      Registrar
                     </MDTypography>
                     <MDTypography variant="caption" fontWeight="light" color="inherit">
                       Lizards are a widespread group of squamate reptiles, with over 6,000

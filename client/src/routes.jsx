@@ -300,13 +300,13 @@ const routes = [
     route: "/home",
     component: <Home />,
   },
-  {
-    name: "Verifier Portal",
-    key: "verifier-portal",
-    icon: <Icon fontSize="small">login</Icon>,
-    route: "/verifier-portal",
-    component: <Verifier_Portal />,
-  },
+  // {
+  //   name: "Verifier Portal",
+  //   key: "verifier-portal",
+  //   icon: <Icon fontSize="small">login</Icon>,
+  //   route: "/verifier-portal",
+  //   component: <Verifier_Portal />,
+  // },
 
   //student
   {

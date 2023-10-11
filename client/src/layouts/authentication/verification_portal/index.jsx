@@ -37,6 +37,7 @@ function Verifier_portal() {
 
   const [file, setFile] = useState('');
   const [hash, setHash] = useState('');
+  const [transaction_hash, setTransactionHash] = useState('');
   
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -173,7 +174,7 @@ function Verifier_portal() {
         <MDBox pt={4} pb={3} px={3}>
           <MDBox >
             <MDBox mb={2}>
-              <MDInput type="text" label="Transaction Number" variant="standard" fullWidth />
+              <MDInput type="text" label="Transaction Number" value={transaction_hash} variant="standard" onChange={(e) => setTransactionHash(e.target.value)} fullWidth />
             </MDBox>
             <MDBox mb={4}>
               <MDInput type="password" value={password} label="Password" variant="standard" onChange={(e) => setPassword(e.target.value)} fullWidth />
@@ -194,6 +195,7 @@ function Verifier_portal() {
                 <MDButton variant="gradient" color="light" size="large" fullWidth onClick={() => {
                   setPassword('');
                   setHash('');
+                  setTransactionHash('');
                   const fileInput = document.getElementById('fileUpload');
                   if (fileInput) {
                     fileInput.value = ''; // Reset the file input field

@@ -119,6 +119,7 @@ const handleFileUpload = async () => {
       We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
 
         • Record Type: ${recordType}
+        • Transaction Hash: 0xfa48efae8435d0a50c3bd7e284212f1e1ace81e3ff9726b0243787f7fa851847
         • IPFS Link: ${ipfsLink}
         • Password: ${password}
 
