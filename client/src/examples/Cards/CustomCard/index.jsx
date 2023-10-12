@@ -80,7 +80,7 @@ CustomCard.propTypes = {
     "dark",
   ]),
   title: PropTypes.string.isRequired,
-  count: PropTypes.string.isRequired,
+  count: PropTypes.isRequired,
   icon: PropTypes.node.isRequired,
 };
 

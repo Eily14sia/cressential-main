@@ -140,6 +140,30 @@ router.post('/verify', (req, res) => {
                             REGISTRAR
    =========================================================== */
 
+// ========================= Dashboard  =========================
+
+  router.get('/record-request', (req, res)=> {
+    const sql = `SELECT * FROM record_request as r 
+    INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number
+    ORDER BY r.date_requested DESC    
+    `;
+    db.query(sql, (err, data)=> {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+  })
+
+  router.get('/record-issuance', (req, res)=> {
+    const sql = `SELECT * FROM record_per_request as r 
+    ORDER BY r.date_issued DESC
+    LIMIT 7
+    `;
+    db.query(sql, (err, data)=> {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+  })
+
 // ========================= Payment  =========================
 
    
@@ -232,6 +256,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
         FROM student_management
         WHERE is_alumni = 0
       )
+      AND rpr.date_issued IS NOT NULL
     `;
   
     db.query(sql, (err, data) => {
@@ -242,6 +267,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
 
 
 // ======================= Alumni Record Request =========================== 
+
   router.get('/payment-alumni-record-request', (req, res) => {
     const sql = `
       SELECT *
@@ -294,6 +320,7 @@ router.get('/alumni/record-issuance', (req, res) => {
       FROM student_management
       WHERE is_alumni = 1
     )
+    AND rpr.date_issued IS NOT NULL
   `;
 
   db.query(sql, (err, data) => {
@@ -619,15 +646,6 @@ function hashPassword(password) {
 /* ===========================================================
                             STUDENT
    =========================================================== */
-
-//Record Request Tab
-router.get('/record-request', (req, res)=> {
-    const sql = "SELECT * FROM record_request";
-    db.query(sql, (err, data)=> {
-        if(err) return res.json(err);
-        return res.json(data);
-    })
-})
 
 router.get('/student-record-request/:user_id', (req, res) => {
   const user_id = req.params.user_id;

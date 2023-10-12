@@ -15,6 +15,7 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import React, { useEffect, useState } from 'react';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -32,11 +33,42 @@ import reportsBarChartData from "./data/reportsBarChartData";
 import reportsLineChartData from "./data/reportsLineChartData";
 
 // Dashboard components
-import Projects from "./components/Projects";
-import OrdersOverview from "./components/OrdersOverview";
+import RecentRequest from "./components/recent_record_request";
+import RecentIssuance from "./components/recent_issued_record";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
+  const [data, setData] = useState([]);
+  const [user_data, setUserData] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/record-request")
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data); // Set the fetched data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setUserData(data); // Set the fetched data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const today = new Date();
+
+  const pending_data = data.filter((record) => record.request_status === "Pending");
+  const pending_data_today = data.filter((record) => record.request_status === "Pending" && record.date_requested === today);
+  const receieved_data = data.filter((record) => record.request_status === "Received" );
+  const receieved_data_today = data.filter((record) => record.request_status === "Received" && record.date_requested === today);
+  const completed_data = data.filter((record) => record.request_status === "Completed");
+  const completed_data_today = data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
+  const active_users = user_data.filter((record) => record.status === "active");
+
 
   return (
     <DashboardLayout>
@@ -46,43 +78,43 @@ function Dashboard() {
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
-                color="dark"
-                icon="weekend"
-                title="Bookings"
-                count={281}
+                color="secondary"
+                icon="pending"
+                title="Pending Requests"
+                count={pending_data.length}
                 percentage={{
                   color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
+                  amount: "+"+pending_data_today.length,
+                  label: "request today",
                 }}
               />
             </MDBox>
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <MDBox mb={1.5}>
-              <ComplexStatisticsCard
-                icon="leaderboard"
-                title="Today's Users"
-                count="2,300"
-                percentage={{
-                  color: "success",
-                  amount: "+3%",
-                  label: "than last month",
-                }}
-              />
-            </MDBox>
-          </Grid>
+          </Grid>         
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
-                icon="store"
-                title="Revenue"
-                count="34k"
+                icon="paypal"
+                title="Received Requests"
+                count={receieved_data.length}
                 percentage={{
                   color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
+                  amount: "+"+receieved_data_today.length,
+                  label: "request today",
+                }}
+              />
+            </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ComplexStatisticsCard
+                icon="assignment_turned_in"
+                title="Completed Requests"
+                count={completed_data.length}
+                percentage={{
+                  color: "success",
+                  amount: "+"+completed_data_today.length,
+                  label: "request today",
                 }}
               />
             </MDBox>
@@ -92,8 +124,8 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="primary"
                 icon="person_add"
-                title="Followers"
-                count="+91"
+                title="Active Users"
+                count={active_users.length}
                 percentage={{
                   color: "success",
                   amount: "",
@@ -103,54 +135,14 @@ function Dashboard() {
             </MDBox>
           </Grid>
         </Grid>
-        {/* <MDBox mt={4.5}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsBarChart
-                  color="info"
-                  title="website views"
-                  description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
-                  chart={reportsBarChartData}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="success"
-                  title="daily sales"
-                  description={
-                    <>
-                      (<strong>+15%</strong>) increase in today sales.
-                    </>
-                  }
-                  date="updated 4 min ago"
-                  chart={sales}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="dark"
-                  title="completed tasks"
-                  description="Last Campaign Performance"
-                  date="just updated"
-                  chart={tasks}
-                />
-              </MDBox>
-            </Grid>
-          </Grid>
-        </MDBox> */}
+        
         <MDBox mt={4}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={8}>
-              <Projects />
+              <RecentRequest />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
+              <RecentIssuance />
             </Grid>
           </Grid>
         </MDBox>

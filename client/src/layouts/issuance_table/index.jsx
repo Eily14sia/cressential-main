@@ -186,25 +186,28 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
                   {item.type}
                 </a>
               ) : (
-                <span>N/A</span>
+                <span>Null</span>
               )}
               </MDTypography>
               <MDTypography variant="caption">For: {item.purpose}</MDTypography>
             </MDBox>            
         ),
         student_id: getStudentName(item.student_id),
-        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "N/A", // Format the date_releasing
+        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "Null", // Format the date_releasing
         processing_officer: (item.processing_officer ? getRegistrarName(item.processing_officer) : ""),
         record_status: (
           <>
-          <MDBox ml={-1}>
-            <MDBadge
-              badgeContent={item.record_status}
-              color={getStatusColor(item.record_status)} // Set the badge color dynamically
-              variant="gradient"
-              size="sm"
-            />
-          </MDBox></>
+          {item.ipfs ? (
+            <MDBox ml={-1}>
+              <MDBadge
+                badgeContent={item.record_status}
+                color={getStatusColor(item.record_status)} // Set the badge color dynamically
+                variant="gradient"
+                size="sm"
+              />
+            </MDBox>
+          ) : ""}
+          </>
         ),
         action: (
           <>
