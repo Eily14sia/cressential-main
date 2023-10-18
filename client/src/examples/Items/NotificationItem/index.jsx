@@ -21,6 +21,7 @@ import PropTypes from "prop-types";
 // @mui material components
 import MenuItem from "@mui/material/MenuItem";
 import Link from "@mui/material/Link";
+import { Link as RouterLink } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -29,14 +30,14 @@ import MDTypography from "../../../components/MDTypography";
 // custom styles for the NotificationItem
 import menuItem from "./styles";
 
-const NotificationItem = forwardRef(({ icon, title, ...rest }, ref) => (
+const NotificationItem = forwardRef(({ icon, title, desc, ctrl_num, ...rest }, ref) => (
   <MenuItem {...rest} ref={ref} sx={(theme) => menuItem(theme)}>
-    <MDBox component={Link} py={0.5} display="flex" alignItems="center" lineHeight={1}>
+    <MDBox component={RouterLink} to={`/record-per-request/${ctrl_num}`} py={0.5} display="flex" alignItems="center" lineHeight={1}>
       <MDTypography variant="body1" color="secondary" lineHeight={0.75}>
         {icon}
       </MDTypography>
       <MDTypography variant="button" fontWeight="regular" sx={{ ml: 1 }}>
-        {title}
+       <b>{desc}</b> {title}
       </MDTypography>
     </MDBox>
   </MenuItem>

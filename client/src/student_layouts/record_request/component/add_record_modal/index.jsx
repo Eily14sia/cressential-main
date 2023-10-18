@@ -50,6 +50,17 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
     }
   }, [user_data, user_id]);
 
+  const [registrar_data, setRegistrarData] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/mysql/registrar-management")
+      .then((res) => res.json())
+      .then((registrar_data) => {
+        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  
   // Function to handle add record form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -78,6 +89,31 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         const data_ctrl_number = await response.json();
         const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
         setCtrlNumber(ctrl_num);
+
+        // Insert a notification into the database
+        registrar_data.map(async (item) => {
+          const registrar_update = {
+            title: "New Record Request added.",
+            description: ctrl_num,
+            user_id: item.user_id
+          }
+  
+          fetch("http://localhost:8081/mysql/notif/add-record", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrar_update),
+        })
+          .then((notificationResponse) => {
+            if (notificationResponse.ok) {
+              console.log('Notification inserted successfully');
+            } else {
+              console.error('Failed to insert notification');
+            }
+          })
+          .catch((err) => console.error('Error inserting notification:', err));
+        });    
 
         // Fetch updated data and update the state
         fetch("http://localhost:8081/mysql/record-request")

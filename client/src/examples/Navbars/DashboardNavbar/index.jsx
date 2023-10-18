@@ -27,10 +27,12 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
+import Tooltip from '@mui/material/Tooltip';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDInput from "../../../components/MDInput";
+import MDTypography from "../../../components/MDTypography";
 
 // Material Dashboard 2 React example components
 import Breadcrumbs from "../../Breadcrumbs";
@@ -94,24 +96,102 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
-  // Render the notifications menu
-  const renderMenu = () => (
-    <Menu
-      anchorEl={openMenu}
-      anchorReference={null}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "left",
-      }}
-      open={Boolean(openMenu)}
-      onClose={handleCloseMenu}
-      sx={{ mt: 2 }}
-    >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" />
-      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Payment successfully completed" />
-    </Menu>
-  );
+  const [data, setData] = useState([]);
+  const [today_notif, setTodayNotif] = useState([]);
+  const [earlier_notif, setEarlierNotif] = useState([]);
+
+// Retrieve the user_role from localStorage
+const user_id = localStorage.getItem('user_id');
+const today_date = new Date();
+
+useEffect(() => {
+  fetch(`http://localhost:8081/mysql/notif/${user_id}`)
+    .then((res) => res.json())
+    .then((fetchedData) => {
+      setData(fetchedData); // Set the fetched data into the state
+
+      // Filter data for the current date
+      const today_notif = fetchedData.filter((record) => {
+        const recordDate = new Date(record.timestamp);
+        return (
+          recordDate.getFullYear() === today_date.getFullYear() &&
+          recordDate.getMonth() === today_date.getMonth() &&
+          recordDate.getDate() === today_date.getDate()
+        );
+      });
+
+      // Filter data for yesterday onwards
+      const earlier_notif = fetchedData.filter((record) => {
+        const recordDate = new Date(record.timestamp);
+        const yesterday = new Date(today_date);
+        yesterday.setDate(today_date.getDate() - 1); 
+        return recordDate <= yesterday;
+      });
+
+      setTodayNotif(today_notif);
+      setEarlierNotif(earlier_notif);
+    })
+    .catch((err) => console.error(err));
+}, [user_id, today_date]);
+
+// Render the notifications menu
+const renderMenu = () => (
+  <Menu
+    anchorEl={openMenu}
+    anchorReference={null}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "left",
+    }}
+    open={Boolean(openMenu)}
+    onClose={handleCloseMenu}
+    sx={{ mt: 2, padding: 5, maxHeight: "500px", maxWidth: "400px" }}
+  >
+    <div>
+      <MDTypography variant="h6" p={1}>
+        Today
+      </MDTypography>
+      {today_notif.length > 0? 
+        today_notif.map((item) => (
+          <NotificationItem
+            key={item.id} 
+            icon={<Icon>notification_add</Icon>}
+            desc={`CTRL-${item.description}:`}
+            ctrl_num={item.description}
+            title={item.title}
+          />
+        ))
+      : 
+        <NotificationItem         
+          icon={<Icon>notifications_off</Icon>}
+          title="No new notifications today."
+        />
+      }
+    </div>
+
+    <MDTypography variant="h6" p={1}>
+      Earlier
+    </MDTypography>
+    {earlier_notif.length > 0? 
+      earlier_notif.map((item) => (
+        <NotificationItem
+          key={item.id} 
+          icon={<Icon>notification_add</Icon>}
+          desc={`CTRL-${item.description}:`}
+          title={item.title}
+        />
+        ))
+     
+    : 
+      <NotificationItem         
+        icon={<Icon>notifications_off</Icon>}
+        title="No notifications earlier."
+      />
+    }
+    
+  </Menu>
+);
+  
 
   // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
@@ -137,16 +217,15 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
         </MDBox>
         {isMini ? null : (
-          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
-            <MDBox pr={1}>
-              <MDInput label="Search here" />
-            </MDBox>
+          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>            
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
+              <Link to="/dashboard">
+                <Tooltip title="Profile" >
+                  <IconButton sx={navbarIconButton} size="small" disableRipple>
+                    <Icon sx={iconsStyle}>account_circle</Icon>
+                  </IconButton>
+                </Tooltip> 
+              </Link>              
               <IconButton
                 size="small"
                 disableRipple
@@ -157,17 +236,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 <Icon sx={iconsStyle} fontSize="medium">
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
-              </IconButton>
+              </IconButton>                           
               <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleConfiguratorOpen}
-              >
-                <Icon sx={iconsStyle}>settings</Icon>
-              </IconButton>
-              {/* <IconButton
                 size="small"
                 disableRipple
                 color="inherit"
@@ -177,8 +247,21 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 variant="contained"
                 onClick={handleOpenMenu}
               >
-                <Icon sx={iconsStyle}>notifications</Icon>
-              </IconButton> */}
+                <Tooltip title="Notifications" >
+                  <Icon sx={iconsStyle}>notifications</Icon>
+                </Tooltip>
+              </IconButton>
+              <IconButton
+                size="small"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                onClick={handleConfiguratorOpen}
+              >
+                <Tooltip title="Settings" >
+                  <Icon sx={iconsStyle}>settings</Icon>
+                </Tooltip>
+              </IconButton>
               <IconButton
                 size="small"
                 disableRipple
@@ -186,7 +269,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 sx={navbarIconButton}
                 onClick={logout}
               >
-                <Icon sx={iconsStyle}>logout</Icon>
+                <Tooltip title="Logout" >
+                  <Icon sx={iconsStyle}>logout</Icon>
+                </Tooltip>
               </IconButton>
               {renderMenu()}
             </MDBox>

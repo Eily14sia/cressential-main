@@ -135,6 +135,39 @@ router.post('/verify', (req, res) => {
   });
 });
 
+// ========================= Notification  =========================
+
+router.get('/notif/:user_id', (req, res) => {
+  const user_id = req.params.user_id;
+
+  const sql = `
+      SELECT *
+      FROM notification as n
+      WHERE n.user_id = ?
+  `;
+  
+  db.query(sql, [user_id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// Add Record
+router.post('/notif/add-record', (req, res) => {
+  const { title, description, user_id } = req.body;
+  
+  const sql = "INSERT INTO notification (title, description, user_id) VALUES (?, ?, ?)";
+  
+  db.query(sql, [title, description, user_id], (err, result) => {
+  if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to add record' });
+  }
+  return res.status(200).json({ message: 'Record added successfully' });
+  });
+  
+});
+
 
 /* ===========================================================
                             REGISTRAR
@@ -395,6 +428,23 @@ function hashPassword(password) {
   sha256.update(password);
   return sha256.digest('hex');
 }
+
+// ======================= Student Record Request =========================== 
+
+router.get('/due-request', (req, res) => {
+  const today = new Date();
+  const sql = `
+    SELECT *
+    FROM record_request AS r
+    INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
+    WHERE r.date_releasing <= ? AND r.request_status IN ('Pending', 'Received'); 
+  `;
+
+  db.query(sql, [today], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
 
 // ================ Type of Record Tab =======================
 

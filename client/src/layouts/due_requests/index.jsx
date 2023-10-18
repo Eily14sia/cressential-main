@@ -40,11 +40,12 @@ import MDAlert from '../../components/MDAlert';
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
+import DataTable from "../../examples/Tables/DataTable";
 import RequestTable from '../request_table';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
-function Student_record_request() {
+function Due_request({user_id}) {
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -61,19 +62,17 @@ function Student_record_request() {
 
   // =========== For the Datatable =================
   const [data, setData] = useState([]);
-  const [registrar_data, setRegistrarData] = useState([]);
   const [student_data, setStudentData] = useState([]);
-  const [type_of_record, setTypeOfRecord] = useState([]);  
-  const [student_id, setStudentID] = useState('');
+  const [type_of_record, setTypeOfRecord] = useState([]);
   
   const pending_data = data.filter((record) => record.request_status === "Pending");
   const received_data = data.filter((record) => record.request_status === "Received");
-  const declined_data = data.filter((record) => record.request_status === "Declined" || record.request_status === "Cancelled");
+  const declined_data = data.filter((record) => record.request_status === "Declined");
   const completed_data = data.filter((record) => record.request_status === "Completed");
-  const user_id = student_data.find((item) => item.id == student_id)?.user_id;
+
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment-student-record-request")
+    fetch("http://localhost:8081/mysql/due-request")
       .then((res) => res.json())
       .then((data) => {
         setData(data); // Set the fetched data into the state
@@ -104,7 +103,7 @@ function Student_record_request() {
     fetch("http://localhost:8081/mysql/type-of-record")
       .then((res) => res.json())
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); 
+        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
       })
       .catch((err) => console.log(err));
   }, []);
@@ -135,7 +134,6 @@ function Student_record_request() {
         processing_officer: processing_officer,
         request_status: request_status,      
       };
-
       try {
         const response = await fetch(`http://localhost:8081/mysql/update-record-request/${ctrl_number}`, {
           method: 'PUT',
@@ -149,41 +147,9 @@ function Student_record_request() {
           handleCloseUpdateDialog();
           setIsSuccess(true);
           setAlertMessage('Record updated successfully.');
-
-          registrar_data.map(async (item) => {
-            const registrar_update = {
-              title: "Record request updated",
-              description: ctrl_number,
-              user_id: item.user_id
-            }
-
-            const notif_response = await fetch(`http://localhost:8081/mysql/notif/add-record`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(registrar_update),
-          });
-
-          });
-
-          const student_update = {
-            title: "Record request updated",
-            description: ctrl_number,
-            user_id: user_id
-          }
-
-          const notif_response = await fetch(`http://localhost:8081/mysql/notif/add-record`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(student_update),
-        });
-        
-
+  
           // Fetch updated data and update the state
-          fetch("http://localhost:8081/mysql/payment-student-record-request")
+          fetch("http://localhost:8081/mysql/payment-alumni-record-request")
             .then((res) => res.json())
             .then((data) => {
               setData(data); // Set the fetched data into the state
@@ -273,19 +239,7 @@ function Student_record_request() {
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
                               verified
                             </Icon>
-                          } />
-                        <Tab label="Declined" 
-                            icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              unpublished
-                            </Icon>
-                          } />
-                        <Tab label="Completed" 
-                            icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              assignment
-                            </Icon>
-                          } />
+                          } />                        
                       </Tabs>
                     </AppBar>
 
@@ -304,8 +258,6 @@ function Student_record_request() {
                         request_status={request_status}
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
-                        student_id={student_id}
-                        setStudentID={setStudentID}
                         updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
@@ -357,52 +309,7 @@ function Student_record_request() {
                         />
                       </MDBox>
                     )}
-
-                    {tabValue === 3 && (
-                      // Render content for the "Declined" tab
-                      <MDBox pt={3}>
-                        <RequestTable table_data={declined_data} 
-                        setData={setData} 
-                        setIsSuccess={setIsSuccess}
-                        setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage}
-                        ctrl_number={ctrl_number}
-                        set_ctrl_number={set_ctrl_number}
-                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
-                        processing_officer = {processing_officer}
-                        updateProcessingOfficer={setProcessingOfficer}
-                        request_status={request_status}
-                        updateRequestStatus={updateRequestStatus}
-                        date_releasing={date_releasing}
-                        updateDateReleasing={updateDateReleasing}
-                        isUpdateDialogOpen={isUpdateDialogOpen}
-                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
-                        />
-                      </MDBox>
-                    )}
-
-                    {tabValue === 4 && (
-                      // Render content for the "Completed" tab
-                      <MDBox pt={3}>
-                        <RequestTable table_data={completed_data} 
-                        setData={setData} 
-                        setIsSuccess={setIsSuccess}
-                        setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage}
-                        ctrl_number={ctrl_number}
-                        set_ctrl_number={set_ctrl_number}
-                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
-                        processing_officer = {processing_officer}
-                        updateProcessingOfficer={setProcessingOfficer}
-                        request_status={request_status}
-                        updateRequestStatus={updateRequestStatus}
-                        date_releasing={date_releasing}
-                        updateDateReleasing={updateDateReleasing}
-                        isUpdateDialogOpen={isUpdateDialogOpen}
-                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
-                        />
-                      </MDBox>
-                    )}
+                    
                   </Grid>
                   
                 </MDBox>
@@ -416,4 +323,4 @@ function Student_record_request() {
   );
 }
 
-export default Student_record_request;
+export default Due_request;

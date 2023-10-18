@@ -178,6 +178,9 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
     </>
     ),
 
+    <NavLink key="due-request" to="/due-request" onClick={() => setCollapseName("due-request")}>
+    <SidenavCollapse name="Due Record Request" icon={<Icon fontSize="small">today</Icon>} active={collapseName === "due-request"} />
+    </NavLink>,
     <NavLink key="payment" to="/payment" onClick={() => setCollapseName("payment")}>
     <SidenavCollapse name="Payment" icon={<Icon fontSize="small">payment</Icon>} active={collapseName === "payment"} />
     </NavLink>,

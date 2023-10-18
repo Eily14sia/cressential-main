@@ -51,7 +51,7 @@ import axios from 'axios';
 
 function Request_table({table_data, setData, setAlertMessage, setIsError, setIsSuccess,
   processing_officer, updateProcessingOfficer, request_status, updateRequestStatus,
-  date_releasing, updateDateReleasing, isUpdateDialogOpen, setIsUpdateDialogOpen,
+  date_releasing, student_id, setStudentID, updateDateReleasing, isUpdateDialogOpen, setIsUpdateDialogOpen,
   ctrl_number, set_ctrl_number, handleUpdateSubmit }) {
 
   // =========== For the Datatable =================
@@ -172,14 +172,15 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
 
 
   // Function to open the dialog
-  const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status,) => {
+  const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status, student_id) => {
     setIsSuccess(false);
     setIsError(false);
     updateProcessingOfficer(processing_officer); // Reset other form fields 
     updateRequestStatus(request_status);
     updateDateReleasing(date_releasing);
     set_ctrl_number(ctrl_number); // Set the _ctrl_number state
-    setIsUpdateDialogOpen(true);    
+    setStudentID(student_id);
+    setIsUpdateDialogOpen(true);       
   };
 
   // Function to close the dialog
@@ -206,8 +207,77 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const handleCloseCancelDialog = () => {
     setIsCancelDialogOpen(false);
   };
-  
 
+  function getColorForDate(date, ctrl_num, request_status) {
+    if (!date) {
+      return "dark"; // Default color
+    }
+  
+    if (request_status === 'Pending' || request_status === 'Received') {
+      const currentDate = new Date();
+      const releasingDate = new Date(date);
+      
+      if (releasingDate < currentDate) {
+        // Insert a notification into the database
+        // registrar_data.map(async (item) => {
+        //   const registrar_update = {
+        //     title: "Record request is past due.",
+        //     description: ctrl_num,
+        //     user_id: item.user_id
+        //   }
+  
+        //   fetch("http://localhost:8081/mysql/notif/add-record", {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(registrar_update),
+        // })
+        //   .then((notificationResponse) => {
+        //     if (notificationResponse.ok) {
+        //       console.log('Notification inserted successfully');
+        //     } else {
+        //       console.error('Failed to insert notification');
+        //     }
+        //   })
+        //   .catch((err) => console.error('Error inserting notification:', err));
+        // });    
+  
+        return "error"; // Past due
+      } else if (releasingDate.toDateString() === currentDate.toDateString()) {
+        // Insert a notification into the database
+        // registrar_data.map(async (item) => {
+        //   const registrar_update = {
+        //     title: "Record request is due today.",
+        //     description: ctrl_num,
+        //     user_id: item.user_id
+        //   }
+  
+        //   fetch("http://localhost:8081/mysql/notif/add-record", {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(registrar_update),
+        // })
+        //   .then((notificationResponse) => {
+        //     if (notificationResponse.ok) {
+        //       console.log('Notification inserted successfully');
+        //     } else {
+        //       console.error('Failed to insert notification');
+        //     }
+        //   })
+        //   .catch((err) => console.error('Error inserting notification:', err));
+        // });
+  
+        return "warning"; // Today
+      }
+    
+      return "dark"; // Not past due and not today
+    }
+    
+  }
+  
 
   return (
     <>
@@ -238,7 +308,11 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
             <MDTypography variant="caption">
               Releasing: &nbsp;
             </MDTypography>
-            <MDTypography variant="button"  fontWeight="medium">
+            <MDTypography
+              variant="button"
+              color={getColorForDate(item.date_releasing, item.ctrl_number, item.request_status)}
+              fontWeight="medium"
+            >
               {item.date_releasing ? (new Date(item.date_releasing).toLocaleDateString()) : ""}
             </MDTypography>
           </MDBox>
@@ -283,7 +357,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
             <Tooltip title="Update" >
               <IconButton color="success" onClick={() => 
                 handleOpenUpdateDialog( 
-                  item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status
+                  item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id
                 )}>
                 <EditIcon /> 
               </IconButton>
@@ -339,7 +413,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         setRequest_status={updateRequestStatus}   
         setdate_releasing={updateDateReleasing}   
         ctrl_number={ctrl_number}     
-        date_releasing={date_releasing}  
+        date_releasing={date_releasing} 
         setIsSuccess={setIsSuccess}
         setIsError={setIsError}   
         setAlertMessage={setAlertMessage}

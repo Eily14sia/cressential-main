@@ -61,6 +61,8 @@ import Alumni_record_request from "./layouts/alumni_record_request";
 import Alumni_record_per_request from "./layouts/alumni_record_per_request";
 import Alumni_record_issuance from "./layouts/alumni_record_issuance";
 
+import Due_request from "./layouts/due_requests";
+
 import Student_Management from "./layouts/student_management";
 import Student_Management_Add from "./layouts/student_management/component/add_record";
 import Student_Management_Update from "./layouts/student_management/component/update_record";
@@ -176,6 +178,14 @@ const routes = [
         component: <Alumni_record_issuance />,
       },
     ],
+  },
+  {
+    type: "collapse",
+    name: "Due Requests",
+    key: "due-request",
+    icon: icon3,
+    route: "/due-request",
+    component: <Due_request />,
   },
   {
     type: "collapse",
