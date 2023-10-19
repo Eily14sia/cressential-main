@@ -799,7 +799,6 @@ router.post('/record-request/add-record', (req, res) => {
 // Cancel Request
 router.put('/cancel-record-request/:ctrl_number', (req, res) => {
   const ctrl_number = req.params.ctrl_number;
-  const { type, price } = req.body;
 
   const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = ?";
 

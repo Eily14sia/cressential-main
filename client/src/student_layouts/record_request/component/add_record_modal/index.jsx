@@ -9,6 +9,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from "@mui/material/Icon";
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -148,9 +149,13 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       console.error('Error:', error);
     }
   };
-
+  const CustomSmallCircleIcon  = () => (
+    <svg width="8" height="8" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="4" cy="4" r="3" fill="none" stroke="#1A73E8" strokeWidth="2" />
+    </svg>
+  );
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Confirmation
         <IconButton
           sx={{
@@ -175,39 +180,73 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           p={3}
           justifyContent="center"
           alignItems="center"
-          borderRadius="md"
-          shadow="md"
-          color="light"
-          bgColor="grey-300"
+          // borderRadius="md"
+          // shadow="md"
+          // color="light"
+          // bgColor="grey-300"
+        > 
+        <MDBox
+          display="flex" alignItems="center"     
         >
-          <MDTypography variant="body2" >You are requesting for the following document/s:</MDTypography>           
+          <Icon fontSize="large" color="info">summarize</Icon>
+          <MDBox display="flex" flexDirection="column"  px={2}>
           
-          <MDBox ml={5}>
-          <ul>
-            {cartItems.map((item, index) => (
-              <li key={index} >
-                <MDTypography variant="body2" fontWeight="medium" >
-                  {item.type}
-                </MDTypography>
-              </li>
-            ))}
-          </ul>
+            <MDTypography variant="caption">Total Amount</MDTypography>
+            <MDTypography variant="h5">Php {totalAmount}</MDTypography>
           </MDBox>
-          <MDTypography variant="body2" mt={2} > Purpose: 
-          <MDTypography variant="body2" fontWeight="medium" > {selectedPurpose + " " + purposeCollege} </MDTypography> 
-          </MDTypography> 
+        </MDBox>
+        <MDBox
+          display="flex" alignItems="center"  pt={4}
+        >
+          <CustomSmallCircleIcon />
+          <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Requesting for the following document/s:</MDTypography>
+        </MDBox>
           
-          <MDTypography variant="body2" mt={2}> Total Amount: </MDTypography> 
-          <MDTypography variant="body2" fontWeight="medium" > Php {totalAmount}</MDTypography> 
+          <MDBox ml={3}>
+          
+            {cartItems.map((item) => (             
+                <MDTypography variant="body2" >
+                  {item.type}
+                </MDTypography>             
+            ))}
+          
+          </MDBox>
+          <MDBox
+          display="flex" alignItems="center"  pt={2}
+          >
+            <CustomSmallCircleIcon />
+            <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Purpose:</MDTypography>
+          </MDBox>
+          <MDTypography variant="body2"  ml={3}> {selectedPurpose + " " + purposeCollege} </MDTypography> 
+
+          <MDBox
+          display="flex" alignItems="center"  pt={2}
+          >
+            <CustomSmallCircleIcon />
+            <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Disclaimer:</MDTypography>
+          </MDBox>
+          <MDBox
+            display="flex"  
+          >
+          <MDTypography variant="button" ml={3} mt={1}>
+            Please note that the expected record release time is typically <b>15 days</b>, but it may vary depending on various factors. <br/><br/>
+            We only accept <b>cashless payments</b> through e-wallets like GCash and Maya, as well as online banking via Union Bank and BPI. <br/><br/>
+            Unpaid requests are valid for <b>3 days</b>. After this period, they will be automatically canceled if payment is not received.
+          </MDTypography> 
+         
+         </MDBox>
+          
+          {/* <MDTypography variant="body2" mt={2}> Total Amount: </MDTypography> 
+          <MDTypography variant="body2" fontWeight="medium" > Php {totalAmount}</MDTypography>  */}
           
           
         </MDBox>
-        <MDBox mt={5} mb={2} px={1} textAlign="left" sx={{ lineHeight: '1' }} >
+        {/* <MDBox mt={5} mb={2} px={1} textAlign="left" sx={{ lineHeight: '1' }} >
           <MDTypography variant="caption" color="error" > 
               <b>Note:</b> We only accept cashless payments through e-wallets like GCash and Paymaya, as well as online banking via Union Bank and BPI.
           </MDTypography> 
         </MDBox>
-       
+        */}
         
       </DialogContent>
       <MDBox

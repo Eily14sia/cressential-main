@@ -169,7 +169,46 @@ function Alumni_record_request({user_id}) {
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
   };
+
+  const unpaidDecline = async () => {
+      const currentDate = new Date();
   
+      // Use map to iterate through the data array
+      data.map(async (item) => {
+      const requestedDate = new Date(item.date_requested);
+  
+      // Check if the request is more than or equal to 3 days old and the status is "Unpaid"
+      if (
+        currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
+        item.payment_status === "Unpaid"
+      ) {
+        
+        try {
+          const response = await fetch(`http://localhost:8081/mysql/cancel-record-request/${item.ctrl_number}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+  
+          if (response.ok) {
+            // Fetch updated data and update the state
+            fetch("http://localhost:8081/mysql/payment-alumni-record-request")
+              .then((res) => res.json())
+              .then((data) => {
+                setData(data); // Set the fetched data into the state
+              })
+              .catch((err) => console.log(err));
+          } else {
+            // Handle the case where the update request is not successful
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    });
+  }
+  unpaidDecline();
 
   return (
     <DashboardLayout>
