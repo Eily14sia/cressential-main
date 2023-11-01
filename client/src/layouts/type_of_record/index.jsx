@@ -343,7 +343,7 @@ function Type_of_Record() {
                 </MDAlert>
               )}
               {isError && (
-                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                <MDAlert color="error" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsError(false)}>
                   {alertContent("error", alertMessage)}
                 </MDAlert>
               )}

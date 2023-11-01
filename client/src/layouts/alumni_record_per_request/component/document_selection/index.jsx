@@ -24,37 +24,41 @@ import MDInput from "../../../../components/MDInput";
 
 function DocumentSelection({ recordType, setRecordType }) {
 
-  const [data, setData] = useState([]);   
+  const [data, setData] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8081/mysql/type-of-record")
       .then((res) => res.json())
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
+        if (data.length > 0) {
+          // Set recordType to the ID of the first item in the data array
+          setRecordType(data[0].id);
+        }
       })
       .catch((err) => console.log(err));
   }, []);
 
-
   return (
     <>
         
-        <Grid item xs={12} sx={{textAlign: "left"}}>
-            <FormControl variant="outlined" fullWidth margin="normal">
-                <InputLabel>Select an option</InputLabel>
-                <Select
-                style={{ height: "50px" }}
-                label="Select an option"
-                value={recordType} // Set the selected value
-                onChange={(e) => setRecordType(e.target.value)}
-                >
-                {data.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                    {item.type}
-                    </MenuItem>
-                ))}
-                </Select>
-            </FormControl>
-        </Grid>
+        <Grid item xs={12} sx={{ textAlign: "left" }}>
+  <FormControl variant="outlined" fullWidth margin="normal">
+    <InputLabel>Type of Record</InputLabel>
+
+    <Select
+      style={{ height: "50px" }}
+      label="Select an option"
+      value={recordType}
+      onChange={(e) => setRecordType(e.target.value)}
+    >
+      {data.map((item) => (
+        <MenuItem key={item.id} value={item.id}>
+          {item.type}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Grid>
         
     </>
   );

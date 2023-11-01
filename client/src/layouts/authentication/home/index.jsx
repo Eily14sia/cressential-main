@@ -29,9 +29,12 @@ import Divider from "@mui/material/Divider";
 
 import bg_link from "../../../assets/images/homepage_main.png"
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
+import DefaultProjectCard from "../../../examples/Cards/ProjectCards/DefaultProjectCard";
 import Footer from '../../../examples/Footer/index';
 
-
+import registrar from "../../../assets/images/registrar_long.png";
+import student from "../../../assets/images/student_long.png";
+import verifier from "../../../assets/images/verifier_long.png";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -66,9 +69,7 @@ function Basic({userID, set_user_id} ) {
                       fontWeight="regular"
                       color="text"
                   >
-                  Something short and leading about the collection below—its contents,
-                  the creator, etc. Make it short and sweet, but not too short so folks
-                  don&apos;t simply skip over it entirely.
+                  Revolutionize the verifier experience through a dedicated portal designed for efficiency, streamlining access and simplifying the verification process. 
                   </MDTypography>
                   <Stack
                   sx={{ pt: 4 }}
@@ -101,33 +102,59 @@ function Basic({userID, set_user_id} ) {
               Type of Users
             </MDTypography>
             <MDTypography variant="body2" color="text" mb={2}>
-              That&apos;s the main thing people are controlled by! Thoughts - their perception of
-              themselves!{" "}
+            Dive into the Rich Tapestry of User Profiles within Our Web System
             </MDTypography>
           </Grid>
           <Divider sx={{ my: 5 }} />
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              <DefaultInfoCard
+              {/* <DefaultInfoCard
                 icon="person_3"
                 title="Registrar"
-                description="If you have the opportunity to play this game of life you need to appreciate every moment."
-              />
+                description="Effortlessly manage academic records and ensure seamless administrative processes with our registrar-focused tools."
+              /> */}
+              <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
+                <DefaultProjectCard
+                  image={registrar}
+                  label="User #1"
+                  title="Registrar"
+                  description="Effortlessly manage academic records and ensure seamless administrative processes with our registrar-focused tools."
+                  action={false}
+                />
+              </MDBox>
             </Grid>
             <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              <DefaultInfoCard
+              {/* <DefaultInfoCard
                 icon="person"
                 color="info"
                 title="Student"
-                description="If you have the opportunity to play this game of life you need to appreciate every moment."
-              />
+                description="Access your academic records and keep your educational history at your fingertips with our student and alumni portal."
+              /> */}
+              <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
+                <DefaultProjectCard
+                  image={student}
+                  label="User #2"
+                  title="Student/Alumni"
+                  description="Access your academic records and keep your educational history at your fingertips with our student and alumni portal."
+                  action={false}
+                />
+              </MDBox>
             </Grid>
             <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              <DefaultInfoCard
+              {/* <DefaultInfoCard
                 icon="verified"
                 title="Verifier"
-                description="If you have the opportunity to play this game of life you need to appreciate every moment."
-              />
+                description="Simplify the verification process, authenticate academic credentials, and enjoy an efficient experience through our dedicated verifier portal."
+              /> */}
+              <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
+                <DefaultProjectCard
+                  image={verifier}
+                  label="User #3"
+                  title="Verifier"
+                  description="Simplify the verification process, authenticate academic credentials, and enjoy an efficient experience through our dedicated verifier portal."
+                  action={false}
+                />
+              </MDBox>
             </Grid>
           </Grid>
           

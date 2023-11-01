@@ -52,19 +52,70 @@ function Alumni_record_per_request() {
   useEffect(() => {
     fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
       .then((res) => res.json())
-      .then((data) => {
-        setData(data); // Set the fetched data into the state
+      .then((fetchedData) => {
+        setData(fetchedData); // Set the fetched data into the state       
       })
       .catch((err) => console.log(err));
   }, [ctrl_number]);
 
+  const [allRecordsCompleted, setAllRecordsCompleted] = useState(false);
+  const [reqStatus, setReqStatus] = useState("");
+
+  useEffect(() => {
+    if (data.length > 0) {
+      // Check if all records have a value in the ipfs column
+      const areAllRecordsCompleted = data.every(item => item.ipfs);
+      const requestStatus = data.find(item => item.ctrl_number == ctrl_number)?.request_status;
+    
+      if (areAllRecordsCompleted && requestStatus !== "Completed") {
+        // Perform the action you want when all records have a value in ipfs and request_status is not "Completed"
+        handleUpdateSubmit(ctrl_number);
+      }
+    }
+  }, [data]);
+
+  const handleUpdateSubmit = async (new_ctrl_number) => {
+    // Create an updated record object to send to the server
+
+    try {
+      const response = await fetch(`http://localhost:8081/mysql/update-record-request/request_status/${new_ctrl_number}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        handleCloseUpdateDialog();
+        setIsSuccess(true);
+        setAlertMessage('This Record Request has completed.');
+
+        // Fetch updated data and update the state
+        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setData(data); // Set the fetched data into the state
+          })
+          .catch((err) => console.log(err));          
+      } else {
+        setAlertMessage('Failed to update record');
+      }
+    } catch (error) {
+      setIsError(true);
+      setAlertMessage(error);
+      console.error('Error:', error);
+    }
+  };
+
+
   const date_requested = data.find((item) => item.ctrl_number == ctrl_number)?.date_requested;
-  const new_date_requested = new Date(date_requested).toLocaleDateString();
+  const new_date_requested = date_requested ? new Date(date_requested).toLocaleDateString() : "loading";
 
   const date_releasing = data.find((item) => item.ctrl_number == ctrl_number)?.date_releasing;
-  const new_date_releasing = new Date(date_releasing).toLocaleDateString();
+  const new_date_releasing = date_releasing ? new Date(date_releasing).toLocaleDateString() : "loading";
 
-  const payment_status = String(data.find((item) => item.ctrl_number == ctrl_number)?.payment_status);
+  const status = data.find((item) => item.ctrl_number == ctrl_number)?.payment_status;
+  const payment_status = status ?  String(status) : 'loading';
   const student_id = data.find((item) => item.ctrl_number == ctrl_number)?.student_id;
 
   const columns = [
@@ -185,11 +236,12 @@ function Alumni_record_per_request() {
     setIsUpdateDialogOpen(false);
   };
 
+  
   return (
     <DashboardLayout>
       <DashboardNavbar />
         <MDBox pt={6} pb={3}>
-          
+        
           {/* Info Cards */}
           <Grid container spacing={3}> 
             <Grid item xs={12} md={12} lg={12}>
@@ -317,12 +369,17 @@ function Alumni_record_per_request() {
                           {parseInt(user_role) === 1 ? (
                             <>
                           <Tooltip title="Upload" >
-                              <IconButton color="info" 
-                              disabled={item.ipfs != null || payment_status === "Unpaid" ? true : false}
-                              onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)} >
+                            <span>
+                              <IconButton
+                                color="info"
+                                disabled={item.ipfs !== null || payment_status === "Unpaid"}
+                                onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
+                              >
                                 <UploadFileIcon />
-                                </IconButton>
+                              </IconButton>
+                            </span>
                           </Tooltip>
+
                           <Tooltip title="Update" >
                               <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
                                   <EditIcon />

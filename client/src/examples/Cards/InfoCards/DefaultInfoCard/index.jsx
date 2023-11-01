@@ -44,12 +44,12 @@ function DefaultInfoCard({ color, icon, title, description, value }) {
           <Icon fontSize="default">{icon}</Icon>
         </MDBox>
       </MDBox>
-      <MDBox pb={2} px={2} textAlign="center" lineHeight={1.25}>
-        <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
+      <MDBox pb={2} px={2} textAlign="center" lineHeight={1.25} mb={2}>
+        <MDTypography variant="h5" fontWeight="medium" textTransform="capitalize" mb={2}>
           {title}
         </MDTypography>
         {description && (
-          <MDTypography variant="caption" color="text" fontWeight="regular">
+          <MDTypography variant="button" color="text" fontWeight="regular">
             {description}
           </MDTypography>
         )}
@@ -59,7 +59,7 @@ function DefaultInfoCard({ color, icon, title, description, value }) {
             {value}
           </MDTypography>
         )}
-      </MDBox>
+      </MDBox >
     </Card>
   );
 }

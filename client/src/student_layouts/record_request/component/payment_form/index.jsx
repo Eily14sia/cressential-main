@@ -41,7 +41,7 @@ import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard'
 
 import axios from 'axios';
 
-const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep}) => {
+const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMessage, setIsError}) => {
 
    const [controller] = useMaterialUIController();
    const [redirectUrl, setRedirectUrl] = useState('');
@@ -57,21 +57,33 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep}) => {
     // console.log(totalAmount);
 
     const handleProceedToPayment = async () => {
-      try {
-        // Send the selected payment method to the backend
-        const response = await axios.post('http://localhost:8081/payments/paymongoMethod', {
-          selectedOption, totalAmount, ctrl_number
-        });
-  
-        // Handle the response from the backend if needed
-        console.log('Response from the backend:', response.data);
-        
-         // Open the payment method page in a new tab
-        window.open(response.data.redirectUrl, '_blank');
-        setActiveStep(2);
-      } catch (error) {
-        console.error('Error:', error);
-      }
+      setAlertMessage('');
+      setIsError(false);
+      if (selectedOption) {
+        try {
+          // Send the selected payment method to the backend
+          const response = await axios.post('http://localhost:8081/payments/paymongoMethod', {
+            selectedOption,
+            totalAmount,
+            ctrl_number
+          });
+      
+          // Handle the response from the backend if needed
+          console.log('Response from the backend:', response.data);
+      
+          // Open the payment method page in a new tab
+          window.open(response.data.redirectUrl, '_blank');
+          setActiveStep(2);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      } else {
+        // Handle the case when there's no selected payment option (e.g., display an error message).
+        console.error('No payment option selected.');
+        // Display an error message using MDAlert
+        setAlertMessage('Please select a payment option.'); // Set your error message
+        setIsError(true);
+      }      
     };
 
     const handleRedirect = () => {
@@ -194,7 +206,7 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep}) => {
                   
                   <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >                      
                     <MDButton onClick={goBack} variant="gradient" color="secondary" size="large" fullWidth >
-                        <Icon>arrow_back</Icon> &nbsp; Pay Later
+                        <Icon>arrow_back</Icon> &nbsp; Hold Payment
                     </MDButton>                      
                   </Grid>
                   <Grid item xs={2}></Grid>

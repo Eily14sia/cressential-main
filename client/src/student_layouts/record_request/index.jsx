@@ -161,7 +161,7 @@ function Record_request() {
                 </MDAlert>
               )}
               {isError && (
-                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                <MDAlert color="error" sx={{marginBottom: '50px'}} dismissible onClose={() => setIsError(false)}>
                   {alertContent("error", alertMessage)}
                 </MDAlert>
               )}
@@ -195,7 +195,7 @@ function Record_request() {
                  ctrl_number={ctrl_number}
                  setCtrlNumber={setCtrlNumber}/>
               ) : steps[activeStep] === 'Payment' ? (
-                <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number} setActiveStep={setActiveStep}/>              
+                <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number} setActiveStep={setActiveStep} setAlertMessage={setAlertMessage} setIsError={setIsError}/>              
               ) : steps[activeStep] === 'Completed' ? (
                 <Complete/>
               ) : null}

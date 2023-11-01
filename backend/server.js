@@ -85,7 +85,7 @@ router.post('/login', (req, res) => {
 
     // Generate a JWT token
     const token = jwt.sign(userData, secretKey, {
-      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+      expiresIn: '2h', // Token expires in 1 hour (adjust as needed)
     });
 
     // Include the token in the response
@@ -327,6 +327,24 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     const sql = "UPDATE record_request SET date_releasing = ?, processing_officer = ?, request_status = ? WHERE ctrl_number = ?";
 
     db.query(sql, [date_releasing, processing_officer, request_status, new_ctrl_number], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to update record' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        return res.status(200).json({ message: 'Record updated successfully' });
+    });
+});
+
+  // Update Record - automatically update the request status to completed
+  router.put('/update-record-request/request_status/:new_ctrl_number', (req, res) => {
+    const new_ctrl_number = req.params.new_ctrl_number;
+    const request_status = 'Completed'
+    const sql = "UPDATE record_request SET request_status = ? WHERE ctrl_number = ?";
+
+    db.query(sql, [request_status, new_ctrl_number], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Failed to update record' });

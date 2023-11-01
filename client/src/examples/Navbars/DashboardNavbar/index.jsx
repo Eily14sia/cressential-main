@@ -219,7 +219,7 @@ const renderMenu = () => (
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>            
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/dashboard">
+              <Link to="/profile">
                 <Tooltip title="Profile" >
                   <IconButton sx={navbarIconButton} size="small" disableRipple>
                     <Icon sx={iconsStyle}>account_circle</Icon>

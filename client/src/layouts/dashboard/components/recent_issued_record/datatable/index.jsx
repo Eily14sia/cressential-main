@@ -60,7 +60,6 @@ function Issuance_table() {
   const columns = [
     { Header: "Record", accessor: "record_type" },
     { Header: "Date Issued", accessor: "date_issued" },
-    { Header: "Status", accessor: "record_status"},
   ];
 
   function getStatusColor(status) {
@@ -97,17 +96,7 @@ function Issuance_table() {
             </MDBox>            
         ),
         date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "N/A", 
-        record_status: (
-          <>
-          <MDBox ml={-1}>
-            <MDBadge
-              badgeContent={item.record_status}
-              color={getStatusColor(item.record_status)} // Set the badge color dynamically
-              variant="gradient"
-              size="sm"
-            />
-          </MDBox></>
-        ),
+       
         
         })), 
       }} canSearch={false} 

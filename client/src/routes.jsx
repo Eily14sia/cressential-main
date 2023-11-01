@@ -52,7 +52,7 @@ import LogIn from "./layouts/authentication/log_in";
 import Home from "./layouts/authentication/home";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
 import Payment from "./layouts/payment";
-import Unauthorized from "./unauthorized_page";
+import Unauthorized from "./layouts/unauthorize/unauthorized_page";
 
 import Student_record_request from "./layouts/student_record_request";
 import Student_record_issuance from "./layouts/student_record_issuance";
@@ -89,7 +89,7 @@ const routes = [
     key: "dashboard",
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
-    role: 1,
+    role: [1],
     component: <Dashboard />,
   },
   {
@@ -105,6 +105,7 @@ const routes = [
     key: "undergraduate-record",
     icon: icon1, // Use the first icon
     route: "/undergraduate-record",
+    role: [1],
     component: <Undergraduate />,
   },
   {
@@ -113,6 +114,7 @@ const routes = [
     key: "registrar-student-record-issuance",
     icon: icon2, // Use the second icon
     route: "/registrar-student-record-issuance",
+    role: [1],
     component: <Undergraduate />,
   },
   {
@@ -127,6 +129,7 @@ const routes = [
         key: "registrar-student-record-request",
         icon: icon3,
         route: "/student/record-request",
+        role: [1],
         component: <Student_record_request />,
       },
       // {
@@ -143,6 +146,7 @@ const routes = [
         key: "registrar-student-record-issuance",
         icon: icon4,
         route: "/student/record-issuance",
+        role: [1],
         component: <Student_record_issuance />,
       },
     ],
@@ -159,6 +163,7 @@ const routes = [
         key: "registrar-alumni-record-request",
         icon: icon3,
         route: "/alumni/record-request",
+        role: [1],
         component: <Alumni_record_request />,
       },
       {
@@ -167,6 +172,7 @@ const routes = [
         key: "registrar-alumni-record-per-request",
         icon: icon4,
         route: "/alumni/record-per-request/:ctrl_number",
+        role: [1],
         component: <Alumni_record_per_request />,
       },      
       {
@@ -175,6 +181,7 @@ const routes = [
         key: "registrar-alumni-record-issuance",
         icon: icon4,
         route: "/alumni/record-issuance",
+        role: [1],
         component: <Alumni_record_issuance />,
       },
     ],
@@ -185,6 +192,7 @@ const routes = [
     key: "due-request",
     icon: icon3,
     route: "/due-request",
+    role: [1],
     component: <Due_request />,
   },
   {
@@ -193,6 +201,7 @@ const routes = [
     key: "payment",
     icon: paymentIcon,
     route: "/payment",
+    role: [1],
     component: <Payment />,
   },
   {
@@ -201,6 +210,7 @@ const routes = [
     key: "type-of-record",
     icon: <Icon fontSize="small">folder</Icon>,
     route: "/type-of-record",
+    role: [1],
     component: <Type_of_Record />,
   },
   {
@@ -209,6 +219,7 @@ const routes = [
     key: "student-management",
     icon: <Icon fontSize="small">backpack</Icon>,
     route: "/student-management",
+    role: [1],
     component: <Student_Management />,    
   },
   {
@@ -216,6 +227,7 @@ const routes = [
     name: "Student Management Add",
     key: "student-management-add",
     route: "/student-management/add-record",
+    role: [1],
     component: <Student_Management_Add />,
   },
   {
@@ -223,6 +235,7 @@ const routes = [
     name: "Student Management Update",
     key: "student-management-update",
     route: "/student-management/update-record",
+    role: [1],
     component: <Student_Management_Update />,
   },
   {
@@ -231,6 +244,7 @@ const routes = [
     key: "registrar-management",
     icon: <Icon fontSize="small">backpack</Icon>,
     route: "/registrar-management",
+    role: [1],
     component: <Registrar_Management />,    
   },
   {
@@ -238,6 +252,7 @@ const routes = [
     name: "Registrar Management Add",
     key: "registrar-management-add",
     route: "/registrar-management/add-record",
+    role: [1],
     component: <Registrar_Magement_Add />,
   },
   {
@@ -245,6 +260,7 @@ const routes = [
     name: "Registrar Management Update",
     key: "registrar-management-update",
     route: "/registrar-management/update-record",
+    role: [1],
     component: <Registrar_Management_Update />,
   },
   {
@@ -253,6 +269,7 @@ const routes = [
     key: "user-management",
     icon: <Icon fontSize="small">group</Icon>,
     route: "/user-management",
+    role: [1],
     component: <User_Management />,
   },
 
@@ -262,6 +279,7 @@ const routes = [
     key: "graduate-add-record",
     icon: <Icon fontSize="small">group</Icon>,
     route: "/graduate-record/add-record",
+    role: [1],
     component: <Graduate_Add_Record />,
   },
   // {
@@ -325,6 +343,7 @@ const routes = [
     key: "record-request",
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/record-request",
+    role: [2],
     component: <Record_request />,
   },
   {
@@ -333,6 +352,7 @@ const routes = [
     key: "student-request-table",
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/student-request-table",
+    role: [2],
     component: <Request_table />,
   },
   {
@@ -341,6 +361,7 @@ const routes = [
     key: "record-per-request",
     icon: icon4,
     route: "/record-per-request/:ctrl_number",
+    role: [1, 2],
     component: <Alumni_record_per_request />,
   }, 
   // {

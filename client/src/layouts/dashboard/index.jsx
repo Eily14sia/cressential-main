@@ -85,7 +85,7 @@ function Dashboard() {
                 percentage={{
                   color: "success",
                   amount: "+"+pending_data_today.length,
-                  label: "request today",
+                  label: "pending request today",
                 }}
               />
             </MDBox>
@@ -100,7 +100,7 @@ function Dashboard() {
                 percentage={{
                   color: "success",
                   amount: "+"+receieved_data_today.length,
-                  label: "request today",
+                  label: "received request today",
                 }}
               />
             </MDBox>
@@ -114,7 +114,7 @@ function Dashboard() {
                 percentage={{
                   color: "success",
                   amount: "+"+completed_data_today.length,
-                  label: "request today",
+                  label: "completed request today",
                 }}
               />
             </MDBox>

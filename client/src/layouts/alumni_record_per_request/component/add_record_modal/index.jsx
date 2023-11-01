@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from "@mui/material/Icon";
-
+import Divider from "@mui/material/Divider";
+import PDFViewer2 from '../../../render_pdf';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -33,18 +34,31 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseAddDialog, setData}) {
 
 // =========== For the datatable =================
 const [selectedFile, setSelectedFile] = useState(null);
+const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [uploadedCID, setUploadedCID] = useState(null);
 const [finalCID, setFinalCID] = useState(null);
 const [multihash, setMultihash] = useState(null); // Added state for multihash
 
+const [initialPassword, setInitialPassword] = useState('');
 
 const handleFileChange = (e) => {
+  // Set the URL of the file before it is selected
+  e.target.files.length > 0 && setUrl(URL.createObjectURL(e.target.files[0]));
+
   const file = e.target.files[0];
   setSelectedFile(file);
   setUploadedCID(null); // Clear the uploaded CID
   setErrorMessage('');
   setMultihash(null); // Clear the multihash
+  if (file && file.type === 'application/pdf') {
+    // File is a PDF, you can proceed
+    setSelectedFile(file);
+  } else {
+    // File is not a PDF, display an error or handle it as needed
+    alert('Please select a PDF file');
+  }
+  
 };
 
 const handleFileUpload = async () => {
@@ -59,10 +73,13 @@ const handleFileUpload = async () => {
         },
       });
 
-      if (recordPassword === null ) {
+      if (recordPassword === '' || recordPassword !== initialPassword  ) {
         handleCloseAddDialog();
         setIsError(true);
         setAlertMessage('Password is required.');
+        setSelectedFile(null);
+        setInitialPassword('');
+        setUrl('');
       } else {
 
         if (response.data.encrypted) {
@@ -74,8 +91,6 @@ const handleFileUpload = async () => {
           handleUpdateSubmit(response.data.cid, response.data.multihash);
           // Reset the selectedFile state to clear the file input
           setSelectedFile(null);
-          setRecordType('');
-          setRecordPassword('');
         } else {
           // File is not encrypted, display an error message
           handleCloseAddDialog();
@@ -83,6 +98,9 @@ const handleFileUpload = async () => {
           setAlertMessage('Only encrypted files are allowed.');
           setRecordType('');
           setRecordPassword('');
+          setInitialPassword('');
+          setUrl('');
+          setSelectedFile(null);
         }
       }
 
@@ -93,6 +111,9 @@ const handleFileUpload = async () => {
       setAlertMessage('Error uploading file. Please try again.');
       setRecordType('');
       setRecordPassword('');
+      setInitialPassword('');
+      setSelectedFile(null);
+      setUrl('');
     }
   } else {
     // If no file is selected, display an error message
@@ -100,7 +121,10 @@ const handleFileUpload = async () => {
     setIsError(true);
     setAlertMessage('Please choose an encrypted PDF file first.');
     setRecordType('');
+    setSelectedFile(null);
     setRecordPassword('');
+    setInitialPassword('');
+    setUrl('');
   }
 };
 
@@ -189,8 +213,10 @@ function getRecordName(record_type_id) {
       if (response.ok) {
         handleCloseAddDialog();
         setIsSuccess(true);        
-        sendEmail(student_email, CID, recordPassword, recordType);
-
+        // sendEmail(student_email, CID, recordPassword, recordType);
+        setInitialPassword('');
+        setRecordPassword('');
+        setUrl('');
         // Fetch updated data and update the state
         fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
           .then((res) => res.json())
@@ -208,8 +234,47 @@ function getRecordName(record_type_id) {
     }
   };
 
+  const styles = {
+    label: {
+      display: 'flex',
+      alignItems: 'center',
+      border: '1px solid #ced4da',
+      borderRadius: '5px',
+      padding: '6px 12px',
+      cursor: 'pointer',
+    },
+    input: {
+      display: 'none', // Make the input hidden
+    },
+    button: {
+      width: '25%',
+      height: 'auto',
+      margin: '7px 15px 7px 2px',
+    },
+    placeholder: {
+      color: '#495057',
+    },
+  };
+
+  const pdfUrl = selectedFile ? URL.createObjectURL(selectedFile) : null;
+
+  function isValidPassword(password) {
+    // Check for a minimum length of 8 characters
+    const hasMinimumLength = password.length >= 8;
+  
+    // You can add other conditions here as needed
+    // For example, requiring at least one uppercase letter, one lowercase letter, and one digit
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+  
+    // Combine the conditions using logical AND (&&) to enforce all criteria
+    return hasMinimumLength && hasUppercase && hasLowercase && hasDigit;
+  }
+  
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="xl" fullWidth>
       <DialogTitle>Add Record
         <IconButton
           sx={{
@@ -230,47 +295,153 @@ function getRecordName(record_type_id) {
         sx={{ opacity: 0.2 }} // Adjust this value to control the opacity level
       />
       <DialogContent>
-        <Grid container justifyContent="center" alignItems="center">
-          
-          <Grid item textAlign="center" xs={12} mb={2}>
+        <Grid container justifyContent="center" >
+          {/* right section */}
+          <Grid item textAlign="center" xs={12} md={7} mb={2} p={3} sx={{borderRadius: '5px'}}>
+              {/* {pdfUrl && <PDFViewer2 />} */}
+              <div className="mt4" style={{ height: '750px' }}>
+                {url ? (
+                    <div
+                        style={{
+                            border: '1px solid rgba(0, 0, 0, 0.3)',
+                            height: '100%',
+                        }}
+                    >
+                        {/* <Viewer fileUrl={url} /> */}
+                        <PDFViewer2 fileUrl={url}/>
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            alignItems: 'center',
+                            border: '2px dashed rgba(0, 0, 0, .3)',
+                            display: 'flex',
+                            fontSize: '2rem',
+                            height: '100%',
+                            justifyContent: 'center',
+                            width: '100%',
+                        }}
+                    >
+                        Preview area
+                    </div>
+                )}
+            </div>
             
-            <Grid item  mt={3}>
-              <MDBox height="100%"  lineHeight={1}>
-                <MDTypography variant="h5" fontWeight="medium">
-                 CTRL-{ctrl_number}
-                </MDTypography>                
-              </MDBox>
+          </Grid>
+
+          {/* left section */}
+          <Grid item textAlign="center" xs={12} md={5} mb={2}>
+            <Grid container justifyContent="center" alignItems="center">
+              <Grid item textAlign="center" xs={12} >
+                 {/* title */}
+                <Grid item  mt={3}>
+                  
+                  <MDBox height="100%" mt={0.5}>
+                    <MDTypography variant="h5" fontWeight="medium">
+                    CTRL-{ctrl_number}
+                    </MDTypography>
+                    <MDTypography variant="caption" color="text"  >
+                    Please review the information carefully. Changes cannot be undone.
+                    </MDTypography>
+                  </MDBox>
+                  <Divider sx={{marginBottom: "30px", marginTop: "20px"}}/>
+                </Grid>
+              </Grid>
+              <Grid item textAlign="center" xs={11}>
+              <DocumentSelection recordType={recordType} setRecordType={setRecordType}/>
+            </Grid>
+              <Grid item textAlign="center" xs={11} mt={1}>
+                {/* <MDInput fullWidth
+                  type="file"
+                  id="fileUpload"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />           */}
+                <label htmlFor="file-upload" style={styles.label}>
+                <button
+                  style={styles.button}
+                  onClick={() => {
+                    const fileInput = document.getElementById("file-upload");
+                    if (fileInput) {
+                      fileInput.click();
+                    }
+                  }}
+                >
+                  Choose File
+                </button>
+                <span style={selectedFile ? {} : styles.placeholder}>
+                  <MDTypography variant="button">
+                  {selectedFile ? selectedFile.name : 'Select a PDF file'}
+                  </MDTypography>
+                </span>
+                <input
+                  accept=".pdf"
+                  id="file-upload"
+                  type="file"
+                  style={styles.input}
+                  onChange={handleFileChange}
+                />
+                
+              </label>
+              
+              </Grid>
+              <Grid item textAlign="center" xs={11} mt={2}>
+                <MDInput
+                  label="Password"
+                  type="password"
+                  value={initialPassword || ''}
+                  onChange={(e) => setInitialPassword(e.target.value)}
+                  required
+                  sx={{ width: '100%' }}
+                  disabled={!selectedFile}
+                  error={initialPassword && !isValidPassword(initialPassword)}
+                />
+                <MDBox sx={{ textAlign: "left" }}>
+                {initialPassword && !isValidPassword(initialPassword) && (
+                <MDTypography variant="caption" sx={{ color: 'red', textAlign: 'left' }}>
+                  * Password should be at least 8 characters long <br/> * It should contain an uppercase letter, a lowercase letter, and a digit.
+                </MDTypography>
+              )}
+
+
+                </MDBox>
+              </Grid>
+              <Grid item textAlign="center" xs={11} mt={2}>
+                <MDInput
+                  label="Retype Password"
+                  type="password"
+                  value={recordPassword || ''}
+                  onChange={(e) => setRecordPassword(e.target.value)}
+                  required
+                  sx={{ width: '100%', marginBottom: "30px" }}
+                  disabled={!isValidPassword(initialPassword)}
+                  error={recordPassword && recordPassword !== initialPassword}
+                />
+                
+                <MDButton
+                  variant="contained"
+                  color="info"
+                  type="submit"
+                  onClick={handleFileUpload}                   
+                  size="large"
+                  fullWidth
+                >
+                    Add Record
+                </MDButton>
+              </Grid>
             </Grid>
           </Grid>
-          <Grid item textAlign="center" xs={11}>
-            <DocumentSelection recordType={recordType} setRecordType={setRecordType}/>
-          </Grid>
-          <Grid item textAlign="center" xs={11} mt={2}>
-            <MDInput
-              label="Password"
-              type="password"
-              value={recordPassword || ''}
-              onChange={(e) => setRecordPassword(e.target.value)}
-              required
-              sx={{ width: '100%' }}
-            />
-          </Grid>
-          <Grid item textAlign="center" xs={11} my={3}>
-            <MDInput fullWidth
-              type="file"
-              id="fileUpload"
-              accept=".pdf"
-              onChange={handleFileChange}
-            />          
-            
-          </Grid>
+
+         
+              
+          
         </Grid>
       </DialogContent>
-      <MDBox
+      {/* <MDBox
         component="hr"
         sx={{ opacity: 0.2 }}
-      />
-      <DialogActions>
+      /> */}
+      {/* <DialogActions>
         <MDButton onClick={onClose} color="secondary">
           Cancel
         </MDButton>
@@ -283,7 +454,7 @@ function getRecordName(record_type_id) {
             Add Record
         </MDButton>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      </DialogActions>
+      </DialogActions> */}
     </Dialog>
   );
 }

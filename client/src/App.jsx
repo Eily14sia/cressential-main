@@ -16,12 +16,14 @@ Coded by www.creative-tim.com
 import { useState, useEffect, useMemo } from "react";
 
 // react-router components
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Icon from "@mui/material/Icon";
+
+import { Worker } from '@react-pdf-viewer/core';
 
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
@@ -51,8 +53,34 @@ import Verifier_Portal from "./layouts/authentication/verification_portal";
 
 export default function App() {
   const isAuthenticated = !!localStorage.getItem("token");
+  const user_role = parseInt(localStorage.getItem('user_role'));
 
-  console.log(localStorage.getItem("token"));
+
+  let inactivityTimeout;
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_role');
+    navigate('/'); // Use history to navigate to the login page
+  };
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(logout, 20 * 60 * 1000); // 20 minutes
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousemove', resetInactivityTimer);
+    document.addEventListener('keydown', resetInactivityTimer);
+
+    return () => {
+      document.removeEventListener('mousemove', resetInactivityTimer);
+      document.removeEventListener('keydown', resetInactivityTimer);
+    };
+  }, []);
+
+  console.log("token:"+localStorage.getItem("token"));
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -97,13 +125,13 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
-  const getRoutes = (allRoutes) =>
+  const getRoutes = (allRoutes, userRole) =>
   allRoutes.map((route) => {
     if (route.collapse) {
-      return getRoutes(route.collapse);
+      return getRoutes(route.collapse, userRole);
     }
-
-    if (route.route) {
+    
+    if (route.route && (!route.role || route.role.includes(userRole))) {
       return (
         <Route
           path={route.route}
@@ -150,9 +178,12 @@ export default function App() {
    
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
       <CssBaseline />      
         <Routes>
-          {getRoutes(routes)}
+          {getRoutes(routes, user_role)}
+          {console.log("role:"+user_role)}
+          {console.log("isAuthenticated:"+isAuthenticated)}
           <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
           <Route path="/authentication/log-in" element={<LogIn/>} />   
           <Route path="/verifier-portal" element={<Verifier_Portal/>} key="verifier-portal"/>   
@@ -179,7 +210,7 @@ export default function App() {
         </>
       )}
       {layout === "vr" && <Configurator />}
-      
+      </Worker>
     </ThemeProvider>
   );
 }
