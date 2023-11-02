@@ -1,12 +1,12 @@
 {
-  "name": "cressential-final",
+  "name": "cressential",
   "version": "1.0.0",
   "scripts": {
-     "start": "cd backend && npm install && npm start",
-     "heroku-postbuild": "cd client && npm install && npm run build"
-  },  
-  "author": "Stonecap",
-  "dependencies": {
-     "concurrently": "^8.2.2"
-  }
+    "install:client": "cd cressential/client && npm install",
+    "install:backend": "cd cressential/backend && npm install",
+    "start:backend": "cd cressential/backend && npm start",
+    "start:client": "cd cressential/client && npm start",
+    "deploy": "npm run install:client && npm run install:backend"
+  },
+  "author": "Stonecap"
  }
