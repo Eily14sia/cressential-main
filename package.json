@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cd backend && npm install && npm start",
-    "deploy": "npm run install:client && npm run install:backend"
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "author": "Stonecap"
  }
