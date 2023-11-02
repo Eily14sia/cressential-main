@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('./authenticateToken');
 const crypto = require('crypto');
 
-const db = mysql.createConnection({
-    host: "localhost",
-    user: 'root',
-    password: '',
-    database: 'cressential'
-})
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+      rejectUnauthorized: false
+  }
+});
 
 // Connect to the database
 db.connect((err) => {
