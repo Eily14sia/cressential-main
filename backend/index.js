@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8081;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173' // Replace with your React frontend URL
+  origin: 'https://cressential-5435c63fb5d8.herokuapp.com' // Replace with your React frontend URL
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
