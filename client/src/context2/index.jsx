@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({ loginRecord }),
         });
@@ -111,6 +112,7 @@ export const AuthProvider = ({ children }) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({ wallet_address }),
             });
