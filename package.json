@@ -2,10 +2,10 @@
   "name": "cressential",
   "version": "1.0.0",
   "scripts": {
-    "install:client": "cd cressential/client && npm install",
-    "install:backend": "cd cressential/backend && npm install",
-    "start:backend": "cd cressential/backend && npm start",
-    "start:client": "cd cressential/client && npm start",
+    "install:client": "cd client && npm install",
+    "install:backend": "cd backend && npm install",
+    "start:backend": "cd backend && npm start",
+    "start:client": "cd client && npm start",
     "deploy": "npm run install:client && npm run install:backend"
   },
   "author": "Stonecap"
