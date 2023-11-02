@@ -4,9 +4,10 @@
   "scripts": {
     "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
     "start-client": "cd client && npm start",
-    "start-server": "cd backend && npm start"
-  },
-  "author": "",
+    "start-server": "cd backend && npm start",
+    "heroku-postbuild": "npm install --prefix client && npm install --prefix backend"
+  },  
+  "author": "Stonecap",
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
