@@ -4,7 +4,8 @@
   "scripts": {
      "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
      "start-client": "cd client && npm start",
-     "start-server": "cd backend && npm start"
+     "start-server": "cd backend && npm start",
+     "heroku-postbuild": "cd client && npm install && cd ../backend && npm install"
   },  
   "author": "Stonecap",
   "dependencies": {
