@@ -65,8 +65,9 @@ router.post('/login', (req, res) => {
   const hashedPassword = hashPassword(password);
   
   // Query the database to retrieve user data
-  const sql = 'SELECT * FROM user_management WHERE email = ? AND password = ?';
-  db.query(sql, [email, hashedPassword], (err, results) => {
+  const query = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
+  const values = [email, hashedPassword];
+  db.query(sql, values, (err, results) => {
     if (err) {
       console.error('MySQL query error:', err);
       res.status(500).json({ success: false, message: 'Internal server error' });

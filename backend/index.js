@@ -13,9 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 8081;
 
 // Middleware
-app.use(cors({
-  origin: 'https://cressential-5435c63fb5d8.herokuapp.com' // Replace with your React frontend URL
-}));
+const corsOptions = {
+  origin: ['http://localhost:5173', 'https://cressential-5435c63fb5d8.herokuapp.com'],
+};
+
+app.use(cors(corsOptions));
 
 //When you navigate to the root page, it would use the built react-app
 app.use(express.static(path.resolve(__dirname, "../client/build")));
