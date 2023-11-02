@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('./authenticateToken');
 const crypto = require('crypto');
+require('dotenv').config();
 
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -12,27 +13,19 @@ const db = new Pool({
   }
 });
 
-
-// Handle the 'connect' event to check if the database connection is established
-db.on('connect', () => {
-  console.log('Connected to PostgreSQL database');
+// Connect to the database
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to MySQL database:', err);
+        throw err;
+    }
+    console.log('Connected to MySQL database');
 });
 
-// Handle the 'error' event to capture connection errors
-db.on('error', (err) => {
-  console.error('Error connecting to PostgreSQL database:', err);
-});
+// router.get('/', (re, res)=> {
+//     return res.json("From Backend Server");
+// })
 
-router.get('/', (req, res) => {
-  // Check the database connection status
-  if (db.connecting) {
-    return res.json("Connecting to the PostgreSQL database...");
-  } else if (db.connected) {
-    return res.json("Connected to the PostgreSQL database.");
-  } else {
-    return res.json("Not connected to the PostgreSQL database.");
-  }
-});
 
 // Secret key for JWT (replace with a long, secure random string)
 const secretKey = 'your-secret-key';
