@@ -7,6 +7,7 @@ const mysqlRoutes = require('./server'); // Import the MySQL routes
 const paymentapi = require('./payment');
 const emailapi = require('./email');
 const bodyParser = require('body-parser');
+const path = require('path'); // Import the path module
 
 const app = express();
 const PORT = process.env.PORT || 8081;
