@@ -2,13 +2,12 @@
   "name": "cressential-final",
   "version": "1.0.0",
   "scripts": {
-    "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
-    "start-client": "cd client && npm start",
-    "start-server": "cd backend && npm start",
-    "heroku-postbuild": "cd client && npm install && npm run build && cd ../backend && npm install"
-  },
+     "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
+     "start-client": "cd client && npm start",
+     "start-server": "cd backend && npm start"
+  },  
   "author": "Stonecap",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+  "dependencies": {
+     "concurrently": "^8.2.2"
   }
-}
+ }
