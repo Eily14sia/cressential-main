@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       try {
         // Make an authentication request to your server or API
-        const response = await fetch('http://localhost:8081/mysql/login', {
+        const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     const login_metamask = async (wallet_address) => {
         try {
             // Make an authentication request to your server or API
-            const response = await fetch('http://localhost:8081/mysql/login-metamask', {
+            const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/login-metamask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
