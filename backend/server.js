@@ -65,7 +65,7 @@ router.post('/login', (req, res) => {
   const hashedPassword = hashPassword(password);
   
   // Query the database to retrieve user data
-  const query = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
+  const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
   const values = [email, hashedPassword];
   db.query(sql, values, (err, results) => {
     if (err) {
