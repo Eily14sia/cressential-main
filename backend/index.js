@@ -33,8 +33,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-//When you navigate to the root page, it would use the built react-app
-// app.use(express.static(path.resolve(__dirname, "../client/build")));
+// When you navigate to the root page, it would use the built react-app
+app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
