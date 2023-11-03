@@ -40,24 +40,44 @@ function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
   const [data, setData] = useState([]);
   const [user_data, setUserData] = useState([]);
+  const jwtToken = localStorage.getItem('token');
 
-  useEffect(() => {
-    fetch("http://localhost:8081/mysql/record-request")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data); // Set the fetched data into the state
+    useEffect(() => {
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
       })
-      .catch((err) => console.log(err));
-  }, []);
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setData(data);
+        })
+        .catch((err) => console.log(err));
+    }, []);
 
-  useEffect(() => {
-    fetch("http://localhost:8081/mysql/users")
-      .then((res) => res.json())
-      .then((data) => {
-        setUserData(data); // Set the fetched data into the state
+    useEffect(() => {
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/users", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
       })
-      .catch((err) => console.log(err));
-  }, []);
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setUserData(data);
+        })
+        .catch((err) => console.log(err));
+    }, []);
+  
 
   const today = new Date();
 
@@ -67,7 +87,7 @@ function Dashboard() {
   const receieved_data_today = data.filter((record) => record.request_status === "Received" && record.date_requested === today);
   const completed_data = data.filter((record) => record.request_status === "Completed");
   const completed_data_today = data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
-  const active_users = user_data.filter((record) => record.status === "active");
+  const active_users = user_data ? user_data.filter((record) => record.status === "active") : null;
 
 
   return (

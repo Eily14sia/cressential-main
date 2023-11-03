@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect, useMemo } from "react";
 
 // react-router components
@@ -80,7 +65,6 @@ export default function App() {
     };
   }, []);
 
-  console.log("token:"+localStorage.getItem("token"));
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -182,7 +166,6 @@ export default function App() {
       <CssBaseline />      
         <Routes>
           {getRoutes(routes, user_role)}
-          {console.log("role:"+user_role)}
           {console.log("isAuthenticated:"+isAuthenticated)}
           <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
           <Route path="/authentication/log-in" element={<LogIn/>} />   

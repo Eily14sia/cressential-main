@@ -105,7 +105,7 @@ const user_id = localStorage.getItem('user_id');
 const today_date = new Date();
 
 useEffect(() => {
-  fetch(`http://localhost:8081/mysql/notif/${user_id}`)
+  fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/${user_id}`)
     .then((res) => res.json())
     .then((fetchedData) => {
       setData(fetchedData); // Set the fetched data into the state

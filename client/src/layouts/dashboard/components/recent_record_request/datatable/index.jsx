@@ -36,12 +36,22 @@ import DataTable from "../../../../../examples/Tables/DataTable";
 function Request_table() {
 
     const [data, setData] = useState([]);
+    const jwtToken = localStorage.getItem('token');
 
     useEffect(() => {
-        fetch("http://localhost:8081/mysql/record-request")
-        .then((res) => res.json())
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
         .then((data) => {
-            setData(data.slice(0, 5)); // Set the fetched data into the state
+          setData(data.slice(0, 5));
         })
         .catch((err) => console.log(err));
     }, []);
@@ -49,7 +59,7 @@ function Request_table() {
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record")
       .then((res) => res.json())
       .then((type_of_record) => {
         setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state

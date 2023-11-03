@@ -26,14 +26,39 @@ db.connect((err) => {
 //     return res.json("From Backend Server");
 // })
 
+// Middleware to check if the user is authenticated
 
 // Secret key for JWT (replace with a long, secure random string)
-const secretKey = 'your-secret-key';
+const secretKey = '@Cressential123';
+
+function verifyToken(req, res, next) {
+  // Get the token from the request header
+  const authorizationHeader = req.headers.authorization;
+
+  if (!authorizationHeader) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const token = authorizationHeader.split(' ')[1];
+  // Verify the token
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      console.error("Failed to authenticate token:", err);
+      return res.status(401).json({ message: "Failed to authenticate token" });
+    }
+
+    // Store the decoded user information in the request for later use
+    req.user = decoded;
+    next();
+  });
+}
+
+
 
 // Define a route to get user data by wallet_address
 router.post('/login-metamask', (req, res) => {
   const { wallet_address } = req.body;
-  const sql = "SELECT * FROM user_management WHERE wallet_address = ?";
+  const sql = "SELECT * FROM user_management WHERE wallet_address = $1";
 
   db.query(sql, [wallet_address], (err, results) => {
     if (err) {
@@ -41,11 +66,11 @@ router.post('/login-metamask', (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
 
-    if (results.length === 0) {
+    if (results.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const user = results[0];
+    const user = results.rows[0];
 
     // Generate a JWT token
     const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
@@ -60,7 +85,7 @@ router.post('/login-metamask', (req, res) => {
 
 router.post('/login', (req, res) => {
   const { email, password } = req.body.loginRecord;
-
+  
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(password);
   
@@ -74,11 +99,11 @@ router.post('/login', (req, res) => {
       return;
     }
 
-    if (results.length === 0) {
+    if (results.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const user = results[0];
+    const user = results.rows[0];
     const userData = {
       user_id: user.user_id,
       role: user.role,
@@ -99,7 +124,7 @@ router.post('/verify', (req, res) => {
   const { transaction_hash, password, hash } = req.body;
 
   // First query to check if a record with the provided transaction_hash exists
-  const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = ?';
+  const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1';
   db.query(checkHashSql, [transaction_hash], (checkErr, checkResults) => {
     if (checkErr) {
       console.error('MySQL query error:', checkErr);
@@ -107,7 +132,7 @@ router.post('/verify', (req, res) => {
       return;
     }
 
-    if (checkResults.length === 0) {
+    if (checkResults.rows.length === 0) {
       // Transaction hash not found in the database
       return res.status(404).json({ message: 'Transaction hash not found' });
     }
@@ -117,7 +142,7 @@ router.post('/verify', (req, res) => {
     const hashedPassword = hashPassword(password);
 
     // Query the database to retrieve user data
-    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = ? AND hash = ? AND password = ?';
+    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND hash = $2 AND password = $3';
     db.query(sql, [transaction_hash, hash, hashedPassword], (err, results) => {
       if (err) {
         console.error('MySQL query error:', err);
@@ -125,9 +150,9 @@ router.post('/verify', (req, res) => {
         return;
       }
 
-      if (results.length > 0) {
+      if (results.rows.length > 0) {
         // Record found in the database
-        const data = results[0];
+        const data = results.rows[0];
         res.json({ success: true, record_status: data.record_status, date_issued: data.date_issued });
       } else {
         // Record not found in the database or invalid password
@@ -145,20 +170,21 @@ router.get('/notif/:user_id', (req, res) => {
   const sql = `
       SELECT *
       FROM notification as n
-      WHERE n.user_id = ?
+      WHERE n.user_id = $1
   `;
   
-  db.query(sql, [user_id], (err, data) => {
+  db.query(sql, [user_id], (err, results) => {
     if (err) return res.json(err);
+    const data = results.rows;
     return res.json(data);
   });
 });
 
 // Add Record
-router.post('/notif/add-record', (req, res) => {
+router.post('/notif/add-record', verifyToken, (req, res) => {
   const { title, description, user_id } = req.body;
   
-  const sql = "INSERT INTO notification (title, description, user_id) VALUES (?, ?, ?)";
+  const sql = "INSERT INTO notification (title, description, user_id) VALUES ($1, $2, $3)";
   
   db.query(sql, [title, description, user_id], (err, result) => {
   if (err) {
@@ -177,13 +203,14 @@ router.post('/notif/add-record', (req, res) => {
 
 // ========================= Dashboard  =========================
 
-  router.get('/record-request', (req, res)=> {
+  router.get('/record-request', verifyToken, (req, res)=> {
     const sql = `SELECT * FROM record_request as r 
     INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number
     ORDER BY r.date_requested DESC    
     `;
-    db.query(sql, (err, data)=> {
+    db.query(sql, (err, results)=> {
         if(err) return res.json(err);
+        const data = results.rows;
         return res.json(data);
     })
   })
@@ -193,8 +220,9 @@ router.post('/notif/add-record', (req, res) => {
     ORDER BY r.date_issued DESC
     LIMIT 7
     `;
-    db.query(sql, (err, data)=> {
+    db.query(sql, (err, results)=> {
         if(err) return res.json(err);
+        const data = results.rows;
         return res.json(data);
     })
   })
@@ -209,8 +237,9 @@ router.post('/notif/add-record', (req, res) => {
       INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number      
     `;
   
-    db.query(sql, (err, data) => {
+    db.query(sql, (err, results) => {
       if (err) return res.json(err);
+      const data = results.rows;
       return res.json(data);
     });
   });
@@ -224,7 +253,7 @@ router.post('/notif/add-record', (req, res) => {
         payment_method,
         payment_status, } = req.body;
 
-      const sql = "UPDATE payment SET payment_id = ?, payment_date = ?, payment_method = ?, payment_status = ? WHERE ctrl_number = ?";
+      const sql = "UPDATE payment SET payment_id = $1, payment_date = $2, payment_method = $3, payment_status = $4 WHERE ctrl_number = $5";
 
       db.query(sql, [payment_id, payment_date, payment_method, payment_status, ctrl_number], (err, result) => {
           if (err) {
@@ -249,11 +278,12 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
         INNER JOIN record_request ON record_per_request.ctrl_number = record_request.ctrl_number
         INNER JOIN payment ON record_per_request.ctrl_number = payment.ctrl_number
         INNER JOIN type_of_record ON record_per_request.record_type_id = type_of_record.id
-        WHERE record_per_request.ctrl_number = ?
+        WHERE record_per_request.ctrl_number = $1
     `;
     
-    db.query(sql, [ctrl_number], (err, data) => {
+    db.query(sql, [ctrl_number], (err, results) => {
       if (err) return res.json(err);
+      const data = results.rows;
       return res.json(data);
     });
   });
@@ -273,8 +303,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
       )
     `;
   
-    db.query(sql, (err, data) => {
+    db.query(sql, (err, results) => {
       if (err) return res.json(err);
+      const data = results.rows;
       return res.json(data);
     });
   });
@@ -294,8 +325,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
       AND rpr.date_issued IS NOT NULL
     `;
   
-    db.query(sql, (err, data) => {
+    db.query(sql, (err, results) => {
       if (err) return res.json(err);
+      const data = results.rows;
       return res.json(data);
     });
   });
@@ -315,8 +347,9 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
       )
     `;
   
-    db.query(sql, (err, data) => {
+    db.query(sql, (err, results) => {
       if (err) return res.json(err);
+      const data = results.rows;
       return res.json(data);
     });
   });
@@ -326,7 +359,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     const new_ctrl_number = req.params.new_ctrl_number;
     const { date_releasing, processing_officer, request_status } = req.body;
 
-    const sql = "UPDATE record_request SET date_releasing = ?, processing_officer = ?, request_status = ? WHERE ctrl_number = ?";
+    const sql = "UPDATE record_request SET date_releasing = $1, processing_officer = $2, request_status = $3 WHERE ctrl_number = $4";
 
     db.query(sql, [date_releasing, processing_officer, request_status, new_ctrl_number], (err, result) => {
         if (err) {
@@ -344,7 +377,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   router.put('/update-record-request/request_status/:new_ctrl_number', (req, res) => {
     const new_ctrl_number = req.params.new_ctrl_number;
     const request_status = 'Completed'
-    const sql = "UPDATE record_request SET request_status = ? WHERE ctrl_number = ?";
+    const sql = "UPDATE record_request SET request_status = $1 WHERE ctrl_number = $2";
 
     db.query(sql, [request_status, new_ctrl_number], (err, result) => {
         if (err) {
@@ -376,8 +409,9 @@ router.get('/alumni/record-issuance', (req, res) => {
     AND rpr.date_issued IS NOT NULL
   `;
 
-  db.query(sql, (err, data) => {
+  db.query(sql, (err, results) => {
     if (err) return res.json(err);
+    const data = results.rows;
     return res.json(data);
   });
 });
@@ -389,7 +423,7 @@ router.get('/alumni/record-issuance', (req, res) => {
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES ($1, $2, $3, $4, $5, $6, $7)";
 
   db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued, transactionHash], (err, result) => {
     if (err) {
@@ -410,7 +444,7 @@ router.get('/alumni/record-issuance', (req, res) => {
   // Hash the password using SHA-256
   const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "UPDATE record_per_request SET password = ?, ipfs = ?, hash = ? , date_issued = ?, transaction_hash = ? WHERE rpr_id = ?";
+  const sql = "UPDATE record_per_request SET password = $1, ipfs = $2, hash = $3 , date_issued = $4, transaction_hash = $5 WHERE rpr_id = $6";
 
   db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, transactionHash, recordID], (err, result) => {
     if (err) {
@@ -428,7 +462,7 @@ router.put('/update-record-per-request/:recordID', (req, res) => {
   const recordID = req.params.recordID;
   const { recordStatus } = req.body;
 
-  const sql = "UPDATE record_per_request SET record_status = ? WHERE rpr_id = ?";
+  const sql = "UPDATE record_per_request SET record_status = $1 WHERE rpr_id = $2";
 
   db.query(sql, [recordStatus, recordID], (err, result) => {
     if (err) {
@@ -457,11 +491,12 @@ router.get('/due-request', (req, res) => {
     SELECT *
     FROM record_request AS r
     INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
-    WHERE r.date_releasing <= ? AND r.request_status IN ('Pending', 'Received'); 
+    WHERE r.date_releasing <= $1 AND r.request_status IN ('Pending', 'Received'); 
   `;
 
-  db.query(sql, [today], (err, data) => {
+  db.query(sql, [today], (err, results) => {
     if (err) return res.json(err);
+    const data = results.rows;
     return res.json(data);
   });
 });
@@ -470,8 +505,9 @@ router.get('/due-request', (req, res) => {
 
     router.get('/type-of-record', (req, res)=> {
         const sql = "SELECT * FROM type_of_record";
-        db.query(sql, (err, data)=> {
+        db.query(sql, (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -485,7 +521,7 @@ router.get('/due-request', (req, res) => {
             return res.status(400).json({ message: 'Type and price are required' });
         } 
         else {
-            const sql = "INSERT INTO type_of_record (type, price) VALUES (?, ?)";
+            const sql = "INSERT INTO type_of_record (type, price) VALUES ($1, $2)";
             
             db.query(sql, [type, price], (err, result) => {
             if (err) {
@@ -502,7 +538,7 @@ router.get('/due-request', (req, res) => {
         const recordId = req.params.recordId;
         const { type, price } = req.body;
 
-        const sql = "UPDATE type_of_record SET type = ?, price = ? WHERE id = ?";
+        const sql = "UPDATE type_of_record SET type = $1, price = $2 WHERE id = $3";
 
         db.query(sql, [type, price, recordId], (err, result) => {
             if (err) {
@@ -521,7 +557,7 @@ router.get('/due-request', (req, res) => {
         const recordId = req.params.recordId;
         const { type, price } = req.body;
 
-        const sql = "DELETE FROM type_of_record WHERE id = ?";
+        const sql = "DELETE FROM type_of_record WHERE id = $1";
 
         db.query(sql, [recordId], (err, result) => {
             if (err) {
@@ -538,15 +574,16 @@ router.get('/due-request', (req, res) => {
 // ================ User Management =======================
 
     // User Management Tab
-    router.get('/users', (req, res)=> {
+    router.get('/users', verifyToken, (req, res)=> {
         
         const sql = `
             SELECT *
             FROM user_management;      
                 
         `;
-        db.query(sql, (err, data)=> {
+        db.query(sql, (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -562,8 +599,9 @@ router.get('/due-request', (req, res) => {
             JOIN user_management ON student_management.user_id = user_management.user_id;              
         `;
 
-        db.query(sql, (err, data)=> {
+        db.query(sql, (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -576,11 +614,12 @@ router.get('/due-request', (req, res) => {
             SELECT *
             FROM student_management 
             JOIN user_management ON student_management.user_id = user_management.user_id
-            WHERE student_management.user_id = ?;              
+            WHERE student_management.user_id = $1;              
         `;
 
-        db.query(sql, [user_id], (err, data)=> {
+        db.query(sql, [user_id], (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -593,7 +632,7 @@ router.get('/due-request', (req, res) => {
     const password = hashPassword(formData.studentNumber);
     const wallet_address = formData.walletAddress;
   
-    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES (?, ?, ?, 2)";
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 2)";
     
     db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
     if (err) {
@@ -623,7 +662,7 @@ router.get('/due-request', (req, res) => {
     const student_management_sql = `INSERT INTO student_management (user_id, student_number, last_name, 
       first_name, middle_name, college, course, entry_year_from,  entry_year_to, 
       date_of_graduation, permanent_adddress, mobile_number, email, is_alumni) VALUES 
-      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`;
 
     db.query(student_management_sql, values, (err, result2) => {
       if (err) {
@@ -647,8 +686,9 @@ router.get('/due-request', (req, res) => {
             JOIN user_management ON registrar_management.user_id = user_management.user_id;              
         `;
 
-        db.query(sql, (err, data)=> {
+        db.query(sql, (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -661,11 +701,12 @@ router.get('/due-request', (req, res) => {
             SELECT *
             FROM registrar_management 
             JOIN user_management ON registrar_management.user_id = user_management.user_id
-            WHERE registrar_management.user_id = ?;              
+            WHERE registrar_management.user_id = $1;              
         `;
 
-        db.query(sql, [user_id], (err, data)=> {
+        db.query(sql, [user_id], (err, results)=> {
             if(err) return res.json(err);
+            const data = results.rows;
             return res.json(data);
         })
     })
@@ -678,7 +719,7 @@ router.get('/due-request', (req, res) => {
     const password = hashPassword('Registrar123');
     const wallet_address = formData.walletAddress;
   
-    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES (?, ?, ?, 1)";
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 1)";
     
     db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
     if (err) {
@@ -700,7 +741,7 @@ router.get('/due-request', (req, res) => {
 
     const registrar_management_sql = `INSERT INTO registrar_management (user_id, last_name, 
       first_name, middle_name, email, mobile_number) VALUES 
-      (?, ?, ?, ?, ?, ?)`;
+      ($1, $2, $3, $4, $5, $6)`;
 
     db.query(registrar_management_sql, values, (err, result2) => {
       if (err) {
@@ -727,12 +768,13 @@ router.get('/student-record-request/:user_id', (req, res) => {
     WHERE r.student_id IN (
       SELECT id
       FROM student_management
-      WHERE user_id = ?
+      WHERE user_id = $1
     )
   `;
   
-  db.query(sql, [user_id], (err, data) => {
+  db.query(sql, [user_id], (err, results) => {
     if (err) return res.json(err);
+    const data = results.rows;
     return res.json(data);
   });
 });
@@ -749,9 +791,9 @@ router.post('/record-request/add-record', (req, res) => {
   const date_releasing = new Date(date_requested);
   date_releasing.setDate(date_releasing.getDate() + 15);
 
-  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES (?, ?, ?, ?, ?)";
-  const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES (?, ?)";
-  const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES (?, ?)";
+  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES ($1, $2, $3, $4, $5)";
+  const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES ($1, $2)";
+  const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES ($1, $2)";
 
   db.beginTransaction((err) => {
     if (err) {
@@ -820,7 +862,7 @@ router.post('/record-request/add-record', (req, res) => {
 router.put('/cancel-record-request/:ctrl_number', (req, res) => {
   const ctrl_number = req.params.ctrl_number;
 
-  const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = ?";
+  const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = $1";
 
   db.query(sql, [ctrl_number], (err, result) => {
       if (err) {
@@ -840,7 +882,7 @@ router.put('/update-payment/:ctrl_number', (req, res) => {
   const {total_amount, payment_method, payment_id } = req.body;
 
   const payment_date = new Date();
-  const sql = "UPDATE payment SET payment_id = ?, payment_date = ?, total_amount = ?, payment_method = ?, payment_status = 'Paid'  WHERE ctrl_number = ?";
+  const sql = "UPDATE payment SET payment_id = $1, payment_date = $2, total_amount = $3, payment_method = $4, payment_status = 'Paid'  WHERE ctrl_number = $5";
 
   db.query(sql, [payment_id, payment_date, total_amount, payment_method, ctrl_number], (err, result) => {
       if (err) {

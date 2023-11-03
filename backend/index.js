@@ -13,14 +13,28 @@ const app = express();
 const PORT = process.env.PORT || 8081;
 
 // Middleware
+// const corsOptions = {
+//   origin: ['http://localhost:5173', 'http://localhost:8081', 'https://cressential-5435c63fb5d8.herokuapp.com'],
+// };
+
+// app.use(cors());
+// Allow requests from your frontend applications, both on localhost and Heroku
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:8081', 'https://cressential-5435c63fb5d8.herokuapp.com'];
+
 const corsOptions = {
-  origin: ['http://localhost:8081', 'https://cressential-5435c63fb5d8.herokuapp.com'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 };
 
 app.use(cors(corsOptions));
 
 //When you navigate to the root page, it would use the built react-app
-app.use(express.static(path.resolve(__dirname, "../client/build")));
+// app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

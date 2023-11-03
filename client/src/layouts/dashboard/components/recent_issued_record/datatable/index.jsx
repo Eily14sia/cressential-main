@@ -31,7 +31,7 @@ function Issuance_table() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-      fetch("http://localhost:8081/mysql/record-issuance")
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-issuance")
       .then((res) => res.json())
       .then((data) => {
           setData(data); // Set the fetched data into the state
@@ -49,7 +49,7 @@ function Issuance_table() {
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record")
       .then((res) => res.json())
       .then((type_of_record) => {
         setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
