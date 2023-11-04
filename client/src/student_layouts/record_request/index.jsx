@@ -39,16 +39,25 @@ import axios from 'axios';
 import { useMaterialUIController } from "../../context";
 
 function Record_request() {
-
+  const jwtToken = localStorage.getItem('token');
   const [cartItems, setCartItems] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);
   const [ctrl_number, setCtrlNumber] = useState('');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+        setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
   }, []);
@@ -87,7 +96,7 @@ function Record_request() {
 
     try {
       const tAmount = parseInt(total_amount, 10);
-      const response = await axios.post('http://localhost:8081/payments/paymongoIntent', {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
         amount: tAmount * 100,
       });
   

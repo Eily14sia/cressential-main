@@ -33,13 +33,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "../client/build/index.html"));
-// });
-
-// When you navigate to the root page, it would use the built react-app
-app.use(express.static(path.resolve(__dirname, "../client/build")));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -49,6 +42,14 @@ app.use('/files', fileRoutes); // File-related routes
 app.use('/mysql', mysqlRoutes); // MySQL-related routes (adjust the prefix as needed)
 app.use('/payments', paymentapi); //Payment API
 app.use('/emails', emailapi); //Email API
+
+// Serve the client build folder
+app.use(express.static(path.resolve(__dirname, "../client/build")));
+
+// This wildcard route should come last
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
 
 // Start the server
 app.listen(PORT, () => {

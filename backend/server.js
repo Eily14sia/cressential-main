@@ -217,6 +217,7 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
 
   router.get('/record-issuance', verifyToken, (req, res)=> {
     const sql = `SELECT * FROM record_per_request as r 
+    WHERE r.ipfs IS NOT NULL
     ORDER BY r.date_issued DESC
     LIMIT 7
     `;

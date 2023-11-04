@@ -30,19 +30,13 @@ import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDAlert from "../../../../components/MDAlert";
 
-// Material Dashboard 2 React example components
-import DataTable from "../../../../examples/Tables/DataTable";
-import regeneratorRuntime from "regenerator-runtime";
-import DocumentSelection from "../document_selection";
-import DialogBox from '../add_record_modal';
-
 import { useMaterialUIController } from "../../../../context";
 import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard';
 
 import axios from 'axios';
 
 const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMessage, setIsError}) => {
-
+  const jwtToken = localStorage.getItem('token');
    const [controller] = useMaterialUIController();
    const [redirectUrl, setRedirectUrl] = useState('');
   // const [paymentResponse, setPaymentResponse] = useState(null);
@@ -62,7 +56,7 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
       if (selectedOption) {
         try {
           // Send the selected payment method to the backend
-          const response = await axios.post('http://localhost:8081/payments/paymongoMethod', {
+          const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoMethod', {
             selectedOption,
             totalAmount,
             ctrl_number

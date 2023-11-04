@@ -28,6 +28,8 @@ import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
 function Request_table() {
+  const jwtToken = localStorage.getItem('token');
+  
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -59,38 +61,73 @@ function Request_table() {
   const completed_data = data.filter((record) => record.request_status === "Completed");
 
   useEffect(() => {
-    fetch(`http://localhost:8081/mysql/student-record-request/${user_id}`)
-    .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-record-request/${user_id}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data); 
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+        setStudentData(student_data); 
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
-      .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setRegistrarData(data); 
       })
       .catch((err) => console.log(err));
   }, []);
 
-
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
-      .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setTypeOfRecord(data); 
       })
       .catch((err) => console.log(err));
   }, []);

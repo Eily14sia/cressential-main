@@ -60,12 +60,21 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
   
     // State to track whether the dialog is open
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+    const jwtToken = localStorage.getItem('token');
     useEffect(() => {
-      fetch("http://localhost:8081/mysql/type-of-record")
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((type_of_record) => {
+          setData(type_of_record); 
         })
         .catch((err) => console.log(err));
     }, []);

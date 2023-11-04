@@ -31,12 +31,22 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
   const user_id = localStorage.getItem('user_id');
   const [user_data, setUserData] = useState([]);
   const [student_id, setStudentId] = useState(null); // Initialize student_id to null
+  const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setUserData(data);
+        setUserData(data); 
       })
       .catch((err) => console.log(err));
   }, []);
@@ -54,10 +64,19 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
   const [registrar_data, setRegistrarData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
-      .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setRegistrarData(data); 
       })
       .catch((err) => console.log(err));
   }, []);
@@ -74,10 +93,11 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
     };
     
     try {
-      const response = await fetch('http://localhost:8081/mysql/record-request/add-record', {
+      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(newRecord),
       });
@@ -99,10 +119,11 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
             user_id: item.user_id
           }
   
-          fetch("http://localhost:8081/mysql/notif/add-record", {
+          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
           },
           body: JSON.stringify(registrar_update),
         })
@@ -117,8 +138,17 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         });    
 
         // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/record-request")
-        .then((res) => res.json())
+        fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
         .then((data) => {
           setData(data); // Set the fetched data into the state
         })
@@ -135,7 +165,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
 
     try {
       const tAmount = parseInt(totalAmount, 10);
-      const response = await axios.post('http://localhost:8081/payments/paymongoIntent', {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
         amount: tAmount * 100,
       });
 
