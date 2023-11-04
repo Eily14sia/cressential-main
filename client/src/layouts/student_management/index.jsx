@@ -42,16 +42,23 @@ import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 
 function Student_Management() {
-  // const { columns, rows } = authorsTableData();
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
-
+  const jwtToken = localStorage.getItem('token');
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management")
-      .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data.rows); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);

@@ -38,11 +38,22 @@ function Payment() {
   const [payment_method, setPaymentMethod] = useState('');
   const [payment_status, setPaymentStatus] = useState('');
 
+  const jwtToken = localStorage.getItem('token');
+
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data); // Set the fetched data into the state
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((fetchedData) => {
+        setData(fetchedData);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -71,13 +82,23 @@ function Payment() {
   const [student_data, setStudentData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
-      .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((fetchedData) => {
+        setStudentData(fetchedData);
       })
       .catch((err) => console.log(err));
   }, []);
+  
   function getStudentName(student_id) {
     const last_name = student_data.find((item) => item.id == student_id)?.last_name;
     const middle_name = student_data.find((item) => item.id == student_id)?.middle_name;
@@ -133,10 +154,11 @@ function Payment() {
     };
 
   try {
-    const response = await fetch(`http://localhost:8081/mysql/payment/update-record/${ctrl_number}`, {
+    const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-record/${ctrl_number}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
       },
       body: JSON.stringify(updatedRecord),
     });
@@ -146,13 +168,24 @@ function Payment() {
       setIsSuccess(true);
       setAlertMessage('Record updated successfully.');
 
-      // Fetch updated data and update the state
-      fetch("http://localhost:8081/mysql/payment")
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
+      // Fetch updated data and update the state      
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment`, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((fetchedData) => {
+          setData(fetchedData);
         })
         .catch((err) => console.log(err));
+      
+
     } else {
       setAlertMessage('Failed to update record');
     }

@@ -22,6 +22,7 @@ import MDTypography from "../../../../../components/MDTypography";
 import MDButton from "../../../../../components/MDButton";
 import MDBadge from "../../../../../components/MDBadge";
 import MDAlert from '../../../../../components/MDAlert';
+import CircularProgress from '../../../../../examples/CircularProgress';
 
 // Material Dashboard 2 React example components
 import DataTable from "../../../../../examples/Tables/DataTable";
@@ -29,12 +30,24 @@ import DataTable from "../../../../../examples/Tables/DataTable";
 function Issuance_table() {
 
   const [data, setData] = useState([]);
+  const jwtToken = localStorage.getItem('token');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-issuance")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-issuance", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-          setData(data); // Set the fetched data into the state
+        setData(data.slice(0, 5));
+        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -49,10 +62,19 @@ function Issuance_table() {
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+        setTypeOfRecord(type_of_record);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -76,6 +98,10 @@ function Issuance_table() {
       const typeRecord = type_of_record.find((record) => record.id === parseInt(type_ids));
   
     return(typeRecord.type);
+  }
+
+  if (loading) {   
+    return <CircularProgress/>  ;
   }
   
   return (

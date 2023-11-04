@@ -215,7 +215,7 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
     })
   })
 
-  router.get('/record-issuance', (req, res)=> {
+  router.get('/record-issuance', verifyToken, (req, res)=> {
     const sql = `SELECT * FROM record_per_request as r 
     ORDER BY r.date_issued DESC
     LIMIT 7
@@ -230,7 +230,7 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
 // ========================= Payment  =========================
 
    
-  router.get('/payment', (req, res) => {
+  router.get('/payment', verifyToken, (req, res) => {
     const sql = `
       SELECT *
       FROM record_request AS r
@@ -245,7 +245,7 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
   });
 
     // Update Record
-    router.put('/payment/update-record/:ctrl_number', (req, res) => {
+    router.put('/payment/update-record/:ctrl_number', verifyToken, (req, res) => {
       const ctrl_number = req.params.ctrl_number;
       const { 
         payment_id,
@@ -269,7 +269,7 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
 
 // ================== Alumni Record Issuance  ==================
 
-router.get('/record-per-request/:ctrl_number', (req, res) => {
+router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
     const sql = `
@@ -291,7 +291,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
 
 // ======================= Student Record Request =========================== 
 
-  router.get('/payment-student-record-request', (req, res) => {
+  router.get('/payment-student-record-request', verifyToken, (req, res) => {
     const sql = `
       SELECT *
       FROM record_request AS r
@@ -310,7 +310,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
     });
   });
 
-  router.get('/student/record-issuance', (req, res) => {
+  router.get('/student/record-issuance', verifyToken, (req, res) => {
     const sql = `
       SELECT *
       FROM record_per_request as rpr
@@ -335,7 +335,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
 
 // ======================= Alumni Record Request =========================== 
 
-  router.get('/payment-alumni-record-request', (req, res) => {
+  router.get('/payment-alumni-record-request', verifyToken, (req, res) => {
     const sql = `
       SELECT *
       FROM record_request AS r
@@ -345,6 +345,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
         FROM student_management
         WHERE is_alumni = 1
       )
+      ORDER BY ctrl_number ASC;
     `;
   
     db.query(sql, (err, results) => {
@@ -355,7 +356,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   });
 
   // Update Record
-  router.put('/update-record-request/:new_ctrl_number', (req, res) => {
+  router.put('/update-record-request/:new_ctrl_number', verifyToken, (req, res) => {
     const new_ctrl_number = req.params.new_ctrl_number;
     const { date_releasing, processing_officer, request_status } = req.body;
 
@@ -374,7 +375,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
 });
 
   // Update Record - automatically update the request status to completed
-  router.put('/update-record-request/request_status/:new_ctrl_number', (req, res) => {
+  router.put('/update-record-request/request_status/:new_ctrl_number', verifyToken, (req, res) => {
     const new_ctrl_number = req.params.new_ctrl_number;
     const request_status = 'Completed'
     const sql = "UPDATE record_request SET request_status = $1 WHERE ctrl_number = $2";
@@ -394,7 +395,7 @@ router.get('/record-per-request/:ctrl_number', (req, res) => {
   
 
  // Define the GET route for '/mysql/record-issuance'
-router.get('/alumni/record-issuance', (req, res) => {
+router.get('/alumni/record-issuance', verifyToken, (req, res) => {
   const sql = `
     SELECT *
     FROM record_per_request as rpr
@@ -417,7 +418,7 @@ router.get('/alumni/record-issuance', (req, res) => {
 });
 
    // Add Record
-  router.post('/record-per-request/add-record', (req, res) => {
+  router.post('/record-per-request/add-record', verifyToken, (req, res) => {
   const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
   // Hash the password using SHA-256
@@ -437,7 +438,7 @@ router.get('/alumni/record-issuance', (req, res) => {
   });
 });
    // Update Record
-  router.put('/upload-record-per-request/:recordID', (req, res) => {
+  router.put('/upload-record-per-request/:recordID', verifyToken, (req, res) => {
   const recordID = req.params.recordID;
   const { recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
@@ -458,7 +459,7 @@ router.get('/alumni/record-issuance', (req, res) => {
   });
 });
    // Update Record
-router.put('/update-record-per-request/:recordID', (req, res) => {
+router.put('/update-record-per-request/:recordID', verifyToken, (req, res) => {
   const recordID = req.params.recordID;
   const { recordStatus } = req.body;
 
@@ -485,7 +486,7 @@ function hashPassword(password) {
 
 // ======================= Student Record Request =========================== 
 
-router.get('/due-request', (req, res) => {
+router.get('/due-request', verifyToken, (req, res) => {
   const today = new Date();
   const sql = `
     SELECT *
@@ -503,7 +504,7 @@ router.get('/due-request', (req, res) => {
 
 // ================ Type of Record Tab =======================
 
-    router.get('/type-of-record', (req, res)=> {
+    router.get('/type-of-record', verifyToken, (req, res)=> {
         const sql = "SELECT * FROM type_of_record";
         db.query(sql, (err, results)=> {
             if(err) return res.json(err);
@@ -513,7 +514,7 @@ router.get('/due-request', (req, res) => {
     })
 
     // Add Record
-    router.post('/add-record', (req, res) => {
+    router.post('/add-record', verifyToken, (req, res) => {
         const { type, price } = req.body;
         
         // Check if required fields are present
@@ -534,7 +535,7 @@ router.get('/due-request', (req, res) => {
     });
 
     // Update Record
-    router.put('/update-record/:recordId', (req, res) => {
+    router.put('/update-record/:recordId', verifyToken, (req, res) => {
         const recordId = req.params.recordId;
         const { type, price } = req.body;
 
@@ -553,7 +554,7 @@ router.get('/due-request', (req, res) => {
     });
 
     // Delete Record
-    router.put('/delete-record/:recordId', (req, res) => {
+    router.put('/delete-record/:recordId', verifyToken, (req, res) => {
         const recordId = req.params.recordId;
         const { type, price } = req.body;
 
@@ -591,7 +592,7 @@ router.get('/due-request', (req, res) => {
 // ================ Student Management =======================
 
   // Student Management Tab
-    router.get('/student-management', (req, res)=> {
+    router.get('/student-management', verifyToken, (req, res)=> {
         
         const sql = `
             SELECT *
@@ -607,7 +608,7 @@ router.get('/due-request', (req, res) => {
     })
 
   // Student Management with UserID
-  router.get('/student-management/:user_id', (req, res) => {
+  router.get('/student-management/:user_id', verifyToken, (req, res) => {
     const user_id = req.params.user_id;
         
         const sql = `
@@ -625,7 +626,7 @@ router.get('/due-request', (req, res) => {
     })
 
     // Add Record
-    router.post('/student-management/add-record', (req, res) => {
+    router.post('/student-management/add-record', verifyToken, (req, res) => {
     const formData = req.body;
 
     const email = formData.emailAddress;
@@ -678,7 +679,7 @@ router.get('/due-request', (req, res) => {
 // ================ Registrar Management =======================
 
   // Registrar Management Tab
-    router.get('/registrar-management', (req, res)=> {
+    router.get('/registrar-management', verifyToken, (req, res)=> {
         
         const sql = `
             SELECT *
@@ -694,7 +695,7 @@ router.get('/due-request', (req, res) => {
     })
 
       // Student Management with UserID
-  router.get('/registrar-management/:user_id', (req, res) => {
+  router.get('/registrar-management/:user_id', verifyToken, (req, res) => {
     const user_id = req.params.user_id;
         
         const sql = `
@@ -712,7 +713,7 @@ router.get('/due-request', (req, res) => {
     })
 
   // Add Record
-  router.post('/registrar-management/add-record', (req, res) => {
+  router.post('/registrar-management/add-record', verifyToken, (req, res) => {
     const formData = req.body;
 
     const email = formData.emailAddress;
@@ -758,7 +759,7 @@ router.get('/due-request', (req, res) => {
                             STUDENT
    =========================================================== */
 
-router.get('/student-record-request/:user_id', (req, res) => {
+router.get('/student-record-request/:user_id', verifyToken, (req, res) => {
   const user_id = req.params.user_id;
 
   const sql = `
@@ -780,7 +781,7 @@ router.get('/student-record-request/:user_id', (req, res) => {
 });
 
 // Add Record
-router.post('/record-request/add-record', (req, res) => {
+router.post('/record-request/add-record', verifyToken, (req, res) => {
   const { record_id, student_id, purpose, total_amount } = req.body;
 
   // Split the comma-separated record_ids into an array
@@ -859,7 +860,7 @@ router.post('/record-request/add-record', (req, res) => {
 });
 
 // Cancel Request
-router.put('/cancel-record-request/:ctrl_number', (req, res) => {
+router.put('/cancel-record-request/:ctrl_number', verifyToken, (req, res) => {
   const ctrl_number = req.params.ctrl_number;
 
   const sql = "UPDATE record_request SET request_status = 'Cancelled' WHERE ctrl_number = $1";
@@ -877,7 +878,7 @@ router.put('/cancel-record-request/:ctrl_number', (req, res) => {
 });
 
 // Update Record
-router.put('/update-payment/:ctrl_number', (req, res) => {
+router.put('/update-payment/:ctrl_number', verifyToken, (req, res) => {
   const ctrl_number = req.params.ctrl_number;
   const {total_amount, payment_method, payment_id } = req.body;
 

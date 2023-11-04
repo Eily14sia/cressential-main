@@ -1,17 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -65,49 +51,86 @@ function Student_record_request() {
   const [student_data, setStudentData] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);  
   const [student_id, setStudentID] = useState('');
-  
-  const pending_data = data.filter((record) => record.request_status === "Pending");
-  const received_data = data.filter((record) => record.request_status === "Received");
-  const declined_data = data.filter((record) => record.request_status === "Declined" || record.request_status === "Cancelled");
-  const completed_data = data.filter((record) => record.request_status === "Completed");
-  const user_id = student_data.find((item) => item.id == student_id)?.user_id;
+
+  const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment-student-record-request")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+        setStudentData(student_data)
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+        setRegistrarData(registrar_data);
       })
       .catch((err) => console.log(err));
   }, []);
 
-
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
         setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const pending_data = data.filter((record) => record.request_status === "Pending");
+  const received_data = data.filter((record) => record.request_status === "Received");
+  const declined_data = data.filter((record) => record.request_status === "Declined" || record.request_status === "Cancelled");
+  const completed_data = data.filter((record) => record.request_status === "Completed");
+  const user_id = student_data.find((item) => item.id == student_id)?.user_id;
 
   const [tabValue, setTabValue] = useState(0);
 
@@ -137,10 +160,11 @@ function Student_record_request() {
       };
 
       try {
-        const response = await fetch(`http://localhost:8081/mysql/update-record-request/${ctrl_number}`, {
+        const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-request/${ctrl_number}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+             Authorization: `Bearer ${jwtToken}`,
           },
           body: JSON.stringify(updatedRecord),
         });
@@ -157,10 +181,11 @@ function Student_record_request() {
               user_id: item.user_id
             }
 
-            const notif_response = await fetch(`http://localhost:8081/mysql/notif/add-record`, {
+            const notif_response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+               Authorization: `Bearer ${jwtToken}`,
             },
             body: JSON.stringify(registrar_update),
           });
@@ -173,22 +198,33 @@ function Student_record_request() {
             user_id: user_id
           }
 
-          const notif_response = await fetch(`http://localhost:8081/mysql/notif/add-record`, {
+          const notif_response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
           },
           body: JSON.stringify(student_update),
-        });
+          });
         
 
-          // Fetch updated data and update the state
-          fetch("http://localhost:8081/mysql/payment-student-record-request")
-            .then((res) => res.json())
+          // Fetch updated data and update the state          
+          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to authenticate token");
+              }
+              return res.json();
+            })
             .then((data) => {
-              setData(data); // Set the fetched data into the state
+              setData(data);
             })
             .catch((err) => console.log(err));
+          
         } else {
           setAlertMessage('Failed to update record');
         }
@@ -212,25 +248,37 @@ function Student_record_request() {
       // Check if the request is more than or equal to 3 days old and the status is "Unpaid"
       if (
         currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
-        item.payment_status === "Unpaid"
+        item.payment_status === "Unpaid" &&
+        item.request_status !== "Cancelled"
       ) {
         
         try {
-          const response = await fetch(`http://localhost:8081/mysql/cancel-record-request/${item.ctrl_number}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${item.ctrl_number}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
+               Authorization: `Bearer ${jwtToken}`,
             },
           });
   
           if (response.ok) {
-            // Fetch updated data and update the state
-            fetch("http://localhost:8081/mysql/payment-student-record-request")
-              .then((res) => res.json())
+            // Fetch updated data and update the state            
+            fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
+            })
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to authenticate token");
+                }
+                return res.json();
+              })
               .then((data) => {
-                setData(data); // Set the fetched data into the state
+                setData(data);
               })
               .catch((err) => console.log(err));
+            
           } else {
             // Handle the case where the update request is not successful
           }

@@ -37,15 +37,15 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 React layouts
 import Dashboard from "./layouts/dashboard";
-import Graduate from "./layouts/graduate_record";
+// import Graduate from "./layouts/graduate_record";
 
-import Undergraduate from "./layouts/undergraduate_record";
+// import Undergraduate from "./layouts/undergraduate_record";
 import Type_of_Record from "./layouts/type_of_record";
 import User_Management from "./layouts/user_management";
-import Graduate_Add_Record from "./layouts/graduate_record/add_record";
+// import Graduate_Add_Record from "./layouts/graduate_record/add_record";
 import Tables from "./layouts/tables";
-import Billing from "./layouts/billing";
-import RTL from "./layouts/rtl";
+// import Billing from "./layouts/billing";
+// import RTL from "./layouts/rtl";
 import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import LogIn from "./layouts/authentication/log_in";
@@ -99,24 +99,24 @@ const routes = [
     route: "/unauthorized",
     component: <Unauthorized />,
   },
-  {
-    type: "collapse",
-    name: "Student Record Request",
-    key: "undergraduate-record",
-    icon: icon1, // Use the first icon
-    route: "/undergraduate-record",
-    role: [1],
-    component: <Undergraduate />,
-  },
-  {
-    type: "collapse",
-    name: "Student Record Issuance",
-    key: "registrar-student-record-issuance",
-    icon: icon2, // Use the second icon
-    route: "/registrar-student-record-issuance",
-    role: [1],
-    component: <Undergraduate />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Student Record Request",
+  //   key: "undergraduate-record",
+  //   icon: icon1, // Use the first icon
+  //   route: "/undergraduate-record",
+  //   role: [1],
+  //   component: <Undergraduate />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Student Record Issuance",
+  //   key: "registrar-student-record-issuance",
+  //   icon: icon2, // Use the second icon
+  //   route: "/registrar-student-record-issuance",
+  //   role: [1],
+  //   component: <Undergraduate />,
+  // },
   {
     type: "collapse",
     name: "Student",
@@ -273,15 +273,15 @@ const routes = [
     component: <User_Management />,
   },
 
-  {
-    type: "hidden",
-    name: "Add Record",
-    key: "graduate-add-record",
-    icon: <Icon fontSize="small">group</Icon>,
-    route: "/graduate-record/add-record",
-    role: [1],
-    component: <Graduate_Add_Record />,
-  },
+  // {
+  //   type: "hidden",
+  //   name: "Add Record",
+  //   key: "graduate-add-record",
+  //   icon: <Icon fontSize="small">group</Icon>,
+  //   route: "/graduate-record/add-record",
+  //   role: [1],
+  //   component: <Graduate_Add_Record />,
+  // },
   // {
   //   type: "collapse",
   //   name: "Tables",

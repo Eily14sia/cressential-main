@@ -1,17 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -36,6 +22,7 @@ import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import MDBadge from "../../components/MDBadge";
 import MDAlert from '../../components/MDAlert';
+import CircularProgress from '../../examples/CircularProgress';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -55,20 +42,37 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   // State for form inputs
   const [record_type, setRecordType] = useState('');
   const [record_IPFS, setRecordIPFS] = useState('');
-
+  const [loading, setLoading] = useState(true);
 
 
   // =========== For the Datatable =================
   // Retrieve the user_role from localStorage
   const user_role = localStorage.getItem('user_role');
-
+  const jwtToken = localStorage.getItem('token');
   const [student_data, setStudentData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    // Check if data is not an empty array and set loading to false
+    if (data.length > 0) {
+      setLoading(false);
+    }
+
+  }, [data]); // This useEffect watches for changes in the data state
+
+  useEffect(() => {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+        setStudentData(student_data)
       })
       .catch((err) => console.log(err));
   }, []);
@@ -83,10 +87,19 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   const [registrar_data, setRegistrarData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+        setRegistrarData(registrar_data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -101,10 +114,19 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+        setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
   }, []);
@@ -168,7 +190,10 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
     setIsCancelDialogOpen(false);
   };
 
-  
+  if (loading) {   
+    return <CircularProgress/>  ;
+  }
+
   return (
     <>
       <DataTable table={{ columns, 

@@ -47,12 +47,22 @@ function Student_record_issuance() {
 
   // State to track whether the dialog is open
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student/record-issuance")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student/record-issuance", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -65,10 +75,11 @@ function Student_record_issuance() {
     };
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/update-record-per-request/${recordID}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-per-request/${recordID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(updatedRecord),
       });
@@ -78,14 +89,23 @@ function Student_record_issuance() {
         setIsSuccess(true);
         setAlertMessage('Record updated successfully.');
         // sendEmail('eilywow14@gmail.com', CID, recordPassword);
-
-        // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/student/record-issuance")
-        .then((res) => res.json())
+        
+        fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student/record-issuance", {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
           .then((data) => {
-            setData(data); // Set the fetched data into the state
+            setData(data);
           })
           .catch((err) => console.log(err));
+        
       } else {
         setAlertMessage('Failed to update record');
       }

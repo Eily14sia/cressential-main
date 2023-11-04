@@ -29,12 +29,8 @@ import AddDialogBox from './component/AddRecordModal';
 import UpdateDialogBox from './component/UpdateRecordModal';
 import DeleteDialogBox from './component/DeleteRecordModal';
 
-// Data
-import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
-
 function Type_of_Record() {
-  // const { columns, rows } = authorsTableData();
+  const jwtToken = localStorage.getItem('token');
 
 // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -46,60 +42,27 @@ function Type_of_Record() {
       {alertMessage}
     </MDTypography>
   );
-
-  const getAuthenticatedData = async (url, options = {}) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Handle the case where the user is not authenticated
-      return null;
-    }
-  
-    // Include the token in the request headers
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  
-    try {
-      const response = await fetch(url, options);
-  
-      if (response.status === 401) {
-        // Handle authentication errors (e.g., token expired)
-        // You may want to redirect the user to the login page
-        return null;
-      }
-  
-      if (response.ok) {
-        return await response.json();
-      } else {
-        // Handle other errors
-        return null;
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  };
   
   // =========== For the datatable =================
   const [data, setData] = useState([]);
   
   useEffect(() => {
-    getAuthenticatedData("http://localhost:8081/mysql/type-of-record")
-      .then((data) => {
-        if (data !== null) {
-          setData(data); // Set the fetched data into the state
-        } else {
-          // Handle the error, such as displaying an error message to the user
-          console.error('Authentication or network error');
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
         }
+        return res.json();
       })
-      .catch((error) => {
-        console.error('Fetch error:', error);
-        // Handle the error, such as displaying an error message to the user
-      });
+      .then((fetchedData) => {
+        setData(fetchedData);
+      })
+      .catch((err) => console.log(err));
   }, []);
-  
   
 
   const columns = [
@@ -171,10 +134,11 @@ function Type_of_Record() {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/mysql/add-record', {
+      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(newRecord),
       });
@@ -185,12 +149,21 @@ function Type_of_Record() {
         setAlertMessage('Record added successfully.');
 
         // Fetch updated data and update the state
-        fetch("http://localhost:8081/mysql/type-of-record")
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         })
-        .catch((err) => console.log(err));
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
+          })
+          .catch((err) => console.log(err));
       } else {
         setAlertMessage('Failed to update record');
       }
@@ -236,10 +209,11 @@ function Type_of_Record() {
     };
 
   try {
-    const response = await fetch(`http://localhost:8081/mysql/update-record/${recordId}`, {
+    const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record/${recordId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
       },
       body: JSON.stringify(updatedRecord),
     });
@@ -250,12 +224,21 @@ function Type_of_Record() {
       setAlertMessage('Record updated successfully.');
 
       // Fetch updated data and update the state
-      fetch("http://localhost:8081/mysql/type-of-record")
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         })
-        .catch((err) => console.log(err));
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
+          })
+          .catch((err) => console.log(err));
     } else {
       setAlertMessage('Failed to update record');
     }
@@ -301,10 +284,11 @@ function Type_of_Record() {
     };
 
   try {
-    const response = await fetch(`http://localhost:8081/mysql/delete-record/${recordId}`, {
+    const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/delete-record/${recordId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
       },
       body: JSON.stringify(deletedRecord),
     });
@@ -315,12 +299,21 @@ function Type_of_Record() {
       setAlertMessage('Record deleted successfully.');
 
       // Fetch deleted data and delete the state
-      fetch("http://localhost:8081/mysql/type-of-record")
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         })
-        .catch((err) => console.log(err));
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
+          })
+          .catch((err) => console.log(err));
     } else {
       setAlertMessage('Failed to delete record');
     }

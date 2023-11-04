@@ -13,21 +13,24 @@ import {
   MenuItem,
 } from "@mui/material";
 
-// prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
-
-// Material Dashboard 2 React components
-import MDBox from "../../../../components/MDBox";
-import MDTypography from "../../../../components/MDTypography";
-import MDButton from "../../../../components/MDButton";
-import MDInput from "../../../../components/MDInput";
 
 function DocumentSelection({ recordType, setRecordType }) {
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]);  
+  const jwtToken = localStorage.getItem('token');
+  
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
         setData(data);
         if (data.length > 0) {

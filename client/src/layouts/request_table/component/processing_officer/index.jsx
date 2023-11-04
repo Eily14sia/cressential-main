@@ -24,12 +24,22 @@ import MDInput from "../../../../components/MDInput";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 function Processing_officer({ processing_officer, setProcessingOfficer }) {
   const [registrar_data, setregistrar_data] = useState([]);
-  
+  const jwtToken = localStorage.getItem('token');
+
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((registrar_data) => {
-        setregistrar_data(registrar_data); // Set the fetched registrar_data into the state
+        setregistrar_data(registrar_data);
       })
       .catch((err) => console.log(err));
   }, []);

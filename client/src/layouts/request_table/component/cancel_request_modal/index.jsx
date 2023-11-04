@@ -19,16 +19,18 @@ function DialogBox({ open, onClose, setData, ctrl_number, setIsSuccess, setIsErr
 
   // Retrieve the user_role from localStorage
   const user_id = localStorage.getItem('user_id');
-                       
+  const jwtToken = localStorage.getItem('token');
+
   // Function to handle cancel record form submission
   const handleCancelSubmit = async (event, new_ctrl_number) => {
     event.preventDefault();
     // Create an canceld record object to send to the server
     try {
-      const response = await fetch(`http://localhost:8081/mysql/cancel-record-request/${new_ctrl_number}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${new_ctrl_number}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
       });
 
@@ -38,8 +40,17 @@ function DialogBox({ open, onClose, setData, ctrl_number, setIsSuccess, setIsErr
         setAlertMessage('Request cancelled successfully.');
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/student-record-request/${user_id}`)
-          .then((res) => res.json())
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-record-request/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
           .then((data) => {
             setData(data); // Set the fetched data into the state
           })

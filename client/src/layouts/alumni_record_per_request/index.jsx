@@ -47,13 +47,23 @@ function Alumni_record_per_request() {
     navigate(-1);
   };
 
-
+  const jwtToken = localStorage.getItem('token');
   const [data, setData] = useState([]);
+
   useEffect(() => {
-    fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
-      .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((fetchedData) => {
-        setData(fetchedData); // Set the fetched data into the state       
+        setData(fetchedData);
       })
       .catch((err) => console.log(err));
   }, [ctrl_number]);
@@ -78,10 +88,11 @@ function Alumni_record_per_request() {
     // Create an updated record object to send to the server
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/update-record-request/request_status/${new_ctrl_number}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-request/request_status/${new_ctrl_number}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
       });
 
@@ -91,12 +102,21 @@ function Alumni_record_per_request() {
         setAlertMessage('This Record Request has completed.');
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
           })
-          .catch((err) => console.log(err));          
+          .then((fetchedData) => {
+            setData(fetchedData);
+          })
+          .catch((err) => console.log(err));      
       } else {
         setAlertMessage('Failed to update record');
       }

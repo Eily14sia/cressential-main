@@ -24,7 +24,7 @@ import RequestTable from '../request_table';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
-function Due_request({user_id}) {
+function Due_request() {
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -43,47 +43,86 @@ function Due_request({user_id}) {
   const [data, setData] = useState([]);
   const [student_data, setStudentData] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);
+  const [student_id, setStudentID] = useState('');
   
   const pending_data = data.filter((record) => record.request_status === "Pending");
   const received_data = data.filter((record) => record.request_status === "Received");
+  const user_id = student_data.find((item) => item.id == student_id)?.user_id;
 
+  const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/due-request")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/due-request", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+        setStudentData(student_data)
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+        setRegistrarData(registrar_data);
       })
       .catch((err) => console.log(err));
   }, []);
-
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+        setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
   }, []);
+
 
   const [tabValue, setTabValue] = useState(0);
 
@@ -112,10 +151,11 @@ function Due_request({user_id}) {
         request_status: request_status,      
       };
       try {
-        const response = await fetch(`http://localhost:8081/mysql/update-record-request/${ctrl_number}`, {
+        const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-request/${ctrl_number}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
           },
           body: JSON.stringify(updatedRecord),
         });
@@ -126,12 +166,21 @@ function Due_request({user_id}) {
           setAlertMessage('Record updated successfully.');
   
           // Fetch updated data and update the state
-          fetch("http://localhost:8081/mysql/payment-alumni-record-request")
-            .then((res) => res.json())
-            .then((data) => {
-              setData(data); // Set the fetched data into the state
+          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/due-request", {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
             })
-            .catch((err) => console.log(err));
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to authenticate token");
+                }
+                return res.json();
+              })
+              .then((data) => {
+                setData(data);
+              })
+              .catch((err) => console.log(err));
         } else {
           setAlertMessage('Failed to update record');
         }
@@ -235,6 +284,8 @@ function Due_request({user_id}) {
                         request_status={request_status}
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
@@ -258,6 +309,8 @@ function Due_request({user_id}) {
                         request_status={request_status}
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
@@ -280,6 +333,8 @@ function Due_request({user_id}) {
                         request_status={request_status}
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}

@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -42,21 +27,25 @@ import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 
-// Data
-import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
-
 function User_Management() {
-  // const { columns, rows } = authorsTableData();
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
+  const jwtToken = localStorage.getItem('token');
 
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/users")
-      .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/users`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);

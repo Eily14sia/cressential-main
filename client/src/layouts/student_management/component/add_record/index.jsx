@@ -28,7 +28,8 @@ import regeneratorRuntime from "regenerator-runtime";
 
 
 function Add_Record() {
-
+  const jwtToken = localStorage.getItem('token');
+  
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -63,10 +64,11 @@ function Add_Record() {
     setIsSuccess(false);
     setIsError(false);
     try {
-      const response = await fetch('http://localhost:8081/mysql/student-management/add-record', {
+      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(formData),
       });

@@ -52,10 +52,20 @@ function Update_Record() {
   const state_status = location.state?.status;
 
   const [data, setData] = useState([]);
-  
+  const jwtToken = localStorage.getItem('token');
+
     if (state_userID) {
-      fetch(`http://localhost:8081/mysql/registrar-management/${state_userID}`)
-        .then((res) => res.json())
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management/${state_userID}`,{
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
         .then((data) => {
           setData(data); // Set the fetched data into the state
           if (data.length > 0) {
@@ -96,7 +106,7 @@ function Update_Record() {
     setIsSuccess(false);
     setIsError(false);
     try {
-      const response = await fetch('http://localhost:8081/mysql/student-management/add-record', {
+      const response = await fetch('http://localhost:8081/mysql/registrar-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

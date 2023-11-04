@@ -31,16 +31,26 @@ function Student_Management() {
   // const { columns: pColumns, rows: pRows } = projectsTableData();
 
   const [data, setData] = useState([]);
+  const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((data) => {
-        setData(data); // Set the fetched data into the state
+        setData(data);
       })
       .catch((err) => console.log(err));
   }, []);
-
+  
   const columns = [
     { Header: "User ID", accessor: "user_id", align: "center", width: "10%", },
     { Header: "Name", accessor: "name", align: "left", width: "20%",  },

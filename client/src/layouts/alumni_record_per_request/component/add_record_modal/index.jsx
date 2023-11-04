@@ -131,11 +131,21 @@ const handleFileUpload = async () => {
 // =========== For Record Type =================
 const [record_data, setRecordData] = useState([]);
 
+const jwtToken = localStorage.getItem('token');
 useEffect(() => {
-  fetch("http://localhost:8081/mysql/type-of-record")
-    .then((res) => res.json())
-    .then((data) => {
-      setRecordData(data); // Set the fetched student_data into the state
+  fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+    headers: {
+      Authorization: `Bearer ${jwtToken}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to authenticate token");
+      }
+      return res.json();
+    })
+    .then((type_of_record) => {
+      setRecordData(type_of_record); 
     })
     .catch((err) => console.log(err));
 }, []);
@@ -177,7 +187,7 @@ function getRecordName(record_type_id) {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
       } else {
@@ -202,10 +212,11 @@ function getRecordName(record_type_id) {
     };
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/record-per-request/add-record`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/add-record`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(updatedRecord),
       });
@@ -213,17 +224,28 @@ function getRecordName(record_type_id) {
       if (response.ok) {
         handleCloseAddDialog();
         setIsSuccess(true);        
-        // sendEmail(student_email, CID, recordPassword, recordType);
+        sendEmail(student_email, CID, recordPassword, recordType);
         setInitialPassword('');
         setRecordPassword('');
         setUrl('');
+
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
           })
           .catch((err) => console.log(err));
+
           setAlertMessage('Record updated successfully.');
       } else {
         setAlertMessage('Failed to update record');

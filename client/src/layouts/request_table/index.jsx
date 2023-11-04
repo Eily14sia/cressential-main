@@ -1,27 +1,10 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
 
 // @mui material components
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
+
 import Tab from "@mui/material/Tab";
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from "@mui/material/IconButton";
@@ -37,11 +20,9 @@ import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
 import MDBadge from "../../components/MDBadge";
 import MDAlert from '../../components/MDAlert';
+import CircularProgress from '../../examples/CircularProgress';
 
 // Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import UpdateDialogBox from './component/update_record_modal';
 import CancelDialogBox from './component/cancel_request_modal';
@@ -56,38 +37,79 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
 
   // =========== For the Datatable =================
   // Retrieve the user_role from localStorage
+  const jwtToken = localStorage.getItem('token');
   const user_role = localStorage.getItem('user_role');
+  const [loading, setLoading] = useState(true);
 
   const [student_data, setStudentData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management")
-      .then((res) => res.json())
+    // Check if data is not an empty array and set loading to false
+    if (table_data.length > 0) {
+      setLoading(false);
+    }
+
+  }, [table_data]); // This useEffect watches for changes in the data state
+
+  useEffect(() => {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((student_data) => {
-        setStudentData(student_data); // Set the fetched student_data into the state
+        setStudentData(student_data)
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [table_data]);
 
-  function getStudentName(student_id) {
-    const last_name = student_data.find((item) => item.id == student_id)?.last_name;
-    const middle_name = student_data.find((item) => item.id == student_id)?.middle_name;
-    const first_name = student_data.find((item) => item.id == student_id)?.first_name
-    const fullname = first_name + " " + middle_name + " " + last_name;
+  function getStudentName(student_id) {  
+    const student = student_data.find((item) => item.id == student_id);
+  
+    if (!student) {
+      return "loading ...";// or any other appropriate message
+    }
+  
+    const last_name = student.last_name || "";
+    const middle_name = student.middle_name || "";
+    const first_name = student.first_name || "";
+    const fullname = `${first_name} ${middle_name} ${last_name}`;
     return fullname;
   }
+  
+  
   const [registrar_data, setRegistrarData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/registrar-management")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((registrar_data) => {
-        setRegistrarData(registrar_data); // Set the fetched registrar_data into the state
+        setRegistrarData(registrar_data);
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [table_data]);
 
   function getRegistrarName(processing_officer) {
+    const registrar = registrar_data.find((item) => item.id == processing_officer);
+  
+    if (!registrar) {
+      return "loading ..."; // or any other appropriate message
+    }
     const last_name = registrar_data.find((item) => item.id == processing_officer)?.last_name;
     const first_name = registrar_data.find((item) => item.id == processing_officer)?.first_name
     const fullname = first_name + " " + last_name;
@@ -97,15 +119,25 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record")
-      .then((res) => res.json())
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
       .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); // Set the fetched registrar_data into the state
+        setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [table_data]);
 
   function getTypeOfRecord(type_ids) {
+    
     // Split the type_ids into an array of individual IDs
     const idsArray = type_ids.split(',');
   
@@ -114,9 +146,13 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   
     // Loop through each ID and fetch the corresponding type value
     idsArray.forEach((id) => {
+  
+      
       // Find the type record that matches the current ID
       const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
-  
+      if (!typeRecord) {
+        return "loading ..."; // or any other appropriate message
+      }
       // If a matching record is found, push its type value to the typeValues array
       if (typeRecord) {
         typeValues.push(typeRecord.type);
@@ -278,6 +314,9 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
     
   }
   
+  if (loading) {   
+    return <CircularProgress/>  ;
+  }
 
   return (
     <>

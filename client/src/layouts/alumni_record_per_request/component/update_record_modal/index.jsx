@@ -31,7 +31,7 @@ function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS,
 recordID, recordStatus, setRecordStatus, ctrl_number,
 setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
 
-
+  const jwtToken = localStorage.getItem('token');
   const handleUpdateSubmit = async () => {
     // Create an updated record object to send to the server
 
@@ -40,10 +40,11 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
     };
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/update-record-per-request/${recordID}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-per-request/${recordID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(updatedRecord),
       });
@@ -54,10 +55,19 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
         setAlertMessage('Record updated successfully.');
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
           })
           .catch((err) => console.log(err));
 

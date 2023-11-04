@@ -29,14 +29,24 @@ import {
 const index = (props) => {
     const [data, setData] = useState([]); // Initialize data as an empty array
     const [applicantInfo, setApplicantInfo] = useState(null);
+    const jwtToken = localStorage.getItem('token');
 
     useEffect(() => {
-        fetch("http://localhost:8081/mysql/student-management")
-            .then((res) => res.json())
-            .then((data) => {
-            setData(data); // Set the fetched data into the state
-            })
-            .catch((err) => console.log(err));
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setData(data)
+        })
+        .catch((err) => console.log(err));
     }, []);
 
     useEffect(() => {
