@@ -94,10 +94,8 @@ function Issuance_table() {
   } 
   
   function getTypeOfRecord(type_ids) {
-
-      const typeRecord = type_of_record.find((record) => record.id === parseInt(type_ids));
-  
-    return(typeRecord.type);
+    const typeRecord = type_of_record.find((record) => record.id === parseInt(type_ids));
+    return typeRecord ? typeRecord.type : null;
   }
 
   if (loading) {   

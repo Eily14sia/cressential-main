@@ -346,7 +346,6 @@ router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
         FROM student_management
         WHERE is_alumni = 1
       )
-      ORDER BY ctrl_number ASC;
     `;
   
     db.query(sql, (err, results) => {
