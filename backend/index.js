@@ -33,9 +33,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/build/index.html"));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "../client/build/index.html"));
+// });
 
 // When you navigate to the root page, it would use the built react-app
 app.use(express.static(path.resolve(__dirname, "../client/build")));
