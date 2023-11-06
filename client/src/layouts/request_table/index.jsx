@@ -45,7 +45,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
 
   useEffect(() => {
     // Check if data is not an empty array and set loading to false
-    if (table_data.length > 0) {
+    if (table_data.length >= 0) {
       setLoading(false);
     }
 

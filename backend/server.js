@@ -16,10 +16,10 @@ const db = new Pool({
 // Connect to the database
 db.connect((err) => {
     if (err) {
-        console.error('Error connecting to MySQL database:', err);
+        console.error('Error connecting to PostgreSQL database:', err);
         throw err;
     }
-    console.log('Connected to MySQL database');
+    console.log('Connected to PostgreSQL database');
 });
 
 // router.get('/', (re, res)=> {
@@ -794,7 +794,7 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
   const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES ($1, $2)";
   const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES ($1, $2)";
 
-  db.beginTransaction((err) => {
+  db.query('BEGIN', (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to add record' });
@@ -803,17 +803,18 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
     // Insert into record_request table
     db.query(recordRequestSQL, [student_id, record_id, purpose, date_requested, date_releasing], (err, result) => {
       if (err) {
-        db.rollback(() => {
+        db.query('ROLLBACK', () => {
           console.error(err);
           return res.status(500).json({ message: 'Failed to add record' });
         });
       }
+
       const ctrl_number = result.rows[0].ctrl_number; // Get the auto-generated ctrl_number from the record_request
 
       // Insert into payment table using the ctrl_number
       db.query(paymentSQL, [ctrl_number, total_amount], (err, paymentResult) => {
         if (err) {
-          db.rollback(() => {
+          db.query('ROLLBACK', () => {
             console.error(err);
             return res.status(500).json({ message: 'Failed to add record' });
           });
@@ -829,7 +830,7 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
             [ctrl_number, recordId],
             (err, recordPerRequestResult) => {
               if (err) {
-                db.rollback(() => {
+                db.query('ROLLBACK', () => {
                   console.error(err);
                   return res.status(500).json({ message: 'Failed to add record' });
                 });
@@ -837,9 +838,9 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
 
               // Check if all insertions into record_per_request are complete
               if (index === recordIds.length - 1) {
-                db.commit((err) => {
+                db.query('COMMIT', (err) => {
                   if (err) {
-                    db.rollback(() => {
+                    db.query('ROLLBACK', () => {
                       console.error(err);
                       return res.status(500).json({ message: 'Failed to add record' });
                     });
