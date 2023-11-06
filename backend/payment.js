@@ -52,9 +52,7 @@ router.post('/paymongoIntent', async (req, res) => {
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
-  const jwtToken = localStorage.getItem('token'); 
-  
-  const { selectedOption, totalAmount, ctrl_number } = req.body;
+  const { selectedOption, totalAmount, ctrl_number, jwtToken } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {

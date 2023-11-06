@@ -59,7 +59,8 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
           const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoMethod', {
             selectedOption,
             totalAmount,
-            ctrl_number
+            ctrl_number,
+            jwtToken
           });
       
           // Handle the response from the backend if needed
