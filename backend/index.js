@@ -38,13 +38,13 @@ app.use('/mysql', mysqlRoutes); // MySQL-related routes (adjust the prefix as ne
 app.use('/payments', paymentapi); //Payment API
 app.use('/emails', emailapi); //Email API
 
-// // Serve the client build folder
-// app.use(express.static(path.resolve(__dirname, "../client/build")));
+// Serve the client build folder
+app.use(express.static(path.resolve(__dirname, "../client/build")));
 
-// // This wildcard route should come last
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
-// });
+// This wildcard route should come last
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
 
 // Start the server
 app.listen(PORT, () => {
