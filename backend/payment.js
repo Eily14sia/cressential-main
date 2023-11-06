@@ -89,7 +89,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:5173'
+                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
               }
             }
           }
@@ -137,7 +137,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   payment_id: paymentID,  
                 };
 
-                const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+                const apiUrl = `https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-payment/${ctrl_number}`;
                 try {
                   const response = await axios.put(apiUrl, updatedRecord, {
                     headers: {
@@ -227,7 +227,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:5173'
+                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
               }
             }
           }
@@ -276,7 +276,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                     payment_id: paymentID,  
                   };
 
-                  const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+                  const apiUrl = `https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-payment/${ctrl_number}`;
                   try {
                     const response = await axios.put(apiUrl, updatedRecord, {
                       headers: {
@@ -370,7 +370,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'http://localhost:5173'
+                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
               }
             }
           }
@@ -419,7 +419,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   payment_id: paymentID,  
                 };
 
-                const apiUrl = `http://localhost:8081/mysql/update-payment/${ctrl_number}`;
+                const apiUrl = `https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-payment/${ctrl_number}`;
                 try {
                   const response = await axios.put(apiUrl, updatedRecord, {
                     headers: {
