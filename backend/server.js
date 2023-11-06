@@ -662,7 +662,7 @@ router.get('/due-request', verifyToken, (req, res) => {
 
     const student_management_sql = `INSERT INTO student_management (user_id, student_number, last_name, 
       first_name, middle_name, college, course, entry_year_from,  entry_year_to, 
-      date_of_graduation, permanent_adddress, mobile_number, email, is_alumni) VALUES 
+      date_of_graduation, permanent_address, mobile_number, email, is_alumni) VALUES 
       ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`;
 
     db.query(student_management_sql, values, (err, result2) => {
