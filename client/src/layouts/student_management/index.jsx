@@ -40,10 +40,12 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
+import CircularProgress from '../../examples/CircularProgress';
 
 function Student_Management() {
   const jwtToken = localStorage.getItem('token');
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
@@ -59,6 +61,7 @@ function Student_Management() {
       })
       .then((data) => {
         setData(data);
+        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -146,13 +149,7 @@ function Student_Management() {
               </MDBox>
 
                 <MDBox pt={3}>
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
+                  {loading && (<CircularProgress/>)}
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({
@@ -182,7 +179,7 @@ function Student_Management() {
                           </MDBox>
                         ),
                         entry_year: item.entry_year_from + " - " + item.entry_year_to,
-                        date_of_graduation: new Date(item.date_of_graduation).toLocaleDateString(),
+                        date_of_graduation: item.date_of_graduation ? new Date(item.date_of_graduation).toLocaleDateString() : "",
                         permanent_address: (item.permanent_address == null ? "N/A" : item.permanent_address),
                         status: (
                           <>

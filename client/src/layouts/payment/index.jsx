@@ -28,6 +28,7 @@ import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 import UpdateDialogBox from "./component/UpdateRecordModal";
+import CircularProgress from '../../examples/CircularProgress';
 
 function Payment() {
 
@@ -38,6 +39,7 @@ function Payment() {
   const [payment_method, setPaymentMethod] = useState('');
   const [payment_status, setPaymentStatus] = useState('');
 
+  const [loading, setLoading] = useState(true);
   const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
@@ -54,6 +56,7 @@ function Payment() {
       })
       .then((fetchedData) => {
         setData(fetchedData);
+        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -228,8 +231,9 @@ function Payment() {
                 <MDTypography variant="h6" color="white">
                   Payment Table
                 </MDTypography>
-              </MDBox>
+              </MDBox>              
                 <MDBox p={3}>   
+                {loading && (<CircularProgress/>)}
                   <DataTable table={{ columns, 
                   rows: data.map((item) => ({
                     ctrl_num: "CTRL-"+item.ctrl_number,

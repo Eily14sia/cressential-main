@@ -26,9 +26,11 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
+import CircularProgress from '../../examples/CircularProgress';
 
 function User_Management() {
   const jwtToken = localStorage.getItem('token');
+  const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState([]);
 
@@ -46,6 +48,7 @@ function User_Management() {
       })
       .then((data) => {
         setData(data);
+        setLoading(false)
       })
       .catch((err) => console.log(err));
   }, []);
@@ -133,13 +136,7 @@ function User_Management() {
               </MDBox>
 
                 <MDBox pt={3}>
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
+                  {loading && (<CircularProgress/>)}
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({

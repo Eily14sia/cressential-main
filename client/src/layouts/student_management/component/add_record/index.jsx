@@ -64,7 +64,7 @@ function Add_Record() {
     setIsSuccess(false);
     setIsError(false);
     try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/add-record', {
+      const response = await fetch('http://localhost:8081/mysql/student-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

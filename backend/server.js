@@ -633,16 +633,15 @@ router.get('/due-request', verifyToken, (req, res) => {
     const password = hashPassword(formData.studentNumber);
     const wallet_address = formData.walletAddress;
   
-    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 2)";
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 2) RETURNING user_id";
     
     db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
     if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Failed to add record' });
     }
-    
 
-    const user_id = result.insertId;
+    const user_id = result.rows[0].user_id;
     const values = [
       user_id,
       formData.studentNumber,
@@ -720,7 +719,7 @@ router.get('/due-request', verifyToken, (req, res) => {
     const password = hashPassword('Registrar123');
     const wallet_address = formData.walletAddress;
   
-    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 1)";
+    const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 1) RETURNING user_id";
     
     db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
     if (err) {
@@ -728,8 +727,7 @@ router.get('/due-request', verifyToken, (req, res) => {
         return res.status(500).json({ message: 'Failed to add record' });
     }
     
-
-    const user_id = result.insertId;
+    const user_id = result.rows[0].user_id;
     const values = [
       user_id,
       formData.lastName,
@@ -792,7 +790,7 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
   const date_releasing = new Date(date_requested);
   date_releasing.setDate(date_releasing.getDate() + 15);
 
-  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES ($1, $2, $3, $4, $5)";
+  const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES ($1, $2, $3, $4, $5) RETURNING ctrl_number";
   const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES ($1, $2)";
   const recordPerRequestSQL = "INSERT INTO record_per_request (ctrl_number, record_type_id) VALUES ($1, $2)";
 
@@ -810,8 +808,7 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
           return res.status(500).json({ message: 'Failed to add record' });
         });
       }
-
-      const ctrl_number = result.insertId; // Get the auto-generated ctrl_number from the record_request
+      const ctrl_number = result.rows[0].ctrl_number; // Get the auto-generated ctrl_number from the record_request
 
       // Insert into payment table using the ctrl_number
       db.query(paymentSQL, [ctrl_number, total_amount], (err, paymentResult) => {
