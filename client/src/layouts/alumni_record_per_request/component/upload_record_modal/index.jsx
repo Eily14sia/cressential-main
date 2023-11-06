@@ -44,6 +44,8 @@ const [finalCID, setFinalCID] = useState(null);
 const [multihash, setMultihash] = useState(null); // Added state for multihash
 const [initialPassword, setInitialPassword] = useState('');
 
+const jwtToken = localStorage.getItem('token');
+
 const handleFileChange = (e) => {
   // Set the URL of the file before it is selected
   e.target.files.length > 0 && setUrl(URL.createObjectURL(e.target.files[0]));
@@ -69,7 +71,7 @@ const handleFileUpload = async () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await axios.post('http://localhost:8081/files/api/maindec', formData, {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -162,7 +164,7 @@ const handleFileUpload = async () => {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
       } else {
@@ -185,10 +187,11 @@ const handleFileUpload = async () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:8081/mysql/upload-record-per-request/${recordID}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/upload-record-per-request/${recordID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(updatedRecord),
       });
@@ -200,12 +203,22 @@ const handleFileUpload = async () => {
         sendEmail(student_email, CID, recordPassword, recordType);
 
         // Fetch updated data and update the state
-        fetch(`http://localhost:8081/mysql/record-per-request/${ctrl_number}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setData(data); // Set the fetched data into the state
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
+          .then((fetchedData) => {
+            setData(fetchedData);
           })
           .catch((err) => console.log(err));
+          
           setRecordType('');
           setRecordPassword('');
           

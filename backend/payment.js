@@ -51,6 +51,9 @@ router.post('/paymongoIntent', async (req, res) => {
 });
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
+
+  const jwtToken = localStorage.getItem('token'); 
+  
   const { selectedOption, totalAmount, ctrl_number } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
@@ -142,6 +145,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   const response = await axios.put(apiUrl, updatedRecord, {
                     headers: {
                       'Content-Type': 'application/json',
+                      Authorization: `Bearer ${jwtToken}`,
                     },
                   });
                 
@@ -281,6 +285,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                     const response = await axios.put(apiUrl, updatedRecord, {
                       headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${jwtToken}`,
                       },
                     });
                   
@@ -424,6 +429,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   const response = await axios.put(apiUrl, updatedRecord, {
                     headers: {
                       'Content-Type': 'application/json',
+                      Authorization: `Bearer ${jwtToken}`,
                     },
                   });
                 
