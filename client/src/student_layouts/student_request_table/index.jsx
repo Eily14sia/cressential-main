@@ -75,7 +75,7 @@ function Request_table() {
         setData(data); 
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
@@ -202,13 +202,6 @@ function Request_table() {
                   Record Request Table
                 </MDTypography>
                 
-                {/* <Link to="/graduate-record/add-record" component={RouterLink}>
-                <Link to="/graduate-record/add-record" component={RouterLink}>
-                  <MDButton variant="gradient" color="dark">
-                    Add Record&nbsp;
-                    <Icon>add</Icon>
-                  </MDButton>
-                </Link> */}
               </MDBox>
                 <MDBox p={3}>
                   {/* <DataTable
