@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
+require('dotenv').config();
 
 // Middleware
 router.use(bodyParser.json());
@@ -10,8 +11,8 @@ router.use(bodyParser.json());
 const transporter = nodemailer.createTransport({
   service: 'Gmail', // e.g., 'Gmail' for Gmail
   auth: {
-    user: 'cressentials.record@gmail.com', // your email address
-    pass: 'pfcsrhcayoyyzzyf',    // your email password or app password
+    user: process.env.EMAIL, // your email address
+    pass: process.env.APP_PASSWORD,    // your email password or app password
   },
   secure: true,
   tls: {
@@ -24,7 +25,7 @@ router.post('/send-email', (req, res) => {
   const { to, subject, text } = req.body;
 
   const mailOptions = {
-    from: 'your_email@example.com', // sender's email address
+    from: process.env.EMAIL, // sender's email address
     to,                             // recipient's email address
     subject,                        // email subject
     text,                           // email body

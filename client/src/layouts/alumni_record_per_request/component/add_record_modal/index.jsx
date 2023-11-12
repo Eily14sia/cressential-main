@@ -159,7 +159,7 @@ function getRecordName(record_type_id) {
   const sendEmail = async (toEmail, cid, password, recordType) => {
 
     const type = getRecordName(recordType);
-    const ipfsLink = `http://localhost:8080/ipfs/${cid}`; // Replace with the IPFS link to the record    
+    const ipfsLink = `https://cressential.infura-ipfs.io/ipfs/${cid}`; // Replace with the IPFS link to the record    
 
     const emailData = {
       to: toEmail,

@@ -29,7 +29,7 @@ db.connect((err) => {
 // Middleware to check if the user is authenticated
 
 // Secret key for JWT (replace with a long, secure random string)
-const secretKey = '@Cressential123';
+const secretKey = process.env.TOKEN_SECRET_KEY;
 
 function verifyToken(req, res, next) {
   // Get the token from the request header
@@ -196,6 +196,39 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
   
 });
 
+// ========================= Email  =========================
+
+router.get('/email/record-issuance', verifyToken, (req, res) => {
+  const sql = `
+    SELECT *
+    FROM record_per_request as rpr
+    INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+    INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
+    INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
+    AND rpr.date_issued IS NOT NULL
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.json(err);
+    const data = results.rows;
+    return res.json(data);
+  });
+});
+
+
+router.get('/email/record-request', verifyToken, (req, res) => {
+  const sql = `
+    SELECT *
+    FROM record_request AS r
+    INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.json(err);
+    const data = results.rows;
+    return res.json(data);
+  });
+});
 
 /* ===========================================================
                             REGISTRAR
@@ -266,6 +299,24 @@ router.post('/notif/add-record', verifyToken, (req, res) => {
           }
           return res.status(200).json({ message: 'Record updated successfully' });
       });
+  });
+
+  // Update Record Notified
+  router.put('/payment/update-record/notify/:ctrl_number', verifyToken, (req, res) => {
+    const ctrl_number = req.params.ctrl_number;
+
+    const sql = "UPDATE payment SET is_payment_notified = 1 WHERE ctrl_number = ?";
+
+    db.query(sql, [ctrl_number], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to update record' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        return res.status(200).json({ message: 'Record updated successfully' });
+    });
   });
 
 // ================== Alumni Record Issuance  ==================
@@ -476,6 +527,41 @@ router.put('/update-record-per-request/:recordID', verifyToken, (req, res) => {
     return res.status(200).json({ message: 'Record updated successfully' });
   });
 });
+
+   // Update Record Expiration
+   router.put('/update-record-per-request/is_expired/:recordID', verifyToken, (req, res) => {
+    const recordID = req.params.recordID;
+  
+      sql = "UPDATE record_per_request SET is_expired = 1 WHERE rpr_id = ?";
+    
+    db.query(sql, [recordID], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
+  });
+     // Update Record Notify
+  router.put('/update-record-per-request/is_notified/:recordID', verifyToken, (req, res) => {
+    const recordID = req.params.recordID;
+  
+      sql = "UPDATE record_per_request SET is_notified = 1 WHERE rpr_id = ?";
+    
+    db.query(sql, [recordID], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
+  });
 
 // Function to hash a password using SHA-256
 function hashPassword(password) {

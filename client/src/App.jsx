@@ -28,6 +28,7 @@ import routes from "./routes";
 import Home from "./layouts/authentication/home"
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./context";
+import { useAuth } from './context2';
 
 // Images
 import brandWhite from "./assets/images/cressential-logo-light.png";
@@ -162,7 +163,7 @@ export default function App() {
    
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
       <CssBaseline />      
         <Routes>
           {getRoutes(routes, user_role)}
