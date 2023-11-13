@@ -132,7 +132,7 @@ useEffect(() => {
       setEarlierNotif(earlier_notif);
     })
     .catch((err) => console.error(err));
-}, [user_id, today_date]);
+}, []);
 
 // Render the notifications menu
 const renderMenu = () => (
