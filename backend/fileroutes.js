@@ -57,6 +57,7 @@ router.post('/api/maindec', upload.single('file'), async (req, res) => {
         return res.status(500).json({ error: 'Error uploading file to IPFS. No hash in the response.' });
       }
     }
+    return res.json({ message: 'File is not encrypted and will not be uploaded to IPFS.', encrypted: false });
   } catch (error) {
     console.error('Error uploading file:', error);
     if (error.response) {
