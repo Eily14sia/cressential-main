@@ -41,6 +41,8 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 import { useMaterialUIController } from "../../../context";
 
 import LoginModal from '../../../layouts/authentication/components/LoginModal';
+import logoDark from '../../../assets/images/cressential-logo-dark.png'
+import logoLight from '../../../assets/images/cressential-logo-light.png'
 
 function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
   const [controller] = useMaterialUIController();
@@ -87,6 +89,12 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
     setIsDialogOpen(false);
   };
 
+  const imgStyle = {
+    width: '30px', // Set the width of the image
+    height: '30px', // Set the height of the image
+    marginRight: '8px', // Add some space between the image and text
+  };
+
   return (
     <Container>
       <MDBox
@@ -120,26 +128,18 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
           py={transparent ? 1.5 : 0.75}
           lineHeight={1}
           pl={{ xs: 0, lg: 1 }}
+          sx={{ display: 'flex' }}
         >
-          <MDTypography variant="button" fontWeight="bold" color={light ? "white" : "dark"}>
+          <img
+            src={light ? logoLight : logoDark}
+            alt="Logo"
+            style={imgStyle}
+        />  
+          <MDTypography variant="body1" fontWeight="bold" color={light ? "white" : "dark"}>
             Cressential
           </MDTypography>
         </MDBox>
         <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
-          {/* <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" light={light} />
-          <DefaultNavbarLink icon="person" name="profile" route="/profile" light={light} />
-          <DefaultNavbarLink
-            icon="account_circle"
-            name="sign up"
-            route="/authentication/sign-up"
-            light={light}
-          />
-          <DefaultNavbarLink
-            icon="key"
-            name="sign in"
-            route="/authentication/sign-in"
-            light={light}
-          /> */}
           <DefaultNavbarLink icon="home" name="home" route="/" light={light} />
           <DefaultNavbarLink icon="info" name="about" route="/"  light={light} />
           <DefaultNavbarLink icon="call" name="contact" route="/"  light={light} />
@@ -148,14 +148,14 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
           (action.type === "internal" ? (
             <MDBox display={{ xs: "none", lg: "inline-block" }}>
               <MDButton
-                // component={Link}
-                // to={action.route}
+                component={Link}
+                to={action.route}
                 variant="gradient"
                 color={action.color ? action.color : "info"}
-                size="small"
+                size="medium"
                 onClick={handleOpenDialog}
               >
-                <Icon>login</Icon>  
+                <Icon>login</Icon>  &nbsp;
                 {action.label}                              
               </MDButton>
               <LoginModal open={isDialogOpen} onClose={handleCloseDialog} />
@@ -188,7 +188,7 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
           <Icon fontSize="default">{mobileNavbar ? "close" : "menu"}</Icon>
         </MDBox>
       </MDBox>
-      {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />}
+      {mobileView && <DefaultNavbarMobile action={action} open={mobileNavbar} close={closeMobileNavbar} handleOpenDialog={handleOpenDialog}/>}
     </Container>
   );
 }

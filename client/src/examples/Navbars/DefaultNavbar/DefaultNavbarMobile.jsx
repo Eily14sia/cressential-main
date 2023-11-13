@@ -18,14 +18,21 @@ import PropTypes from "prop-types";
 
 // @mui material components
 import Menu from "@mui/material/Menu";
+import Icon from "@mui/material/Icon";
 
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox";
+import Divider from "@mui/material/Divider";
+// react-router components
+import { Link } from "react-router-dom";
 
 // Material Dashboard 2 React example components
 import DefaultNavbarLink from "./DefaultNavbarLink";
 
-function DefaultNavbarMobile({ open, close }) {
+// Material Dashboard 2 React components
+import MDBox from "../../../components/MDBox";
+import MDTypography from "../../../components/MDTypography";
+import MDButton from "../../../components/MDButton";
+
+function DefaultNavbarMobile({ open, close, action, handleOpenDialog}) {
   const { width } = open && open.getBoundingClientRect();
 
   return (
@@ -44,15 +51,31 @@ function DefaultNavbarMobile({ open, close }) {
       onClose={close}
       MenuListProps={{ style: { width: `calc(${width}px - 4rem)` } }}
     >
-      <MDBox px={0.5}>
-        {/* <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" light={true}/>
-        <DefaultNavbarLink icon="person" name="profile" route="/profile" />
-        <DefaultNavbarLink icon="account_circle" name="sign up" route="/authentication/sign-up" />
-        <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" /> */}
-        <DefaultNavbarLink icon="home" name="home" route="/dashboard" light={true} />
-        <DefaultNavbarLink icon="info" name="about" route="/dashboard"  light={true} />
-        <DefaultNavbarLink icon="call" name="contact" route="/dashboard"  light={true} />
+      <MDBox px={0.5} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <DefaultNavbarLink icon="home" name="home" route="/" />
+        <DefaultNavbarLink icon="info" name="about" route="/" />
+        <DefaultNavbarLink icon="call" name="contact" route="/" />
       </MDBox>
+
+    <Divider/>
+    <MDBox  px={5} mb={1} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      {action &&
+          
+            
+              <MDButton
+                component={Link}
+                to={action.route}
+                variant="gradient"
+                color={action.color ? action.color : "info"}
+                size="medium"
+                fullWidth                
+                onClick={handleOpenDialog}
+              >
+                <Icon>login</Icon>  &nbsp;
+                {action.label}                              
+              </MDButton>   
+      }        
+    </MDBox>
     </Menu>
   );
 }

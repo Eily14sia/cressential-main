@@ -1,19 +1,4 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // react-router-dom components
 import { Link as RouterLink } from "react-router-dom";
@@ -26,6 +11,7 @@ import Box from '@mui/material/Box';
 import Icon from "@mui/material/Icon";
 import Container from '@mui/material/Container';
 import Divider from "@mui/material/Divider";
+import breakpoints from "../../../assets/theme/base/breakpoints";
 
 import bg_link from "../../../assets/images/homepage_main.png"
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
@@ -43,63 +29,88 @@ import MDButton from "../../../components/MDButton";
 
 // Authentication layout components
 import BasicLayout from "../components/BasicLayout";
-
-// Images
-import bgImage from "../../../assets/images/bg-sign-in-basic.jpeg";
-import Album from "../../../examples/Album";
+import Mobile_view from "./components/mobile_view";
 
 function Basic({userID, set_user_id} ) {
+  const [mobileView, setMobileView] = useState(false);
 
-  const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  useEffect(() => {
+    // A function that sets the display state for the DefaultNavbarMobile.
+    function displayMobileNavbar() {
+      if (window.innerWidth < breakpoints.values.lg) {
+        setMobileView(true);
+      } else {
+        setMobileView(false);
+      }
+    }
+
+    /** 
+     The event listener that's calling the displayMobileNavbar function when 
+     resizing the window.
+    */
+    window.addEventListener("resize", displayMobileNavbar);
+
+    // Call the displayMobileNavbar function to set the state with the initial value.
+    displayMobileNavbar();
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", displayMobileNavbar);
+  }, []);
+
   return (
     // <BasicLayout image={bgImage}>
     <BasicLayout userID={userID} set_user_id={set_user_id}>
       <Box mt={3} sx={{ pt: 8 }} >
-        <Container maxWidth="sm" >
-          <Grid container spacing={2}>
-              <Grid item xs={12} md={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <MDTypography variant="h1" gutterBottom>
-                  Take verifier experience to the{' '}
-                  <span style={{ color: '#1A73E8', display: 'inline', fontSize: 'inherit' }}>
-                      next level
-                  </span>
-                  </MDTypography>
-                  <MDTypography
-                      variant="h5"
-                      fontWeight="regular"
-                      color="text"
-                  >
-                  Revolutionize the verifier experience through a dedicated portal designed for efficiency, streamlining access and simplifying the verification process. 
-                  </MDTypography>
-                  <Stack
-                  sx={{ pt: 4 }}
-                  direction="row"
-                  >
-                    <Link to="/verifier-portal" component={RouterLink}>
-                      <MDButton variant="gradient" color="info" type="submit">
-                      Verifier Portal&nbsp;
-                      <Icon>arrow_right_alt</Icon>
-                      </MDButton>
-                    </Link>
-                  </Stack>
-              </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end' }}>  
-                  <MDBox p={5}>
-                      <img
-                      src={bg_link}
-                      alt="Your Alt Text"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />  
-                      </MDBox>      
-              </Grid>
-          </Grid>
+        <Container maxWidth="sm" >         
+              {mobileView ? <Mobile_view/> 
+              : (
+              <Grid container spacing={2}>
+                <Grid item md={12} lg={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <MDTypography variant="h1" gutterBottom>
+                    Take verifier experience to the{' '}
+                    <span style={{ color: '#1A73E8', display: 'inline', fontSize: 'inherit' }}>
+                        next level
+                    </span>
+                    </MDTypography>
+                    <MDTypography
+                        variant="h5"
+                        fontWeight="regular"
+                        color="text"
+                    >
+                    Revolutionize the verifier experience through a dedicated portal designed for efficiency, streamlining access and simplifying the verification process. 
+                    </MDTypography>
+                    <Stack
+                    sx={{ pt: 4 }}
+                    direction="row"
+                    >
+                      <Link to="/verifier-portal" component={RouterLink}>
+                        <MDButton variant="gradient" size="medium" color="info" type="submit">
+                        Verifier Portal&nbsp;
+                        <Icon>arrow_right_alt</Icon>
+                        </MDButton>
+                      </Link>
+                    </Stack>
+                </Grid>
+                <Grid item md={12} lg={7} sx={{ display: 'flex', justifyContent: 'flex-end' }}>  
+                    <MDBox p={5}>
+                        <img
+                        src={bg_link}
+                        alt="Your Alt Text"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />  
+                        </MDBox>      
+                </Grid>
+              </Grid>             
+              )
+              }
+          
         </Container>
       </Box>
       <MDBox component="section" py={6} sx={{ backgroundColor: '#f8f9fa'}}>
         <Container>
           <Grid container item xs={12} lg={6} justifyContent="center" mx="auto" textAlign="center">
             <MDTypography variant="h2" mb={2}>
-              Type of Users
+              User Profiles
             </MDTypography>
             <MDTypography variant="body2" color="text" mb={2}>
             Dive into the Rich Tapestry of User Profiles within Our Web System
@@ -107,12 +118,7 @@ function Basic({userID, set_user_id} ) {
           </Grid>
           <Divider sx={{ my: 5 }} />
           <Grid container spacing={3}>
-            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              {/* <DefaultInfoCard
-                icon="person_3"
-                title="Registrar"
-                description="Effortlessly manage academic records and ensure seamless administrative processes with our registrar-focused tools."
-              /> */}
+            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={registrar}
@@ -123,13 +129,7 @@ function Basic({userID, set_user_id} ) {
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              {/* <DefaultInfoCard
-                icon="person"
-                color="info"
-                title="Student"
-                description="Access your academic records and keep your educational history at your fingertips with our student and alumni portal."
-              /> */}
+            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={student}
@@ -140,12 +140,7 @@ function Basic({userID, set_user_id} ) {
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
-              {/* <DefaultInfoCard
-                icon="verified"
-                title="Verifier"
-                description="Simplify the verification process, authenticate academic credentials, and enjoy an efficient experience through our dedicated verifier portal."
-              /> */}
+            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={verifier}
