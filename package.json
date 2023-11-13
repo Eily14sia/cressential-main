@@ -5,5 +5,8 @@
     "start": "cd backend && npm install && npm start",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
-  "author": "Stonecap"
+  "author": "Stonecap",
+  "engines": {
+    "node": "18.12.1"
+  }
  }
