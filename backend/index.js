@@ -8,6 +8,7 @@ const paymentapi = require('./payment');
 const emailapi = require('./email');
 const bodyParser = require('body-parser');
 const path = require('path'); // Import the path module
+const smartcon = require('./blockchain');
 
 const app = express();
 const PORT = process.env.PORT || 8081;
@@ -37,6 +38,7 @@ app.use('/files', fileRoutes); // File-related routes
 app.use('/mysql', mysqlRoutes); // MySQL-related routes (adjust the prefix as needed)
 app.use('/payments', paymentapi); //Payment API
 app.use('/emails', emailapi); //Email API
+app.use('/blockchain', smartcon); //Email API
 
 // Serve the client build folder
 app.use(express.static(path.resolve(__dirname, "../client/build")));

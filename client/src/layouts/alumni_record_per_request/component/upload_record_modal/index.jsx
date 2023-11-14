@@ -30,6 +30,8 @@ import { Viewer } from '@react-pdf-viewer/core';
 
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
+import useEth from "../../../../contexts/EthContext/useEth";
+
 function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS, 
 recordID, recordPassword, setRecordPassword, payment_status, ctrl_number,
 setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setData, student_email}) {
@@ -233,6 +235,18 @@ const handleFileUpload = async () => {
       setRecordType('');
       setRecordPassword('');
     }
+
+    if (multihash) {
+      try {
+        const receipt = await contract.methods.write(multihash).send({ from: accounts[0] });
+        const txHash = receipt.transactionHash;
+        setTxHash(txHash);
+      } catch (error) {
+        console.error("Error sending transaction:", error);
+      }
+    } else {
+      alert("Please upload a file first.");
+    }
   };
 
   const styles = {
@@ -261,6 +275,47 @@ const handleFileUpload = async () => {
   function isValidPassword(password) {
     return password.length >= 8;
   }
+
+  //--BLOCKCHAIN
+  const { state: { contract, accounts } } = useEth();
+
+  const write = async () => {
+    if (multihash) {
+      try {
+        const receipt = await contract.methods.write(multihash).send({ from: accounts[0] });
+        const txHash = receipt.transactionHash;
+        setTxHash(txHash);
+      } catch (error) {
+        console.error("Error sending transaction:", error);
+      }
+    } else {
+      alert("Please upload a file first.");
+    }
+  };
+
+  const sendTransactionHashToServer = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8081/blockchain/getTransaction`,
+        { txHash },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (response.data.success) {
+        // Handle the response, e.g., display the transaction details
+        console.log('Transaction Details:', response.data.transactionDetails);
+      } else {
+        // Handle the error, e.g., display an error message
+        console.error('Error retrieving transaction details:', response.data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" fullWidth>
@@ -418,7 +473,6 @@ const handleFileUpload = async () => {
               </Grid>
             </Grid>
           </Grid>
-
           
         
         </Grid>

@@ -361,7 +361,7 @@ function Alumni_record_per_request() {
                         record: (
                           <MDBox ml={1} lineHeight={1}>
                             <MDTypography display="block" variant="button" fontWeight="medium">
-                            <a target="_blank" rel="noopener noreferrer" href={`http://localhost:8080/ipfs/${item.ipfs}`}>
+                            <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
                             {item.ipfs}
                             </a>
                             </MDTypography>

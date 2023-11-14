@@ -31,7 +31,8 @@
     "vite": "^4.4.9",
     "vite-plugin-svgr": "^3.2.0",
     "web3": "^4.1.2",
-    "yup": "1.1.1"
+    "yup": "1.1.1",
+    "@truffle/hdwallet-provider": "^2.1.15"
   },
   "scripts": {
     "start": "vite",
