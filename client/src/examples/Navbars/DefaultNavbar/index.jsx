@@ -188,7 +188,7 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
           <Icon fontSize="default">{mobileNavbar ? "close" : "menu"}</Icon>
         </MDBox>
       </MDBox>
-      {mobileView && <DefaultNavbarMobile action={action} open={mobileNavbar} close={closeMobileNavbar} handleOpenDialog={handleOpenDialog}/>}
+      {mobileView && <DefaultNavbarMobile light={light} action={action} open={mobileNavbar} close={closeMobileNavbar} handleOpenDialog={handleOpenDialog}/>}
     </Container>
   );
 }

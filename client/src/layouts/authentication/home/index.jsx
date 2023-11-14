@@ -15,7 +15,7 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 
 import bg_link from "../../../assets/images/homepage_main.png"
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
-import DefaultProjectCard from "../../../examples/Cards/ProjectCards/DefaultProjectCard";
+import DefaultProjectCard from "../../../examples/Cards/ProjectCards/HomeProjectCard";
 import Footer from '../../../examples/Footer/index';
 
 import registrar from "../../../assets/images/registrar_long.png";
@@ -30,42 +30,41 @@ import MDButton from "../../../components/MDButton";
 // Authentication layout components
 import BasicLayout from "../components/BasicLayout";
 import Mobile_view from "./components/mobile_view";
+import Tablet_view from "./components/tablet_view";
 
 function Basic({userID, set_user_id} ) {
   const [mobileView, setMobileView] = useState(false);
+  const [tabletView, setTabletView] = useState(false);
 
   useEffect(() => {
-    // A function that sets the display state for the DefaultNavbarMobile.
-    function displayMobileNavbar() {
-      if (window.innerWidth < breakpoints.values.lg) {
-        setMobileView(true);
-      } else {
-        setMobileView(false);
-      }
+    function handleResize() {
+      const isTablet = window.innerWidth >= breakpoints.values.sm && window.innerWidth < breakpoints.values.lg;
+      const isMobile = window.innerWidth < breakpoints.values.sm;
+
+      setTabletView(isTablet);
+      setMobileView(isMobile);
     }
 
-    /** 
-     The event listener that's calling the displayMobileNavbar function when 
-     resizing the window.
-    */
-    window.addEventListener("resize", displayMobileNavbar);
+    // Initial setup
+    handleResize();
 
-    // Call the displayMobileNavbar function to set the state with the initial value.
-    displayMobileNavbar();
+    // Event listener for window resize
+    window.addEventListener("resize", handleResize);
 
     // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", displayMobileNavbar);
-  }, []);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoints]);
 
   return (
     // <BasicLayout image={bgImage}>
     <BasicLayout userID={userID} set_user_id={set_user_id}>
       <Box mt={3} sx={{ pt: 8 }} >
-        <Container maxWidth="sm" >         
-              {mobileView ? <Mobile_view/> 
-              : (
+        <Container sx={{oveflow: 'auto'}}>         
+        {mobileView && <Mobile_view />}
+          {tabletView && !mobileView && <Tablet_view />}
+          {!mobileView && !tabletView && (
               <Grid container spacing={2}>
-                <Grid item md={12} lg={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Grid item xs={12} lg={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <MDTypography variant="h1" gutterBottom>
                     Take verifier experience to the{' '}
                     <span style={{ color: '#1A73E8', display: 'inline', fontSize: 'inherit' }}>
@@ -84,19 +83,19 @@ function Basic({userID, set_user_id} ) {
                     direction="row"
                     >
                       <Link to="/verifier-portal" component={RouterLink}>
-                        <MDButton variant="gradient" size="medium" color="info" type="submit">
+                        <MDButton variant="gradient" color="info" type="submit">
                         Verifier Portal&nbsp;
                         <Icon>arrow_right_alt</Icon>
                         </MDButton>
                       </Link>
                     </Stack>
                 </Grid>
-                <Grid item md={12} lg={7} sx={{ display: 'flex', justifyContent: 'flex-end' }}>  
+                <Grid item xs={12} lg={7} sx={{ display: 'flex', justifyContent: 'flex-end' }}>  
                     <MDBox p={5}>
                         <img
                         src={bg_link}
                         alt="Your Alt Text"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        style={{ width: '100%', height: 'auto' }}
                     />  
                         </MDBox>      
                 </Grid>
@@ -118,7 +117,7 @@ function Basic({userID, set_user_id} ) {
           </Grid>
           <Divider sx={{ my: 5 }} />
           <Grid container spacing={3}>
-            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
+            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={registrar}
@@ -129,7 +128,7 @@ function Basic({userID, set_user_id} ) {
                 />
               </MDBox>
             </Grid>
-            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
+            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={student}
@@ -140,7 +139,7 @@ function Basic({userID, set_user_id} ) {
                 />
               </MDBox>
             </Grid>
-            <Grid item md={12} lg={4} mb={{ xs: 3, lg: 0 }}>
+            <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard
                   image={verifier}

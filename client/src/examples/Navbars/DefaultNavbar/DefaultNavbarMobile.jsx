@@ -32,7 +32,7 @@ import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
 
-function DefaultNavbarMobile({ open, close, action, handleOpenDialog}) {
+function DefaultNavbarMobile({ open, close, action, handleOpenDialog, light}) {
   const { width } = open && open.getBoundingClientRect();
 
   return (
@@ -52,9 +52,9 @@ function DefaultNavbarMobile({ open, close, action, handleOpenDialog}) {
       MenuListProps={{ style: { width: `calc(${width}px - 4rem)` } }}
     >
       <MDBox px={0.5} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <DefaultNavbarLink icon="home" name="home" route="/" />
-        <DefaultNavbarLink icon="info" name="about" route="/" />
-        <DefaultNavbarLink icon="call" name="contact" route="/" />
+        <DefaultNavbarLink icon="home" name="home" route="/" light={false}/>
+        <DefaultNavbarLink icon="info" name="about" route="/" light={false}/>
+        <DefaultNavbarLink icon="call" name="contact" route="/" light={false}/>
       </MDBox>
 
     <Divider/>

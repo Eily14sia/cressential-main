@@ -21,15 +21,17 @@ import CoverLayout from "../components/CoverLayout";
 // Images
 import bgImage from "../../../assets/images/university.jpg";
 import LoginModal from '../components/LoginModal';
+import { InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 // Authentication pages components
-import Footer from "../components/Footer";
 import { useAuth } from '../../../context2';
 
 function Log_in() {
   const { 
     login,
     setEmail,
+    password,
     setPassword,
     alertMessage, 
     isSuccess, setIsSuccess,
@@ -50,6 +52,12 @@ function Log_in() {
       {alertMessage}
     </MDTypography>
   );
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <CoverLayout image={bgImage}>      
@@ -88,7 +96,28 @@ function Log_in() {
               <MDInput type="email" label="Email" fullWidth onChange={(e) => setEmail(e.target.value)} />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="password" label="Password" onChange={(e) => setPassword(e.target.value)} fullWidth />
+              {/* <MDInput type="password" label="Password" onChange={(e) => setPassword(e.target.value)} fullWidth /> */}
+              <MDInput
+                 type={showPassword ? 'text' : 'password'}
+                 label="Password"
+                 value={password}
+                  onChange={(e) => setPassword(e.target.value)}                  
+                  fullWidth               
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handlePasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                          size="small"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={1}>
               <MDTypography

@@ -58,7 +58,6 @@ export const AuthProvider = ({ children }) => {
   
           // Save the token in localStorage or sessionStorage
           localStorage.setItem('token', token);
-
           parseInt(user_role) === 1 ? navigate('/dashboard') : navigate('/student-request-table');
         } else {
           setIsError(true);
@@ -76,6 +75,9 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
         console.error('Error:', error);
     }
+
+      setPassword('');
+      setEmail('');
     }
     
   };
