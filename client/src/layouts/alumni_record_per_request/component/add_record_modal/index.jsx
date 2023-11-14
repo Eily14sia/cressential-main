@@ -37,8 +37,12 @@ const [selectedFile, setSelectedFile] = useState(null);
 const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [uploadedCID, setUploadedCID] = useState(null);
+const [TxHash, setTxHash] = useState(null);
 const [finalCID, setFinalCID] = useState(null);
 const [multihash, setMultihash] = useState(null); // Added state for multihash
+
+//--BLOCKCHAIN
+const { state: { contract, accounts } } = useEth();
 
 const [initialPassword, setInitialPassword] = useState('');
 
@@ -200,56 +204,65 @@ function getRecordName(record_type_id) {
 
   const handleUpdateSubmit = async (CID, hash) => {
     // Create an updated record object to send to the server
-
-    const updatedRecord = {
-      ctrl_number: ctrl_number,
-      recordType: recordType,
-      recordPassword: recordPassword,
-      uploadedCID: CID,
-      hash: hash,
-      dateIssued: dateIssued,
-      transactionHash: '0xfa48efae8435d0a50c3bd7e284212f1e1ace81e3ff9726b0243787f7fa851847'
-    };
-
     try {
-      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/add-record`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(updatedRecord),
-      });
+      const receipt = await contract.methods.write(hash).send({ from: accounts[0] });
+      const txHash = receipt.transactionHash;
+      setTxHash(txHash);
 
-      if (response.ok) {
-        handleCloseAddDialog();
-        setIsSuccess(true);        
-        sendEmail(student_email, CID, recordPassword, recordType);
-        setInitialPassword('');
-        setRecordPassword('');
-        setUrl('');
+      const updatedRecord = {
+        ctrl_number: ctrl_number,
+        recordType: recordType,
+        recordPassword: recordPassword,
+        uploadedCID: CID,
+        hash: hash,
+        dateIssued: dateIssued,
+        transactionHash: txHash
+      };
 
-        // Fetch updated data and update the state
-        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+      try {
+        const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/add-record`, {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${jwtToken}`,
           },
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error("Failed to authenticate token");
-            }
-            return res.json();
-          })
-          .then((fetchedData) => {
-            setData(fetchedData);
-          })
-          .catch((err) => console.log(err));
+          body: JSON.stringify(updatedRecord),
+        });
 
-          setAlertMessage('Record updated successfully.');
-      } else {
-        setAlertMessage('Failed to update record');
+        if (response.ok) {
+          handleCloseAddDialog();
+          setIsSuccess(true);        
+          sendEmail(student_email, CID, recordPassword, recordType);
+          setInitialPassword('');
+          setRecordPassword('');
+          setUrl('');
+
+          // Fetch updated data and update the state
+          fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to authenticate token");
+              }
+              return res.json();
+            })
+            .then((fetchedData) => {
+              setData(fetchedData);
+            })
+            .catch((err) => console.log(err));
+
+            setAlertMessage('Record updated successfully.');
+        } else {
+          setAlertMessage('Failed to update record');
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error('Error:', error);
       }
+
     } catch (error) {
       setIsError(true);
       console.error('Error:', error);

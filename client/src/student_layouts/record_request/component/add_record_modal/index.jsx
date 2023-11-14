@@ -259,9 +259,9 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
             display="flex"  
           >
           <MDTypography variant="button" ml={3} mt={1}>
-            Please note that the expected record release time is typically <b>15 days</b>, but it may vary depending on various factors. <br/><br/>
+            Please note that the expected <b>record release time is typically 15 days</b>, but it may vary depending on various factors. <br/><br/>
             We only accept <b>cashless payments</b> through e-wallets like GCash and Maya, as well as online banking via Union Bank and BPI. <br/><br/>
-            Unpaid requests are valid for <b>3 days</b>. After this period, they will be automatically canceled if payment is not received.
+            <b>Unpaid requests are valid for 3 days</b>. After this period, they will be automatically canceled if payment is not received. 
           </MDTypography> 
          
          </MDBox>

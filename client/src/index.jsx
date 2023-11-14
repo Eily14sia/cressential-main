@@ -16,7 +16,7 @@ root.render(
     <MaterialUIControllerProvider>
       <AuthProvider>
         <EthProvider>
-      <App />
+          <App />
         </EthProvider>
       </ AuthProvider>
       

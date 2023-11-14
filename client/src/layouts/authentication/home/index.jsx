@@ -59,7 +59,7 @@ function Basic({userID, set_user_id} ) {
     // <BasicLayout image={bgImage}>
     <BasicLayout userID={userID} set_user_id={set_user_id}>
       <Box mt={3} sx={{ pt: 8 }} >
-        <Container sx={{oveflow: 'auto'}}>         
+        <Container >         
         {mobileView && <Mobile_view />}
           {tabletView && !mobileView && <Tablet_view />}
           {!mobileView && !tabletView && (

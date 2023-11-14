@@ -57,12 +57,12 @@ function BasicLayout({ image, children, set_user_id, userID}) {
           backgroundRepeat: "no-repeat",
         }}
       />
-      <MDBox px={1} width="100%" height="auto" mx="auto">
-        <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
+      <MDBox px={1} height="auto" mx="auto">
+        <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%" >
           {/* <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
             {children}
           </Grid> */}
-          <Grid item xs={12} sm={11} md={8} lg={10} xl={12}>
+          <Grid item xs={12} sm={11} md={8} lg={10} xl={12} >
             {children}
           </Grid>
         </Grid>

@@ -43,8 +43,12 @@ const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [uploadedCID, setUploadedCID] = useState(null);
 const [finalCID, setFinalCID] = useState(null);
+const [TxHash, setTxHash] = useState(null);
 const [multihash, setMultihash] = useState(null); // Added state for multihash
 const [initialPassword, setInitialPassword] = useState('');
+
+//--BLOCKCHAIN
+const { state: { contract, accounts } } = useEth();
 
 const jwtToken = localStorage.getItem('token');
 
@@ -179,74 +183,71 @@ const handleFileUpload = async () => {
 
   const handleUpdateSubmit = async (CID, hash) => {
     // Create an updated record object to send to the server
-
-    const updatedRecord = {
-      recordPassword: recordPassword,
-      uploadedCID: CID,
-      hash: hash,
-      dateIssued: dateIssued,
-      transactionHash: '0xfa48efae8435d0a50c3bd7e284212f1e1ace81e3ff9726b0243787f7fa851847'
-    };
-
-    try {
-      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/upload-record-per-request/${recordID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(updatedRecord),
-      });
-
-      if (response.ok) {
-        handleCloseUploadDialog();
-        setIsSuccess(true);
-        setAlertMessage('Record updated successfully.');
-        sendEmail(student_email, CID, recordPassword, recordType);
-
-        // Fetch updated data and update the state
-        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error("Failed to authenticate token");
-            }
-            return res.json();
-          })
-          .then((fetchedData) => {
-            setData(fetchedData);
-          })
-          .catch((err) => console.log(err));
-          
-          setRecordType('');
-          setRecordPassword('');
-          
-      } else {
-        setAlertMessage('Failed to update record');
-        setRecordType('');
-        setRecordPassword('');
-      }
-    } catch (error) {
-      setIsError(true);
-      console.error('Error:', error);
-      setRecordType('');
-      setRecordPassword('');
-    }
-
-    if (multihash) {
       try {
-        const receipt = await contract.methods.write(multihash).send({ from: accounts[0] });
+        const receipt = await contract.methods.write(hash).send({ from: accounts[0] });
         const txHash = receipt.transactionHash;
         setTxHash(txHash);
+
+        //if blockchain is successful 
+        const updatedRecord = {
+          recordPassword: recordPassword,
+          uploadedCID: CID,
+          hash: hash,
+          dateIssued: dateIssued,
+          transactionHash: txHash
+        };
+    
+        try {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/upload-record-per-request/${recordID}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwtToken}`,
+            },
+            body: JSON.stringify(updatedRecord),
+          });
+    
+          if (response.ok) {
+            handleCloseUploadDialog();
+            setIsSuccess(true);
+            setAlertMessage('Record updated successfully.');
+            sendEmail(student_email, CID, recordPassword, recordType);
+    
+            // Fetch updated data and update the state
+            fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
+            })
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to authenticate token");
+                }
+                return res.json();
+              })
+              .then((fetchedData) => {
+                setData(fetchedData);
+              })
+              .catch((err) => console.log(err));
+              
+              setRecordType('');
+              setRecordPassword('');
+              
+          } else {
+            setAlertMessage('Failed to update record');
+            setRecordType('');
+            setRecordPassword('');
+          }
+        } catch (error) {
+          setIsError(true);
+          console.error('Error:', error);
+          setRecordType('');
+          setRecordPassword('');
+        }
+
       } catch (error) {
         console.error("Error sending transaction:", error);
-      }
-    } else {
-      alert("Please upload a file first.");
-    }
+      }  
   };
 
   const styles = {
@@ -276,9 +277,7 @@ const handleFileUpload = async () => {
     return password.length >= 8;
   }
 
-  //--BLOCKCHAIN
-  const { state: { contract, accounts } } = useEth();
-
+  // retrieve for verification
   const write = async () => {
     if (multihash) {
       try {
@@ -293,6 +292,7 @@ const handleFileUpload = async () => {
     }
   };
 
+  // retrieve for verification
   const sendTransactionHashToServer = async () => {
     try {
       const response = await axios.post(

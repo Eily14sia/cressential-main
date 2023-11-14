@@ -189,7 +189,18 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
                       </Grid>
                     
                     </Grid>
+                    
                   </MDBox>
+                  <MDBox
+                    display="flex"  
+                    mx={3}
+                  >
+                  <MDTypography variant="caption" ml={1} mt={3}>
+                    You will be redirected externally to your selected payment option. Please click <b>Pay button</b> to continue, otherwise click <b>Hold Payment button</b> to pay it at a later time within 3 days. <br/><br/>
+                    
+                  </MDTypography> 
+         
+         </MDBox>
               {/* END OF PURPOSE */}
               {redirectUrl && (
         <div>
