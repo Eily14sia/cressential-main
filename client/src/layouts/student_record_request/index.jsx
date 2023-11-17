@@ -238,57 +238,57 @@ function Student_record_request() {
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
   };
-  const unpaidDecline = async () => {
-      const currentDate = new Date();
+  // const unpaidDecline = async () => {
+  //     const currentDate = new Date();
   
-      // Use map to iterate through the data array
-      data.map(async (item) => {
-      const requestedDate = new Date(item.date_requested);
+  //     // Use map to iterate through the data array
+  //     data.map(async (item) => {
+  //     const requestedDate = new Date(item.date_requested);
   
-      // Check if the request is more than or equal to 3 days old and the status is "Unpaid"
-      if (
-        currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
-        item.payment_status === "Unpaid" &&
-        item.request_status !== "Cancelled"
-      ) {
+  //     // Check if the request is more than or equal to 3 days old and the status is "Unpaid"
+  //     if (
+  //       currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
+  //       item.payment_status === "Unpaid" &&
+  //       item.request_status !== "Cancelled"
+  //     ) {
         
-        try {
-          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${item.ctrl_number}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-               Authorization: `Bearer ${jwtToken}`,
-            },
-          });
+  //       try {
+  //         const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${item.ctrl_number}`, {
+  //           method: 'PUT',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //              Authorization: `Bearer ${jwtToken}`,
+  //           },
+  //         });
   
-          if (response.ok) {
-            // Fetch updated data and update the state            
-            fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
-              headers: {
-                Authorization: `Bearer ${jwtToken}`,
-              },
-            })
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error("Failed to authenticate token");
-                }
-                return res.json();
-              })
-              .then((data) => {
-                setData(data);
-              })
-              .catch((err) => console.log(err));
+  //         if (response.ok) {
+  //           // Fetch updated data and update the state            
+  //           fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+  //             headers: {
+  //               Authorization: `Bearer ${jwtToken}`,
+  //             },
+  //           })
+  //             .then((res) => {
+  //               if (!res.ok) {
+  //                 throw new Error("Failed to authenticate token");
+  //               }
+  //               return res.json();
+  //             })
+  //             .then((data) => {
+  //               setData(data);
+  //             })
+  //             .catch((err) => console.log(err));
             
-          } else {
-            // Handle the case where the update request is not successful
-          }
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      }
-    });
-  }
-  unpaidDecline();
+  //         } else {
+  //           // Handle the case where the update request is not successful
+  //         }
+  //       } catch (error) {
+  //         console.error('Error:', error);
+  //       }
+  //     }
+  //   });
+  // }
+  // unpaidDecline();
 
   return (
     <DashboardLayout>

@@ -1,5 +1,4 @@
 import React from "react";
-import { EthProvider } from "./contexts/EthContext";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
@@ -15,9 +14,7 @@ root.render(
   <BrowserRouter>
     <MaterialUIControllerProvider>
       <AuthProvider>
-        <EthProvider>
           <App />
-        </EthProvider>
       </ AuthProvider>
       
     </MaterialUIControllerProvider>

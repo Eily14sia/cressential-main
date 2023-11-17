@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useParams, useNavigate   } from "react-router-dom";
 import { Link } from "@mui/material";
+import { EthProvider } from "../../contexts/EthContext";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -260,231 +261,233 @@ function Alumni_record_per_request() {
 
   
   return (
-    <DashboardLayout>
-      <DashboardNavbar />
-        <MDBox pt={6} pb={3}>
-        
-          {/* Info Cards */}
-          <Grid container spacing={3}> 
-            <Grid item xs={12} md={12} lg={12}>
-            {isSuccess && (
-                <MDAlert color="success" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsSuccess(false)}>
-                      {alertContent("success", alertMessage)}
-                </MDAlert>
-              )}
-              {isError && (
-                <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
-                  {alertContent("error", alertMessage)}
-                </MDAlert>
-              )} 
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-           
-              <MDBox mb={1.5}>
-                <CustomCard
-                  color="secondary"
-                  icon="label_important"
-                  title="Control Number"
-                  count={new_ctrl_number}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <MDBox mb={1.5}>
-                <CustomCard
-                  icon="person"
-                  title="Date Requested"
-                  count={new_date_requested}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <MDBox mb={1.5}>
-                <CustomCard
-                  color="success"
-                  icon="calendar_month"
-                  title="Date Releasing"
-                  count={new_date_releasing}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <MDBox mb={1.5}>
-                <CustomCard
-                  color="primary"
-                  icon="payments"
-                  title="Payment Status"
-                  count={payment_status}                  
-                />
-              </MDBox>
-            </Grid>
-          </Grid>
-          {/* end of Info Cards */}
-
-          <Grid container spacing={3}>
-
-            {/* Applicant Infomation */}
-            <Grid item lg={3} xs={12}>
-              <ApplicantInformation student_id={student_id} setStudentEmail={setStudentEmail}/>
-            </Grid>
-            {/* End of Applicant Information */}
-
-            {/* Datatable */}
-            <Grid item lg={9} sm={12}>
-              <Card sx={{marginTop: "20px"}}>
-                <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
-                  
-                {parseInt(user_role) === 1 ? (
-                  <>
-                    <MDButton onClick={goBack} variant="outlined" color="info" size="small">
-                      <Icon>arrow_back</Icon>&nbsp; Record Request
-                    </MDButton>
-                    <MDButton onClick={() => handleOpenAddDialog()} variant="gradient" color="dark" size="small">
-                      <Icon>add</Icon>&nbsp; Add Record
-                    </MDButton>
-                  </>
-                ) : (
-                  <>
-                    <MDTypography variant="h6" fontWeight="medium">
-                      Record per Request 
-                    </MDTypography>
-                    <MDButton onClick={goBack} variant="outlined" color="info" size="small">
-                      <Icon>arrow_back</Icon>&nbsp; Record Request
-                    </MDButton>
-                  </>
+    <EthProvider>
+      <DashboardLayout>
+        <DashboardNavbar />
+          <MDBox pt={6} pb={3}>
+          
+            {/* Info Cards */}
+            <Grid container spacing={3}> 
+              <Grid item xs={12} md={12} lg={12}>
+              {isSuccess && (
+                  <MDAlert color="success" dismissible sx={{marginBottom: '50px'}} onClose={() => setIsSuccess(false)}>
+                        {alertContent("success", alertMessage)}
+                  </MDAlert>
                 )}
+                {isError && (
+                  <MDAlert color="error" dismissible onClose={() => setIsError(false)}>
+                    {alertContent("error", alertMessage)}
+                  </MDAlert>
+                )} 
+              </Grid>
+              <Grid item xs={12} md={6} lg={3}>
+            
+                <MDBox mb={1.5}>
+                  <CustomCard
+                    color="secondary"
+                    icon="label_important"
+                    title="Control Number"
+                    count={new_ctrl_number}
+                  />
                 </MDBox>
-                
-                <MDBox >
-                  <DataTable 
-                    table={{ columns, 
-                      rows: data.map((item) => ({
-                       
-                        record: (
-                          <MDBox ml={1} lineHeight={1}>
-                            <MDTypography display="block" variant="button" fontWeight="medium">
-                            <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
-                            {item.ipfs}
-                            </a>
-                            </MDTypography>
-                            <MDTypography variant="caption">{item.type}</MDTypography>
-                          </MDBox>
-                          ),
-                        
-                        status: (
-                          <>
-                          {item.ipfs ? (
-                            <MDBox ml={-1}>
-                              <MDBadge
-                                badgeContent={item.record_status}
-                                color={getStatusColor(item.record_status)} // Set the badge color dynamically
-                                variant="gradient"
-                                size="sm"
-                              />
-                            </MDBox>
-                          ) : ""}
-                          </>
-                        ),
-                        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
-                        action: (
-                          <>
-                          {parseInt(user_role) === 1 ? (
-                            <>
-                          <Tooltip title="Upload" >
-                            <span>
-                              <IconButton
-                                color="info"
-                                disabled={item.ipfs !== null || payment_status === "Unpaid"}
-                                onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
-                              >
-                                <UploadFileIcon />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-
-                          <Tooltip title="Update" >
-                              <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
-                                  <EditIcon />
-                                </IconButton>
-                          </Tooltip>
-                          {/* <Tooltip title="Delete" >
-                            <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip> */}
-                          </> 
-                          ) : (null)}
-                          </>    
-                        )
-                      })), 
-                    }}
-                    canSearch={true}
+              </Grid>
+              <Grid item xs={12} md={6} lg={3}>
+                <MDBox mb={1.5}>
+                  <CustomCard
+                    icon="person"
+                    title="Date Requested"
+                    count={new_date_requested}
                   />
-                  <AddDialogBox
-                    open={isAddDialogOpen}
-                    onClose={handleCloseAddDialog}
-                    ctrl_number = {ctrl_number}
-                    recordType={record_type}
-                    setRecordType={setRecordType}
-                    recordIPFS={record_IPFS}
-                    setrecordIPFS={setRecordIPFS}   
-                    recordID={record_id}                               
-                    recordPassword={record_password}     
-                    setRecordPassword={setRecordPassword}   
-                    payment_status={payment_status}    
-                    setAlertMessage={setAlertMessage}
-                    setIsError={setIsError}
-                    setIsSuccess={setIsSuccess} 
-                    handleCloseAddDialog={handleCloseAddDialog}
-                    setData={setData}
-                    data={setData}
-                    student_email={student_email}
-                  />
-                  <UploadDialogBox
-                    open={isUploadDialogOpen}
-                    onClose={handleCloseUploadDialog}
-                    ctrl_number = {ctrl_number}
-                    recordType={record_type}
-                    setRecordType={setRecordType}
-                    recordIPFS={record_IPFS}
-                    setrecordIPFS={setRecordIPFS}   
-                    recordID={record_id}                               
-                    recordPassword={record_password}     
-                    setRecordPassword={setRecordPassword}   
-                    payment_status={payment_status}    
-                    setAlertMessage={setAlertMessage}
-                    setIsError={setIsError}
-                    setIsSuccess={setIsSuccess} 
-                    handleCloseUploadDialog={handleCloseUploadDialog}
-                    setData={setData}
-                    data={setData}
-                    student_email={student_email}
-                  />
-                  <UpdateDialogBox
-                    open={isUpdateDialogOpen}
-                    onClose={handleCloseUpdateDialog}
-                    ctrl_number = {ctrl_number}
-                    recordType={record_type}
-                    setRecordType={setRecordType}   
-                    recordIPFS={record_IPFS}
-                    recordID={record_id}    
-                    recordStatus={record_status}     
-                    setRecordStatus={setRecordStatus}                     
-                    setAlertMessage={setAlertMessage}
-                    setIsError={setIsError}
-                    setIsSuccess={setIsSuccess} 
-                    handleCloseUpdateDialog={handleCloseUpdateDialog}
-                    setData={setData}
-                  />
-                  {renderMenu}
                 </MDBox>
-              </Card>
+              </Grid>
+              <Grid item xs={12} md={6} lg={3}>
+                <MDBox mb={1.5}>
+                  <CustomCard
+                    color="success"
+                    icon="calendar_month"
+                    title="Date Releasing"
+                    count={new_date_releasing}
+                  />
+                </MDBox>
+              </Grid>
+              <Grid item xs={12} md={6} lg={3}>
+                <MDBox mb={1.5}>
+                  <CustomCard
+                    color="primary"
+                    icon="payments"
+                    title="Payment Status"
+                    count={payment_status}                  
+                  />
+                </MDBox>
+              </Grid>
             </Grid>
-            {/* End of Datatable */}
-          </Grid>
-        </MDBox>
-      <Footer />
-  </DashboardLayout>
+            {/* end of Info Cards */}
+
+            <Grid container spacing={3}>
+
+              {/* Applicant Infomation */}
+              <Grid item lg={3} xs={12}>
+                <ApplicantInformation student_id={student_id} setStudentEmail={setStudentEmail}/>
+              </Grid>
+              {/* End of Applicant Information */}
+
+              {/* Datatable */}
+              <Grid item lg={9} sm={12}>
+                <Card sx={{marginTop: "20px"}}>
+                  <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
+                    
+                  {parseInt(user_role) === 1 ? (
+                    <>
+                      <MDButton onClick={goBack} variant="outlined" color="info" size="small">
+                        <Icon>arrow_back</Icon>&nbsp; Record Request
+                      </MDButton>
+                      <MDButton onClick={() => handleOpenAddDialog()} variant="gradient" color="dark" size="small">
+                        <Icon>add</Icon>&nbsp; Add Record
+                      </MDButton>
+                    </>
+                  ) : (
+                    <>
+                      <MDTypography variant="h6" fontWeight="medium">
+                        Record per Request 
+                      </MDTypography>
+                      <MDButton onClick={goBack} variant="outlined" color="info" size="small">
+                        <Icon>arrow_back</Icon>&nbsp; Record Request
+                      </MDButton>
+                    </>
+                  )}
+                  </MDBox>
+                  
+                  <MDBox >
+                    <DataTable 
+                      table={{ columns, 
+                        rows: data.map((item) => ({
+                        
+                          record: (
+                            <MDBox ml={1} lineHeight={1}>
+                              <MDTypography display="block" variant="button" fontWeight="medium">
+                              <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
+                              {item.ipfs}
+                              </a>
+                              </MDTypography>
+                              <MDTypography variant="caption">{item.type}</MDTypography>
+                            </MDBox>
+                            ),
+                          
+                          status: (
+                            <>
+                            {item.ipfs ? (
+                              <MDBox ml={-1}>
+                                <MDBadge
+                                  badgeContent={item.record_status}
+                                  color={getStatusColor(item.record_status)} // Set the badge color dynamically
+                                  variant="gradient"
+                                  size="sm"
+                                />
+                              </MDBox>
+                            ) : ""}
+                            </>
+                          ),
+                          date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
+                          action: (
+                            <>
+                            {parseInt(user_role) === 1 ? (
+                              <>
+                            <Tooltip title="Upload" >
+                              <span>
+                                <IconButton
+                                  color="info"
+                                  disabled={item.ipfs !== null || payment_status === "Unpaid"}
+                                  onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
+                                >
+                                  <UploadFileIcon />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+
+                            <Tooltip title="Update" >
+                                <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
+                                    <EditIcon />
+                                  </IconButton>
+                            </Tooltip>
+                            {/* <Tooltip title="Delete" >
+                              <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip> */}
+                            </> 
+                            ) : (null)}
+                            </>    
+                          )
+                        })), 
+                      }}
+                      canSearch={true}
+                    />
+                    <AddDialogBox
+                      open={isAddDialogOpen}
+                      onClose={handleCloseAddDialog}
+                      ctrl_number = {ctrl_number}
+                      recordType={record_type}
+                      setRecordType={setRecordType}
+                      recordIPFS={record_IPFS}
+                      setrecordIPFS={setRecordIPFS}   
+                      recordID={record_id}                               
+                      recordPassword={record_password}     
+                      setRecordPassword={setRecordPassword}   
+                      payment_status={payment_status}    
+                      setAlertMessage={setAlertMessage}
+                      setIsError={setIsError}
+                      setIsSuccess={setIsSuccess} 
+                      handleCloseAddDialog={handleCloseAddDialog}
+                      setData={setData}
+                      data={setData}
+                      student_email={student_email}
+                    />
+                    <UploadDialogBox
+                      open={isUploadDialogOpen}
+                      onClose={handleCloseUploadDialog}
+                      ctrl_number = {ctrl_number}
+                      recordType={record_type}
+                      setRecordType={setRecordType}
+                      recordIPFS={record_IPFS}
+                      setrecordIPFS={setRecordIPFS}   
+                      recordID={record_id}                               
+                      recordPassword={record_password}     
+                      setRecordPassword={setRecordPassword}   
+                      payment_status={payment_status}    
+                      setAlertMessage={setAlertMessage}
+                      setIsError={setIsError}
+                      setIsSuccess={setIsSuccess} 
+                      handleCloseUploadDialog={handleCloseUploadDialog}
+                      setData={setData}
+                      data={setData}
+                      student_email={student_email}
+                    />
+                    <UpdateDialogBox
+                      open={isUpdateDialogOpen}
+                      onClose={handleCloseUpdateDialog}
+                      ctrl_number = {ctrl_number}
+                      recordType={record_type}
+                      setRecordType={setRecordType}   
+                      recordIPFS={record_IPFS}
+                      recordID={record_id}    
+                      recordStatus={record_status}     
+                      setRecordStatus={setRecordStatus}                     
+                      setAlertMessage={setAlertMessage}
+                      setIsError={setIsError}
+                      setIsSuccess={setIsSuccess} 
+                      handleCloseUpdateDialog={handleCloseUpdateDialog}
+                      setData={setData}
+                    />
+                    {renderMenu}
+                  </MDBox>
+                </Card>
+              </Grid>
+              {/* End of Datatable */}
+            </Grid>
+          </MDBox>
+        <Footer />
+      </DashboardLayout>
+    </EthProvider>
   );
 }
 

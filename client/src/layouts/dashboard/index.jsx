@@ -52,7 +52,7 @@ function Dashboard() {
   const [type_of_record, setTypeOfRecord] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/email/record-request", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/record-request", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -70,7 +70,7 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/email/record-issuance", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/record-issuance", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -88,7 +88,7 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/student-management", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -106,7 +106,7 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/type-of-record", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -176,12 +176,12 @@ function Dashboard() {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
 
         try {
-          const response = await fetch(`http://localhost:8081/mysql/payment/update-record/notify/${ctrlNumber}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-record/notify/${ctrlNumber}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ function Dashboard() {
     };
 
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
       } else {
@@ -287,7 +287,7 @@ function Dashboard() {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
 
@@ -339,7 +339,7 @@ function Dashboard() {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/emails/send-email', emailData);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
       if (response.status === 200) {
         console.log('Email sent successfully.');
 
@@ -366,7 +366,7 @@ function Dashboard() {
         item.request_status !== 'Cancelled'
       ) {
         try {
-          const response = await fetch(`http://localhost:8081/mysql/cancel-record-request/${item.ctrl_number}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${item.ctrl_number}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -381,7 +381,7 @@ function Dashboard() {
               console.log('sendCancelationEmail');
             }
             // Fetch updated data and update the state
-            fetch('http://localhost:8081/mysql/email/record-request', {
+            fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/record-request', {
               headers: {
                 Authorization: `Bearer ${jwtToken}`,
               },
@@ -436,7 +436,7 @@ function Dashboard() {
       if (date_difference >= oneYearInMilliseconds && !item.is_expired) {
   
           try {
-          const response = await fetch(`http://localhost:8081/mysql/update-record-per-request/is_expired/${item.rpr_id}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-per-request/is_expired/${item.rpr_id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -467,7 +467,7 @@ function Dashboard() {
       if (date_difference >= lessOneYearInMilliseconds && !item.is_notified) {
   
           try {
-          const response = await fetch(`http://localhost:8081/mysql/update-record-per-request/is_notified/${item.rpr_id}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-per-request/is_notified/${item.rpr_id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
