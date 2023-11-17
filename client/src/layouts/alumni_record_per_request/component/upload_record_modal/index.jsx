@@ -138,7 +138,7 @@ const handleFileUpload = async () => {
 
   const dateIssued = new Date();
 
-  const sendEmail = async (toEmail, cid, password, recordType) => {
+  const sendEmail = async (toEmail, cid, password, recordType, txHash) => {
 
     const ipfsLink = `https://cressential.infura-ipfs.io/ipfs/${cid}`; // Replace with the IPFS link to the record    
 
@@ -151,14 +151,14 @@ const handleFileUpload = async () => {
       We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
 
         • Record Type: ${recordType}
-        • Transaction Hash: 0xfa48efae8435d0a50c3bd7e284212f1e1ace81e3ff9726b0243787f7fa851847
+        • Transaction Number: ${txHash}
         • IPFS Link: ${ipfsLink}
         • Password: ${password}
 
 
       You can access your record by clicking on the IPFS Link. Use the provided password to securely access and download your record.
 
-      **Note: Please keep the password secured, as it will also be used for verifying the validity of your record in the verifier portal. Your record's security relies on the confidentiality of this password.
+      **Note: Please keep the password and transaction number secure. They authorize record verification in the portal, ensuring only authorized individuals can access and verify your record's authenticity. Your record's security relies on the confidentiality of these credentials.
 
       If you have any questions or need further assistance, please feel free to contact our office.
 
@@ -208,7 +208,7 @@ const handleFileUpload = async () => {
             handleCloseUploadDialog();
             setIsSuccess(true);
             setAlertMessage('Record updated successfully.');
-            sendEmail(student_email, CID, recordPassword, recordType);
+            sendEmail(student_email, CID, recordPassword, recordType, transactionHash);
     
             // Fetch updated data and update the state
             fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
