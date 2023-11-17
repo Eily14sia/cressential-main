@@ -2,11 +2,17 @@
   "name": "cressential",
   "version": "1.0.0",
   "scripts": {
-    "start": "cd truffle && npm install && truffle compile && truffle migrate --network sepolia && cd ../backend && npm install && npm start",
-    "heroku-postbuild": "cd client && npm install && npm run build "
+    "start": "cd backend && npm install && npm start",
+    "heroku-postbuild": "cd truffle && npm install && truffle compile && truffle migrate --network sepolia && cd client && npm install && npm run build "
   },
   "author": "Stonecap",
   "engines": {
     "node": "18.12.1"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.3.1",
+    "react-scripts": "^5.0.1",
+    "web3": "^4.2.2"
   }
  }
