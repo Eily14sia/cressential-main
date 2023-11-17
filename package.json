@@ -2,7 +2,7 @@
   "name": "cressential",
   "version": "1.0.0",
   "scripts": {
-    "start": "cd backend && npm install && npm start",
+    "start": "cd truffle && npm install && truffle compile && truffle migrate --network sepolia && cd ../backend && npm install && npm start",
     "heroku-postbuild": "cd client && npm install && npm run build "
   },
   "author": "Stonecap",
