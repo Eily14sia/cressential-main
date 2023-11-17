@@ -60,7 +60,6 @@ const handleFileChange = (e) => {
 
   const file = e.target.files[0];
   setSelectedFile(file);
-  setUploadedCID(null); // Clear the uploaded CID
   setErrorMessage('');
   setMultihash(null); // Clear the multihash
   if (file && file.type === 'application/pdf') {

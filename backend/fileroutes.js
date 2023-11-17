@@ -9,7 +9,7 @@ const ipfsClient = require('ipfs-http-client');
 require('dotenv').config();
 
 // Use your Infura API key and API key secret here
-const projectId = process.env.PROJECT_ID;
+const projectId = process.env.API_KEY;
 const projectSecret = process.env.PROJECT_SECRET;
 
 //infura config
