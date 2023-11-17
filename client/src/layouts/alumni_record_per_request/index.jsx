@@ -39,7 +39,7 @@ function Alumni_record_per_request() {
   const { ctrl_number } = useParams();
   const [student_email, setStudentEmail] = useState();
 
-
+  const new_ctrl_number = ctrl_number ? ctrl_number : 0;
   // Retrieve the user_role from localStorage
   const user_role = localStorage.getItem('user_role');
   const navigate = useNavigate();
@@ -246,6 +246,8 @@ function Alumni_record_per_request() {
   // Function to close the dialog
   const handleCloseAddDialog = () => {
     setIsAddDialogOpen(false);
+    setRecordType('');
+    setRecordPassword('');
   };
   // Function to close the dialog
   const handleCloseUploadDialog = () => {
@@ -283,7 +285,7 @@ function Alumni_record_per_request() {
                   color="secondary"
                   icon="label_important"
                   title="Control Number"
-                  count={ctrl_number}
+                  count={new_ctrl_number}
                 />
               </MDBox>
             </Grid>

@@ -10,11 +10,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  InputAdornment, 
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from "@mui/material/Icon";
 import PDFViewer2 from '../../../render_pdf';
 import Divider from "@mui/material/Divider";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -23,6 +25,8 @@ import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
 import MDAvatar from '../../../../components/MDAvatar';
 import DocumentSelection from '../processing_officer';
+
+import LoadingModal from '../loading_modal';
 
 import axios from 'axios';
 
@@ -41,11 +45,10 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setDat
 const [selectedFile, setSelectedFile] = useState(null);
 const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
-const [uploadedCID, setUploadedCID] = useState(null);
-const [finalCID, setFinalCID] = useState(null);
-const [TxHash, setTxHash] = useState(null);
-const [multihash, setMultihash] = useState(null); // Added state for multihash
 const [initialPassword, setInitialPassword] = useState('');
+
+// State to track whether the loading dialog is open
+const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
 
 //--BLOCKCHAIN
 const { state: { contract, accounts } } = useEth();
@@ -58,9 +61,7 @@ const handleFileChange = (e) => {
 
   const file = e.target.files[0];
   setSelectedFile(file);
-  setUploadedCID(null); // Clear the uploaded CID
   setErrorMessage('');
-  setMultihash(null); // Clear the multihash
   if (file && file.type === 'application/pdf') {
     // File is a PDF, you can proceed
     setSelectedFile(file);
@@ -94,10 +95,7 @@ const handleFileUpload = async () => {
 
         if (response.data.encrypted) {
           // File is encrypted, proceed with the upload
-          setUploadedCID(response.data.cid);
-          setMultihash(response.data.multihash); // Set the multihash
-          setFinalCID(response.data.cid);
-          // console.log(response.data.cid);
+          setIsLoadingDialogOpen(true);
           handleUpdateSubmit(response.data.cid, response.data.multihash);
           // Reset the selectedFile state to clear the file input
           setSelectedFile(null);
@@ -185,8 +183,7 @@ const handleFileUpload = async () => {
     // Create an updated record object to send to the server
       try {
         const receipt = await contract.methods.write(hash).send({ from: accounts[0] });
-        const txHash = receipt.transactionHash;
-        setTxHash(txHash);
+        const transactionHash = receipt.transactionHash;
 
         //if blockchain is successful 
         const updatedRecord = {
@@ -194,7 +191,7 @@ const handleFileUpload = async () => {
           uploadedCID: CID,
           hash: hash,
           dateIssued: dateIssued,
-          transactionHash: txHash
+          transactionHash: transactionHash
         };
     
         try {
@@ -232,20 +229,33 @@ const handleFileUpload = async () => {
               
               setRecordType('');
               setRecordPassword('');
+              setInitialPassword('');
+              setUrl('');            
               
           } else {
             setAlertMessage('Failed to update record');
             setRecordType('');
             setRecordPassword('');
           }
+
+          
         } catch (error) {
           setIsError(true);
+          setAlertMessage('Failed to upload record.');
           console.error('Error:', error);
           setRecordType('');
           setRecordPassword('');
         }
+        
+        setRecordPassword('');
+        setInitialPassword('');
+        setUrl('');
+        setIsLoadingDialogOpen(false);
 
       } catch (error) {
+        setIsLoadingDialogOpen(false);
+        setIsError(true);
+        setAlertMessage('Failed to upload record.');
         console.error("Error sending transaction:", error);
       }  
   };
@@ -277,48 +287,22 @@ const handleFileUpload = async () => {
     return password.length >= 8;
   }
 
-  // retrieve for verification
-  const write = async () => {
-    if (multihash) {
-      try {
-        const receipt = await contract.methods.write(multihash).send({ from: accounts[0] });
-        const txHash = receipt.transactionHash;
-        setTxHash(txHash);
-      } catch (error) {
-        console.error("Error sending transaction:", error);
-      }
-    } else {
-      alert("Please upload a file first.");
-    }
-  };
+  const [showPassword, setShowPassword] = useState(false);
+  const [showFinalPassword, setShowFinalPassword] = useState(false);
 
-  // retrieve for verification
-  const sendTransactionHashToServer = async () => {
-    try {
-      const response = await axios.post(
-        `http://localhost:8081/blockchain/getTransaction`,
-        { txHash },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-  
-      if (response.data.success) {
-        // Handle the response, e.g., display the transaction details
-        console.log('Transaction Details:', response.data.transactionDetails);
-      } else {
-        // Handle the error, e.g., display an error message
-        console.error('Error retrieving transaction details:', response.data.error);
-      }
-    } catch (error) {
-      console.error('Error:', error.message);
-    }
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  const handleFinalPasswordVisibility = () => {
+    setShowFinalPassword(!showFinalPassword);
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" fullWidth>
+       <LoadingModal
+        open={isLoadingDialogOpen}
+        onClose={isLoadingDialogOpen}
+      />
       <DialogTitle>Upload Record
         <IconButton
           sx={{
@@ -430,13 +414,28 @@ const handleFileUpload = async () => {
               <Grid item textAlign="center" xs={11} mt={2}>
                 <MDInput
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={initialPassword || ''}
                   onChange={(e) => setInitialPassword(e.target.value)}
                   required
                   sx={{ width: '100%' }}
                   disabled={!selectedFile}
                   error={initialPassword && !isValidPassword(initialPassword)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handlePasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                          size="small"
+                          sx={{marginRight: "15px"}}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <MDBox sx={{ textAlign: "left" }}>
                 {initialPassword && !isValidPassword(initialPassword) && (
@@ -451,13 +450,28 @@ const handleFileUpload = async () => {
               <Grid item textAlign="center" xs={11} mt={2}>
                 <MDInput
                   label="Retype Password"
-                  type="password"
+                  type={showFinalPassword ? 'text' : 'password'}
                   value={recordPassword || ''}
                   onChange={(e) => setRecordPassword(e.target.value)}
                   required
                   sx={{ width: '100%', marginBottom: "30px" }}
                   disabled={!isValidPassword(initialPassword)}
                   error={recordPassword && recordPassword !== initialPassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleFinalPasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                          size="small"
+                          sx={{marginRight: "15px"}}
+                        >
+                          {showFinalPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 
                 <MDButton

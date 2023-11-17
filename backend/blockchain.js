@@ -8,7 +8,7 @@ const infuraUrl = 'https://sepolia.infura.io/v3/95f8c5884e5c4949a30374a6442d04ae
 
 router.post('/getTransaction', async (req, res) => {
     const { txHash } = req.body; // Use req.body to get data from the request body
-  
+    let multihash;
     const requestBody = {
       jsonrpc: '2.0',
       method: 'eth_getTransactionByHash',
@@ -39,11 +39,12 @@ router.post('/getTransaction', async (req, res) => {
 
         if (extractedPart) {
         console.log("Extracted Part: ", extractedPart[0]);
+        multihash = extractedPart[0];
         } else {
         console.log("No valid part found.");
         }
 
-    res.json({ success: true, transactionDetails });
+    res.json({ success: true, transactionDetails, multihash });
   } else if (response.data && response.data.error) {
     console.error('Error:', response.data.error.message); // Log the error message
     res.status(400).json({ success: false, error: response.data.error.message });

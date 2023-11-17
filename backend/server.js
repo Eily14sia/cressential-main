@@ -121,8 +121,8 @@ router.post('/login', (req, res) => {
   });
 });
 
-router.post('/verify', (req, res) => {
-  const { transaction_hash, password, hash } = req.body;
+router.post('/checkTxHash', (req, res) => {
+  const { transaction_hash} = req.body;
 
   // First query to check if a record with the provided transaction_hash exists
   const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1';
@@ -136,15 +136,24 @@ router.post('/verify', (req, res) => {
     if (checkResults.rows.length === 0) {
       // Transaction hash not found in the database
       return res.status(404).json({ message: 'Transaction hash not found' });
+    } else{
+      return res.status(200).json({ message: 'Transaction hash found.' });
     }
+
+    
+  });
+});
+
+router.post('/verify', (req, res) => {
+  const { transaction_hash, password, hash } = req.body;
 
     // If the transaction hash exists, proceed to the second query
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(password);
 
     // Query the database to retrieve user data
-    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND hash = $2 AND password = $3';
-    db.query(sql, [transaction_hash, hash, hashedPassword], (err, results) => {
+    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND password = $2';
+    db.query(sql, [transaction_hash, hashedPassword], (err, results) => {
       if (err) {
         console.error('MySQL query error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -154,13 +163,13 @@ router.post('/verify', (req, res) => {
       if (results.rows.length > 0) {
         // Record found in the database
         const data = results.rows[0];
-        res.json({ success: true, record_status: data.record_status, date_issued: data.date_issued });
+        res.json({ success: true, record_status: data.record_status, record_expiration: data.is_expired, date_issued: data.date_issued });
       } else {
         // Record not found in the database or invalid password
         res.status(401).json({ success: false }); // Return a 401 status code
       }
     });
-  });
+  
 });
 
 // ========================= Notification  =========================

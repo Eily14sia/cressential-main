@@ -208,15 +208,15 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
           <button onClick={handleRedirect}>Click here to proceed with payment</button>
         </div>
       )}
-              <Grid container spacing={2} px={3}>
+              <Grid container spacing={5} my={2} px={3} justifyContent="center">
                   
-                  <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >                      
+                  <Grid item md={6} sm={12}>                      
                     <MDButton onClick={goBack} variant="gradient" color="secondary" size="large" fullWidth >
                         <Icon>arrow_back</Icon> &nbsp; Hold Payment
                     </MDButton>                      
                   </Grid>
-                  <Grid item xs={2}></Grid>
-                  <Grid item xs={5} sx={{marginTop:"20px", marginBottom:"20px"}} >
+                  
+                  <Grid item md={6} sm={12}>
                       <MDButton onClick={handleProceedToPayment} variant="gradient" color="info" size="large" fullWidth >
                           <Icon>payment</Icon> &nbsp; Pay {totalAmount}
                       </MDButton>

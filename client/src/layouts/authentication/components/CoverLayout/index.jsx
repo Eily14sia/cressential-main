@@ -65,7 +65,7 @@ function CoverLayout({ coverHeight, image, children }) {
           backgroundRepeat: "no-repeat",
         }}
       />
-      <MDBox mt={{ xs: -20, lg: -18 }} px={1} width="calc(100% - 2rem)" mx="auto">
+      <MDBox mt={{ xs: -20, lg: -18 }} px={1} width="calc(100% - 2rem)" mx="auto" >
         <Grid container spacing={1} justifyContent="center">
           <Grid item xs={10} sm={8} md={5} lg={6} xl={4}>
             {children}

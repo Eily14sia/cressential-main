@@ -61,8 +61,8 @@ function Log_in() {
 
   return (
     <CoverLayout image={bgImage}>      
-      <Card>      
-      <MDBox
+      <Card   >     
+        <MDBox
           variant="gradient"
           bgColor="info"
           borderRadius="lg"
@@ -80,7 +80,7 @@ function Log_in() {
            Enter the required information.
           </MDTypography>
         </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
+        <MDBox pt={4} pb={3} px={3 }>
               {isSuccess && (
               <MDAlert color="success" dismissible sx={{marginBottom: '40px'}} onClose={() => setIsSuccess(false)}>
                     {alertContent("success", alertMessage)}

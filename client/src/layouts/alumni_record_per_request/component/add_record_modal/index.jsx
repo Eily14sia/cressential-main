@@ -5,16 +5,18 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
+  MenuItem, 
+  InputAdornment, 
+  IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Icon from "@mui/material/Icon";
 import Divider from "@mui/material/Divider";
 import PDFViewer2 from '../../../render_pdf';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -23,9 +25,15 @@ import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
 import DocumentSelection from "../document_selection";
 
+import LoadingModal from '../loading_modal';
+
 import axios from 'axios';
 
+import { Viewer } from '@react-pdf-viewer/core';
 
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
+import useEth from "../../../../contexts/EthContext/useEth";
 
 function DialogBox({ open, onClose, recordType, setRecordType, student_email, 
 recordID, recordPassword, setRecordPassword, ctrl_number,
@@ -36,15 +44,15 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseAddDialog, setData}) {
 const [selectedFile, setSelectedFile] = useState(null);
 const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
-const [uploadedCID, setUploadedCID] = useState(null);
-const [TxHash, setTxHash] = useState(null);
-const [finalCID, setFinalCID] = useState(null);
-const [multihash, setMultihash] = useState(null); // Added state for multihash
+const [initialPassword, setInitialPassword] = useState('');
+
+// State to track whether the loading dialog is open
+const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
 
 //--BLOCKCHAIN
 const { state: { contract, accounts } } = useEth();
 
-const [initialPassword, setInitialPassword] = useState('');
+const jwtToken = localStorage.getItem('token');
 
 const handleFileChange = (e) => {
   // Set the URL of the file before it is selected
@@ -88,10 +96,7 @@ const handleFileUpload = async () => {
 
         if (response.data.encrypted) {
           // File is encrypted, proceed with the upload
-          setUploadedCID(response.data.cid);
-          setMultihash(response.data.multihash); // Set the multihash
-          setFinalCID(response.data.cid);
-          // console.log(response.data.cid);
+          setIsLoadingDialogOpen(true);
           handleUpdateSubmit(response.data.cid, response.data.multihash);
           // Reset the selectedFile state to clear the file input
           setSelectedFile(null);
@@ -135,7 +140,6 @@ const handleFileUpload = async () => {
 // =========== For Record Type =================
 const [record_data, setRecordData] = useState([]);
 
-const jwtToken = localStorage.getItem('token');
 useEffect(() => {
   fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
     headers: {
@@ -206,9 +210,9 @@ function getRecordName(record_type_id) {
     // Create an updated record object to send to the server
     try {
       const receipt = await contract.methods.write(hash).send({ from: accounts[0] });
-      const txHash = receipt.transactionHash;
-      setTxHash(txHash);
+      const transactionHash = receipt.transactionHash;
 
+      //if blockchain is successful 
       const updatedRecord = {
         ctrl_number: ctrl_number,
         recordType: recordType,
@@ -216,7 +220,7 @@ function getRecordName(record_type_id) {
         uploadedCID: CID,
         hash: hash,
         dateIssued: dateIssued,
-        transactionHash: txHash
+        transactionHash: transactionHash
       };
 
       try {
@@ -257,15 +261,32 @@ function getRecordName(record_type_id) {
             setAlertMessage('Record updated successfully.');
         } else {
           setAlertMessage('Failed to update record');
+          setRecordType('');
+          setRecordPassword('');
         }
       } catch (error) {
         setIsError(true);
+        setAlertMessage('Failed to upload record.');
         console.error('Error:', error);
       }
 
+      setRecordPassword('');
+      setInitialPassword('');
+      setUrl('');
+      setIsLoadingDialogOpen(false);
+
     } catch (error) {
+      onClose();
+      setIsLoadingDialogOpen(false);
       setIsError(true);
+      setAlertMessage('Failed to upload record.');
       console.error('Error:', error);
+
+      setRecordPassword('');
+      setInitialPassword('');
+      setUrl('');
+      setRecordType('');
+
     }
   };
 
@@ -307,9 +328,22 @@ function getRecordName(record_type_id) {
     return hasMinimumLength && hasUppercase && hasLowercase && hasDigit;
   }
   
+  const [showPassword, setShowPassword] = useState(false);
+  const [showFinalPassword, setShowFinalPassword] = useState(false);
+
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  const handleFinalPasswordVisibility = () => {
+    setShowFinalPassword(!showFinalPassword);
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" fullWidth>
+      <LoadingModal
+        open={isLoadingDialogOpen}
+        onClose={isLoadingDialogOpen}
+      />
       <DialogTitle>Add Record
         <IconButton
           sx={{
@@ -423,13 +457,28 @@ function getRecordName(record_type_id) {
               <Grid item textAlign="center" xs={11} mt={2}>
                 <MDInput
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={initialPassword || ''}
                   onChange={(e) => setInitialPassword(e.target.value)}
                   required
                   sx={{ width: '100%' }}
                   disabled={!selectedFile}
                   error={initialPassword && !isValidPassword(initialPassword)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handlePasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                          size="small"
+                          sx={{marginRight: "15px"}}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <MDBox sx={{ textAlign: "left" }}>
                 {initialPassword && !isValidPassword(initialPassword) && (
@@ -444,13 +493,28 @@ function getRecordName(record_type_id) {
               <Grid item textAlign="center" xs={11} mt={2}>
                 <MDInput
                   label="Retype Password"
-                  type="password"
+                  type={showFinalPassword ? 'text' : 'password'}
                   value={recordPassword || ''}
                   onChange={(e) => setRecordPassword(e.target.value)}
                   required
                   sx={{ width: '100%', marginBottom: "30px" }}
                   disabled={!isValidPassword(initialPassword)}
                   error={recordPassword && recordPassword !== initialPassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleFinalPasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                          size="small"
+                          sx={{marginRight: "15px"}}
+                        >
+                          {showFinalPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 
                 <MDButton
