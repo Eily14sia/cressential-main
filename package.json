@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cd backend && npm install && npm start",
-    "heroku-postbuild": "cd truffle && npm install && cd ../client && npm install && npm run build "
+    "heroku-postbuild": "cd truffle && npm install && truffle compile && truffle migrate --network sepolia && cd ../client && npm install && npm run build "
   },
   "author": "Stonecap",
   "engines": {
