@@ -73,6 +73,7 @@ import Registrar_Management_Update from "./layouts/registrar_management/componen
 // ================ Student ====================
 import Record_request from "./student_layouts/record_request";
 import Request_table from "./student_layouts/student_request_table";
+import Signature_request from "./student_layouts/signature_request";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -348,7 +349,16 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Record Request",
+    name: "Signature Request",
+    key: "signature-request",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/signature-request",
+    role: [2],
+    component: <Signature_request />,
+  },
+  {
+    type: "collapse",
+    name: "Request Table",
     key: "student-request-table",
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/student-request-table",

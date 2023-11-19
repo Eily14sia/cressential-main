@@ -14,6 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import breakpoints from "../../assets/theme/base/breakpoints";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -240,6 +241,24 @@ function Alumni_record_request() {
     setIsUpdateDialogOpen(false);
   };
 
+  const [mobileView, setMobileView] = useState(false);
+
+  useEffect(() => {
+    function handleResize() {
+      const isMobile = window.innerWidth < breakpoints.values.sm;
+      setMobileView(isMobile);
+    }
+
+    // Initial setup
+    handleResize();
+
+    // Event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoints]);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -283,7 +302,7 @@ function Alumni_record_request() {
                 </Link> */}
               </MDBox>
                 <MDBox p={3}>                  
-                  <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
+                  <Grid item xs={12} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       <Tabs
                         value={tabValue}
@@ -292,36 +311,85 @@ function Alumni_record_request() {
                         textColor="primary"
                         variant="fullWidth"
                       >
-                        <Tab label="All"
+                        {mobileView && (
+                          <>
+                            <Tooltip title="All" placement="top">
+                              <Tab label=""
+                              icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  folder
+                                </Icon>
+                              } />
+                            </Tooltip>
+                            <Tooltip title="Pending" placement="top">
+                              <Tab label=""
+                              icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  pending
+                                </Icon>
+                              } />
+                            </Tooltip>
+                            <Tooltip title="Received" placement="top">
+                              <Tab label="" 
+                                icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  verified
+                                </Icon>
+                              } />
+                            </Tooltip>
+                            <Tooltip title="Declined" placement="top">
+                              <Tab label="" 
+                                  icon={
+                                  <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                    unpublished
+                                  </Icon>
+                                } />
+                            </Tooltip>
+                            <Tooltip title="Completed" placement="top">
+                              <Tab label="" 
+                                  icon={
+                                  <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                    assignment
+                                  </Icon>
+                                } />
+                            </Tooltip>
+                            </>
+                        )}
+                        {!mobileView && (
+                          <>
+                          <Tab label="All"
                           icon={
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
                               folder
                             </Icon>
                           } />
-                        <Tab label="Pending"
-                          icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              pending
-                            </Icon>
-                          } />
-                        <Tab label="Received" 
+                          <Tab label="Pending"
                             icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              verified
-                            </Icon>
-                          } />
-                        <Tab label="Declined" 
-                            icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              unpublished
-                            </Icon>
-                          } />
-                        <Tab label="Completed" 
-                            icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              assignment
-                            </Icon>
-                          } />
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                pending
+                              </Icon>
+                            } />
+                          <Tab label="Received" 
+                              icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                verified
+                              </Icon>
+                            } />
+                          <Tab label="Declined" 
+                              icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                unpublished
+                              </Icon>
+                            } />
+                          <Tab label="Completed" 
+                              icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                assignment
+                              </Icon>
+                            } />
+                          </>
+                        )}
+
                       </Tabs>
                     </AppBar>
 

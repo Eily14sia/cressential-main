@@ -15,8 +15,7 @@ root.render(
     <MaterialUIControllerProvider>
       <AuthProvider>
           <App />
-      </ AuthProvider>
-      
+      </ AuthProvider>      
     </MaterialUIControllerProvider>
   </BrowserRouter>
 );

@@ -46,6 +46,7 @@ const [selectedFile, setSelectedFile] = useState(null);
 const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [initialPassword, setInitialPassword] = useState('');
+const [isPasswordMatch, setIsPasswordMatch] = useState('');
 
 // State to track whether the loading dialog is open
 const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
@@ -72,55 +73,91 @@ const handleFileChange = (e) => {
   
 };
 
+async function validatePasswordFromPDF(formData) {
+  try {
+    const response = await axios.post('http://localhost:8081/files/api/validatePasswordForPDF', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log('isPasswordValid:', response.data.isPasswordValid);
+      setIsPasswordMatch(response.data.isPasswordValid)
+    } else {
+      console.error('Request failed with status:', response.status);
+      // Handle other status codes (e.g., error responses)
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    // Handle network errors or exceptions
+  }
+}
+
 const handleFileUpload = async () => {
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+  formData.append('password', initialPassword);
+  
   if (selectedFile) {
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+    await validatePasswordFromPDF(formData);
+ 
+    if (isPasswordMatch) {
 
-    try {
-      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      try {
+        const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
 
-      if (recordPassword === null || recordPassword !== initialPassword) {
-        handleCloseUploadDialog();
-        setIsError(true);
-        setAlertMessage('Password is required.');
-        setSelectedFile(null);
-        setInitialPassword('');
-        setUrl('');
-      } else {
-
-        if (response.data.encrypted) {
-          // File is encrypted, proceed with the upload
-          setIsLoadingDialogOpen(true);
-          handleUpdateSubmit(response.data.cid, response.data.multihash);
-          // Reset the selectedFile state to clear the file input
-          setSelectedFile(null);
-        } else {
-          // File is not encrypted, display an error message
+        if (recordPassword === null || recordPassword !== initialPassword) {
           handleCloseUploadDialog();
           setIsError(true);
-          setAlertMessage('Only encrypted files are allowed.');
-          setRecordType('');
-          setRecordPassword('');
+          setAlertMessage( recordPassword === null ? "Password is required. Please type a correct password.": "Password didn't match. Ensure that initial password matches the retype password.");
+          setSelectedFile(null);
           setInitialPassword('');
           setUrl('');
-          setSelectedFile(null);
-        }
-      }
+        } else {
 
-    } catch (error) {
-      console.error('Error uploading file:', error);
+          if (response.data.encrypted) {
+            // File is encrypted, proceed with the upload
+            setIsLoadingDialogOpen(true);
+            handleUpdateSubmit(response.data.cid, response.data.multihash);
+            // Reset the selectedFile state to clear the file input
+            setSelectedFile(null);
+          } else {
+            // File is not encrypted, display an error message
+            handleCloseUploadDialog();
+            setIsError(true);
+            setAlertMessage('Only encrypted files are allowed.');
+            setRecordType('');
+            setRecordPassword('');
+            setInitialPassword('');
+            setUrl('');
+            setSelectedFile(null);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        handleCloseUploadDialog();
+        setIsError(true);
+        setAlertMessage('Error uploading file. Please try again.');
+        setRecordType('');
+        setRecordPassword('');
+        setInitialPassword('');
+        setSelectedFile(null);
+        setUrl('');
+      }
+    } else {
       handleCloseUploadDialog();
       setIsError(true);
-      setAlertMessage('Error uploading file. Please try again.');
+      setAlertMessage('The entered password did not match the password of the encrypted file. Please try again.');
       setRecordType('');
+      setSelectedFile(null);
       setRecordPassword('');
       setInitialPassword('');
-      setSelectedFile(null);
       setUrl('');
     }
   } else {
@@ -134,6 +171,9 @@ const handleFileUpload = async () => {
     setInitialPassword('');
     setUrl('');
   }
+  
+
+
 };
 
   const dateIssued = new Date();

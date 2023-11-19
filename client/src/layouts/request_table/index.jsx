@@ -387,13 +387,13 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
           {parseInt(user_role) === 1 ? (
             <>
             <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
-              <Tooltip title="View" >
+              <Tooltip title={`View CTRL-${item.ctrl_number}`} >
                 <IconButton color="info" >
                     <VisibilityIcon />
                   </IconButton>
               </Tooltip>
             </Link>
-            <Tooltip title="Update" >
+            <Tooltip title={`Update CTRL-${item.ctrl_number}`} >
               <IconButton color="success" onClick={() => 
                 handleOpenUpdateDialog( 
                   item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id

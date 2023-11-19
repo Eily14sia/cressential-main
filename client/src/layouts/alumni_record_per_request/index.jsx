@@ -332,7 +332,7 @@ function Alumni_record_per_request() {
               {/* End of Applicant Information */}
 
               {/* Datatable */}
-              <Grid item lg={9} sm={12}>
+              <Grid item lg={9} xs={12}>
                 <Card sx={{marginTop: "20px"}}>
                   <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
                     

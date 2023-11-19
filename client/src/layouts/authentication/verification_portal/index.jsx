@@ -310,7 +310,7 @@ function Verifier_portal() {
                       <div
                           style={{
                               border: '1px solid rgba(0, 0, 0, 0.3)',
-                              height: '70vh',
+                              height: '80vh',
                           }}
                       >
                           {/* <Viewer fileUrl={url} /> */}
@@ -323,7 +323,7 @@ function Verifier_portal() {
                               border: '2px dashed rgba(0, 0, 0, .3)',
                               display: 'flex',
                               fontSize: '2rem',
-                              height: '70vh',
+                              height: '80vh',
                               justifyContent: 'center',
                               width: '100%',
                           }}
@@ -332,7 +332,6 @@ function Verifier_portal() {
                       </div>
                   )}
               </div>
-              
             </Grid>
 
             {/* right section */}
