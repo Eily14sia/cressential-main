@@ -15,7 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
-import PDFViewer2 from '../../../../layouts/render_pdf_sign';
+import PDFViewer2 from '../../../../layouts/render_pdf';
 
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -106,7 +106,6 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
   const formData = new FormData();
 
   const handleSubmit = async () => {
-  formData.append('File', selectedFile);
 
     try {
       const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', {
@@ -135,7 +134,8 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
 
   async function addAgreement() {
-    
+    formData.append('File', selectedFile);
+
     if (selectedFile === '') {
       setIsError(true);
       setAlertMessage( "File is required. Please upload a PDF File.");
