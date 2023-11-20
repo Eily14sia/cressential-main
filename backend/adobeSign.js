@@ -62,6 +62,10 @@ router.post('/getAccessToken', async (req, res) => {
     console.log('Access Token:', accessToken);
     console.log('Expires In:', expiresIn);
 
+    res.json({
+      accessToken: accessToken,
+      expiresIn: expiresIn,
+    });
     
   } catch (error) {
     console.error('Error obtaining access token:', error.response ? error.response.data : error.message);

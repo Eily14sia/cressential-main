@@ -108,7 +108,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
   const handleSubmit = async () => {
   const formData = new FormData();
-  formData.append('file', selectedFile);
+  formData.append('File', selectedFile);
 
     try {
       const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', {
@@ -119,17 +119,17 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
           },
       });
 
-        if (response.ok) {
-            const data = response.data; // Assuming the response contains JSON data
-            const access_token = data.access_token;
-            formData.append('access_token', access_token);
-            console.log('access_token', access_token);
-            console.log('response ok');
+      if (response.status >= 200 && response.status < 300) {
+        const data = response.data; // Assuming the response contains JSON data
+        const access_token = data.access_token;
+        formData.append('access_token', access_token);
+        console.log('access_token', access_token);
+        console.log('response ok');
 
-            await addAgreement(formData);
-        } else {
-            console.log('response not ok');
-        }
+        await addAgreement(formData);
+    } else {
+        console.log('response not ok');
+    }
 
     } catch (error) {
         console.error('Error:', error);
@@ -280,6 +280,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
                 </MDTypography>                  
               </MDBox>  
             
+            {/* <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize</MDButton>    */}
             <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Submit Signature</MDButton>   
             
               
