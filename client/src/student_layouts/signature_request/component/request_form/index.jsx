@@ -50,6 +50,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
     const [selectedItemID, setSelectedItemID] = useState("");
     const [selectedPurpose, setSelectedPurpose] = useState('');
     const [purposeCollege, setPurposeCollege] = useState('');
+    const [isAuthorize, setIsAuthorize] = useState(false);
   
       
     const [selectedFile, setSelectedFile] = useState('');
@@ -104,10 +105,11 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
   
   // Retrieve the code parameter from the URL
   const urlParams = new URLSearchParams(window.location.search);
-  const authorizationCode = urlParams.get('code');
+  // const authorizationCode = urlParams.get('code');
+  const authorizationCode = 'CBNCKBAAHBCAABAAh-2XP6qgJClrt4rsfVLp6ACyLc3VRPEb';
+  const formData = new FormData();
 
   const handleSubmit = async () => {
-  const formData = new FormData();
   formData.append('File', selectedFile);
 
     try {
@@ -125,8 +127,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
         formData.append('access_token', access_token);
         console.log('access_token', access_token);
         console.log('response ok');
-
-        await addAgreement(formData);
+        setIsAuthorize(true);
     } else {
         console.log('response not ok');
     }
@@ -137,7 +138,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 };
 
 
-  async function addAgreement(formData) {
+  async function addAgreement() {
     try {
       const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobesign/upload', formData, {
         headers: {
@@ -155,6 +156,8 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
       console.error('Error uploading file:', error);
       // Handle network errors or exceptions
     }
+
+    setIsAuthorize(false);
   }
 
 
@@ -281,7 +284,8 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
               </MDBox>  
             
             {/* <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize</MDButton>    */}
-            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Submit Signature</MDButton>   
+            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>1. Authorize the API</MDButton>   
+            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={addAgreement} disabled={!isAuthorize} fullWidth>2. Submit for signing</MDButton>   
             
               
               
