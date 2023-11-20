@@ -101,29 +101,17 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
   window.location.href = authorizationEndpoint;
 }
 
-// After the user is redirected back to the redirect URI
-
-// Function to extract the authorization code from the URL query parameters
-function getParameterByName(name, url) {
-  if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
-  const results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
-
-// Retrieve the authorization code from the URL query parameters
-const authorizationCode = getParameterByName('code');
+// Retrieve the code parameter from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const authorizationCode = urlParams.get('code');
 
 // Use the retrieved authorization code as needed
 if (authorizationCode) {
-  console.log('Received authorization code:', authorizationCode);
-  handleSubmit(authorizationCode);
-  // You might send this code to your server for further processing
+    console.log('Received authorization code:', authorizationCode);
+    // Perform actions with the authorization code
+    // handleSubmit(authorizationCode); // Call your function to handle the code
 } else {
-  console.error('Authorization code not found in URL');
+    console.error('Authorization code not found in URL');
 }
 
   const handleSubmit = async (authorizationCode) => {
