@@ -11,16 +11,16 @@ const upload = multer({ storage: storage });
 
 
 router.post('/getAccessToken', async (req, res) => {
-  // Access the 'access_token' from the form data
-  const code = req.body.code;
+    // Get the value of 'access_code' from the FormData
+    const authorizationCode = req.body.access_code;
 
   try {
     const {
       grantType = 'authorization_code',
-      clientId = process.env.CLIENT_ID,
+      clientId = 'CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm',
       clientSecret = process.env.CLIENT_SECRET,
       redirectUri = 'https://cressential-5435c63fb5d8.herokuapp.com/signature-request',
-      code = code,
+      code = authorizationCode,
     } = req.body;
 
     // Check if required parameters are present
@@ -31,7 +31,7 @@ router.post('/getAccessToken', async (req, res) => {
       });
     }
 
-    const adobeSignOAuthUrl = 'https://api.na1.adobesign.com/oauth/v2/token';
+    const adobeSignOAuthUrl = 'https://api.sg1.adobesign.com/oauth/v2/token';
 
     // Encode the data in x-www-form-urlencoded format
     const requestData = querystring.stringify({
@@ -62,10 +62,7 @@ router.post('/getAccessToken', async (req, res) => {
     console.log('Access Token:', accessToken);
     console.log('Expires In:', expiresIn);
 
-    res.json({
-      access_token: accessToken,
-      expires_in: expiresIn,
-    });
+    
   } catch (error) {
     console.error('Error obtaining access token:', error.response ? error.response.data : error.message);
     res.status(error.response ? error.response.status : 500).json({

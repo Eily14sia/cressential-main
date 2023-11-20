@@ -202,7 +202,9 @@ function Signature_request() {
                  cartItems={cartItems}
                  setCartItems={setCartItems}
                  ctrl_number={ctrl_number}
-                 setCtrlNumber={setCtrlNumber}/>
+                 setCtrlNumber={setCtrlNumber}
+                 setIsError={setIsError}
+                 setAlertMessage={setAlertMessage}/>
               ) : steps[activeStep] === 'Payment' ? (
                 <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number} setActiveStep={setActiveStep} setAlertMessage={setAlertMessage} setIsError={setIsError}/>              
               ) : steps[activeStep] === 'Completed' ? (

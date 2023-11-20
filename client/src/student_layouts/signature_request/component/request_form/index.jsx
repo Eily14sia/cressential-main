@@ -42,7 +42,7 @@ import axios from 'axios';
 
 import { useMaterialUIController } from "../../../../context";
 
-const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
+const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
 
     const [controller] = useMaterialUIController();
     const { darkMode } = controller;
@@ -54,11 +54,6 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
       
     const [selectedFile, setSelectedFile] = useState('');
     const [url, setUrl] = useState(null);
-
-    // =========== For the MDAlert =================
-    const [alertMessage, setAlertMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [isError, setIsError] = useState(false);
   
     const alertContent = (name) => (
       <MDTypography variant="body2" color="white">
@@ -94,57 +89,53 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
   // Function to initiate the OAuth flow by redirecting the user to Adobe Sign's authorization endpoint
   const initiateOAuthFlow = async () => {
 
-  // Construct the URL for authorization endpoint with necessary parameters
-  const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
+    if (selectedFile === '') {
+      setIsError(true);
+      setAlertMessage( "File is required. Please upload a PDF File.");
+      return;
+    }
 
-  // Redirect the user to Adobe Sign's authorization endpoint
-  window.location.href = authorizationEndpoint;
-}
+    // Construct the URL for authorization endpoint with necessary parameters
+    const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
+  
+    // Redirect the user to Adobe Sign's authorization endpoint
+    window.location.href = authorizationEndpoint;
+  }
+  
+  // Retrieve the code parameter from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const authorizationCode = urlParams.get('code');
 
-// Retrieve the code parameter from the URL
-const urlParams = new URLSearchParams(window.location.search);
-const authorizationCode = urlParams.get('code');
+  const handleSubmit = async () => {
+  const formData = new FormData();
+  formData.append('file', selectedFile);
 
-// Use the retrieved authorization code as needed
-if (authorizationCode) {
-    console.log('Received authorization code:', authorizationCode);
-    // Perform actions with the authorization code
-    handleSubmit(authorizationCode); // Call your function to handle the code
-} else {
-    console.error('Authorization code not found in URL');
-}
-
-  const handleSubmit = async (authorizationCode) => {
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-      try {
-        const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', {
-          method: 'POST',
-          body: JSON.stringify({ code: authorizationCode }),
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', {
+        access_code: authorizationCode
+      }, {
           headers: {
               'Content-Type': 'application/json',
           },
-        });
+      });
 
-       if (response.ok) {
-        const data = await response.json();
-        const access_token = data.access_token;        
-        formData.append('access_token', access_token);
-        console.log('access_token', access_token);
-        console.log('response ok');
+        if (response.ok) {
+            const data = response.data; // Assuming the response contains JSON data
+            const access_token = data.access_token;
+            formData.append('access_token', access_token);
+            console.log('access_token', access_token);
+            console.log('response ok');
 
-        // await addAgreement(formData, access_token);
-       } else {
-        console.log('response not ok');
-       }
-             
+            await addAgreement(formData);
+        } else {
+            console.log('response not ok');
+        }
 
-      } catch (error) {
+    } catch (error) {
         console.error('Error:', error);
-      }
-   
     }
+};
+
 
   async function addAgreement(formData) {
     try {
@@ -165,6 +156,16 @@ if (authorizationCode) {
       // Handle network errors or exceptions
     }
   }
+
+
+  useEffect(() => {
+    // Use the retrieved authorization code as needed
+    if (authorizationCode) {
+        console.log('Received authorization code:', authorizationCode);
+        // Perform actions with the authorization code
+        handleSubmit(); // Call your function to handle the code
+    } 
+}, []); 
 
   const styles = {
     label: {
@@ -279,7 +280,6 @@ if (authorizationCode) {
                 </MDTypography>                  
               </MDBox>  
             
-            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize</MDButton>   
             <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Submit Signature</MDButton>   
             
               
