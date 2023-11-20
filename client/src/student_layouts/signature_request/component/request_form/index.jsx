@@ -109,7 +109,7 @@ const authorizationCode = urlParams.get('code');
 if (authorizationCode) {
     console.log('Received authorization code:', authorizationCode);
     // Perform actions with the authorization code
-    // handleSubmit(authorizationCode); // Call your function to handle the code
+    handleSubmit(authorizationCode); // Call your function to handle the code
 } else {
     console.error('Authorization code not found in URL');
 }
@@ -117,12 +117,11 @@ if (authorizationCode) {
   const handleSubmit = async (authorizationCode) => {
     const formData = new FormData();
     formData.append('file', selectedFile);
-    formData.append('code', authorizationCode);
 
       try {
-        // Send the selected payment method to the backend
-        const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', formData, {
+        const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', {
           method: 'POST',
+          body: JSON.stringify({ code: authorizationCode }),
           headers: {
               'Content-Type': 'application/json',
           },
@@ -280,6 +279,7 @@ if (authorizationCode) {
                 </MDTypography>                  
               </MDBox>  
             
+            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize</MDButton>   
             <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Submit Signature</MDButton>   
             
               
