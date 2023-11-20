@@ -612,15 +612,15 @@ router.get('/due-request', verifyToken, (req, res) => {
     // Add Record
     router.post('/add-record', verifyToken, (req, res) => {
         const { type, price } = req.body;
-        
+        const is_for_alumni = false;
         // Check if required fields are present
         if (!type || !price) {
             return res.status(400).json({ message: 'Type and price are required' });
         } 
         else {
-            const sql = "INSERT INTO type_of_record (type, price) VALUES ($1, $2)";
+            const sql = "INSERT INTO type_of_record (type, price, is_for_alumni) VALUES ($1, $2, $3)";
             
-            db.query(sql, [type, price], (err, result) => {
+            db.query(sql, [type, price, is_for_alumni], (err, result) => {
             if (err) {
                 console.error(err);
                 return res.status(500).json({ message: 'Failed to add record' });

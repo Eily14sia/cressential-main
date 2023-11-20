@@ -61,6 +61,34 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
     // State to track whether the dialog is open
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const jwtToken = localStorage.getItem('token');
+    const user_id = parseInt(localStorage.getItem('user_id'));
+    
+    const [is_alumni, setIsAlumni] = useState('');
+
+    useEffect(() => {
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.length > 0) {
+            const filteredData = data.filter((record) => record.user_id === user_id);
+            if (filteredData.length > 0) {
+              const isAlumniValue = filteredData[0].is_alumni; // Assuming is_alumni is a property of the record
+              setIsAlumni(isAlumniValue);
+            }
+          }
+        })
+        .catch((err) => console.log(err));
+    }, []);
+
     useEffect(() => {
       fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
         headers: {
@@ -73,12 +101,26 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
           }
           return res.json();
         })
-        .then((type_of_record) => {
-          setData(type_of_record); 
+        .then((type_of_record) => {   
+          if (parseInt(is_alumni) == 1){
+            setData(type_of_record);    
+          } else {
+            const filteredData = type_of_record.filter((record) => record.is_for_alumni === false);
+            if (filteredData.length > 0) {
+              setData(filteredData);
+            } else {
+              // Handle case when no records match the condition
+              console.log("No records found for non-alumni");
+              // You might set some default value or handle this situation accordingly
+            }
+          }
+          
         })
         .catch((err) => console.log(err));
     }, []);
-  
+
+    
+
     const steps = [
       'Request Form',
       'Payment',

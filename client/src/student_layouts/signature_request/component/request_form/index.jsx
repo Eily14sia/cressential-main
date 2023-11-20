@@ -38,6 +38,8 @@ import regeneratorRuntime from "regenerator-runtime";
 import DocumentSelection from "../document_selection";
 import DialogBox from '../add_record_modal';
 
+import axios from 'axios';
+
 import { useMaterialUIController } from "../../../../context";
 
 const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
@@ -50,7 +52,7 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
     const [purposeCollege, setPurposeCollege] = useState('');
   
       
-    const [file, setFile] = useState('');
+    const [selectedFile, setSelectedFile] = useState('');
     const [url, setUrl] = useState(null);
 
     // =========== For the MDAlert =================
@@ -69,32 +71,17 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
     const jwtToken = localStorage.getItem('token');  
 
   const handleFileChange = async (e) => {
+    // Set the URL of the file before it is selected
     e.target.files.length > 0 && setUrl(URL.createObjectURL(e.target.files[0]));
 
-    const selectedFile = e.target.files[0];
-
-    if (selectedFile) {
-      setFile(selectedFile);
-
-      try {
-        // Read the contents of the selected file
-        const fileBuffer = await selectedFile.arrayBuffer();
-
-        // Calculate the hash (multihash) of the file using SHA-256
-        const hashBuffer = await crypto.subtle.digest("SHA-256", fileBuffer);
-
-        // Convert the hash buffer to a hexadecimal string
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
-
-        // Set the calculated hash in state
-      } catch (error) {
-        console.error("Error calculating hash:", error);
-        setHash(null);
-      }
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    if (file && file.type === 'application/pdf') {
+      // File is a PDF, you can proceed
+      setSelectedFile(file);
     } else {
-      setUrl(null);
-      setFile(null);
+      // File is not a PDF, display an error or handle it as needed
+      alert('Please select a PDF file');
     }
   };
 
@@ -104,6 +91,116 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
     </svg>
   );
 
+  // Function to initiate the OAuth flow by redirecting the user to Adobe Sign's authorization endpoint
+  const initiateOAuthFlow = async () => {
+
+  // Construct the URL for authorization endpoint with necessary parameters
+  const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
+
+  // Redirect the user to Adobe Sign's authorization endpoint
+  window.location.href = authorizationEndpoint;
+}
+
+// After the user is redirected back to the redirect URI
+
+// Function to extract the authorization code from the URL query parameters
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  const results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+// Retrieve the authorization code from the URL query parameters
+const authorizationCode = getParameterByName('code');
+
+// Use the retrieved authorization code as needed
+if (authorizationCode) {
+  console.log('Received authorization code:', authorizationCode);
+  handleSubmit(authorizationCode);
+  // You might send this code to your server for further processing
+} else {
+  console.error('Authorization code not found in URL');
+}
+
+  const handleSubmit = async (authorizationCode) => {
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('code', authorizationCode);
+
+      try {
+        // Send the selected payment method to the backend
+        const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/getAccessToken', formData, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+        });
+
+       if (response.ok) {
+        const data = await response.json();
+        const access_token = data.access_token;        
+        formData.append('access_token', access_token);
+        console.log('access_token', access_token);
+        console.log('response ok');
+
+        // await addAgreement(formData, access_token);
+       } else {
+        console.log('response not ok');
+       }
+             
+
+      } catch (error) {
+        console.error('Error:', error);
+      }
+   
+    }
+
+  async function addAgreement(formData) {
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobesign/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      if (response.status >= 200 && response.status < 300) {
+        console.log('Upload success');
+      } else {
+        console.error('Upload failed');
+        // Handle other status codes (e.g., error responses)
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Handle network errors or exceptions
+    }
+  }
+
+  const styles = {
+    label: {
+      display: 'flex',
+      alignItems: 'center',
+      border: '1px solid #ced4da',
+      borderRadius: '5px',
+      padding: '6px 12px',
+      cursor: 'pointer',
+    },
+    input: {
+      display: 'none', // Make the input hidden
+    },
+    button: {
+      width: '25%',
+      height: 'auto',
+      margin: '7px 15px 7px 2px',
+    },
+    placeholder: {
+      color: '#495057',
+    },
+  };
+  
   return (
     <>
         <MDBox pt={2} py={5} px={3}>
@@ -141,13 +238,40 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
             <Grid item xs={12} lg={4} sx={{borderRadius: '5px'}}>         
 
                
-              <MDInput fullWidth variant="outlined" 
+              {/* <MDInput fullWidth variant="outlined" 
                 type="file"
                 id="fileUpload"
                 accept=".pdf"
                 mx={2}
                 onChange={handleFileChange}
-              />   
+              />    */}
+
+              <label htmlFor="file-upload" style={styles.label}>
+                <button
+                  style={styles.button}
+                  onClick={() => {
+                    const fileInput = document.getElementById("file-upload");
+                    if (fileInput) {
+                      fileInput.click();
+                    }
+                  }}
+                >
+                  Choose File
+                </button>
+                <span style={selectedFile ? {} : styles.placeholder}>
+                  <MDTypography variant="button">
+                  {selectedFile ? selectedFile.name : 'Select a PDF file'}
+                  </MDTypography>
+                </span>
+                <input
+                  accept=".pdf"
+                  id="file-upload"
+                  type="file"
+                  style={styles.input}
+                  onChange={handleFileChange}
+                />
+                
+              </label>
 
               <MDBox display="flex" alignItems="center" mt={2} pt={2}>
                 <CustomSmallCircleIcon />
@@ -168,7 +292,7 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
                 </MDTypography>                  
               </MDBox>  
             
-            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" fullWidth>Submit Signature</MDButton>   
+            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Submit Signature</MDButton>   
             
               
               

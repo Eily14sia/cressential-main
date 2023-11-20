@@ -6,6 +6,7 @@ const fileRoutes = require('./fileroutes');
 const mysqlRoutes = require('./server'); // Import the MySQL routes
 const paymentapi = require('./payment');
 const emailapi = require('./email');
+const adobeSign = require('./adobeSign');
 const bodyParser = require('body-parser');
 const path = require('path'); // Import the path module
 const smartcon = require('./blockchain');
@@ -38,7 +39,8 @@ app.use('/files', fileRoutes); // File-related routes
 app.use('/mysql', mysqlRoutes); // MySQL-related routes (adjust the prefix as needed)
 app.use('/payments', paymentapi); //Payment API
 app.use('/emails', emailapi); //Email API
-app.use('/blockchain', smartcon); //Email API
+app.use('/blockchain', smartcon); //Blockchain API
+app.use('/adobeSign', adobeSign); //Adobe Sign API
 
 // Serve the client build folder
 app.use(express.static(path.resolve(__dirname, "../client/build")));

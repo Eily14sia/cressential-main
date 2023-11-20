@@ -321,6 +321,7 @@ const handleFileUpload = async () => {
       color: '#495057',
     },
   };
+  
   const pdfUrl = selectedFile ? URL.createObjectURL(selectedFile) : null;
 
   function isValidPassword(password) {

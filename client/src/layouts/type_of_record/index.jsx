@@ -132,8 +132,8 @@ function Type_of_Record() {
       price: recordPrice,
     };
 
-    if (validateInputs()) {
-      onSubmit(recordType, recordPrice);
+    if (!validateInputs()) {
+      return;
     }
 
     try {
@@ -368,7 +368,7 @@ function Type_of_Record() {
                   <AddDialogBox
                     open={isDialogOpen}
                     onClose={handleCloseDialog}
-                    onSubmit={handleSubmit}
+                    onSubmit={(event) => handleSubmit(event)}
                     recordType={recordType}
                     setRecordType={setRecordType}
                     recordPrice={recordPrice}
