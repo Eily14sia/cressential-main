@@ -79,6 +79,9 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
       // File is not a PDF, display an error or handle it as needed
       alert('Please select a PDF file');
     }
+
+    setIsError(false);
+    setAlertMessage('');
   };
 
   const CustomSmallCircleIcon  = () => (
@@ -89,12 +92,6 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
   // Function to initiate the OAuth flow by redirecting the user to Adobe Sign's authorization endpoint
   const initiateOAuthFlow = async () => {
-
-    if (selectedFile === '') {
-      setIsError(true);
-      setAlertMessage( "File is required. Please upload a PDF File.");
-      return;
-    }
 
     // Construct the URL for authorization endpoint with necessary parameters
     const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
@@ -122,7 +119,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
       if (response.status >= 200 && response.status < 300) {
         const data = response.data; // Assuming the response contains JSON data
-        const access_token = data.access_token;
+        const access_token = data.accessToken;
         formData.append('access_token', access_token);
         console.log('access_token', access_token);
         console.log('response ok');
@@ -138,6 +135,20 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
 
   async function addAgreement() {
+    
+    if (selectedFile === '') {
+      setIsError(true);
+      setAlertMessage( "File is required. Please upload a PDF File.");
+      return;
+    }
+
+    if (!isAuthorize) {
+      setIsError(true);
+      setAlertMessage( "You haven't authorize the API. Please go back to Step 1.");
+      return;
+    }
+
+
     try {
       const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobesign/upload', formData, {
         headers: {
@@ -182,9 +193,9 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
       display: 'none', // Make the input hidden
     },
     button: {
-      width: '25%',
+      width: '35%',
       height: 'auto',
-      margin: '7px 15px 7px 2px',
+      margin: '7px 15px 7px 2px',      
     },
     placeholder: {
       color: '#495057',
@@ -235,7 +246,29 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
                 mx={2}
                 onChange={handleFileChange}
               />    */}
+              <MDBox display="flex" alignItems="center" >
+                <CustomSmallCircleIcon />
+                <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 1:</MDTypography>
+              </MDBox>
+              <MDBox display="flex" mb={1} >
+                <MDTypography variant="caption" ml={3} my={1}>
+                  In order to use the Adobe API, you need to authorize it first by clicking the 'Authorize the API' Button.
+                </MDTypography>                  
+              </MDBox>
+              <MDBox px={3} >
+                <MDButton sx={{marginBottom: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize the API</MDButton>   
+              </MDBox>
 
+            <MDBox display="flex" alignItems="center" >
+              <CustomSmallCircleIcon />
+              <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 2:</MDTypography>
+            </MDBox>
+            <MDBox display="flex"  mb={1} >
+              <MDTypography variant="caption" ml={3} my={1}>
+                Please ensure that the correct PDF file is uploaded using the PDF Viewer. This only accepts PDF File Format. 
+              </MDTypography>                  
+            </MDBox>
+            <MDBox px={3} >
               <label htmlFor="file-upload" style={styles.label}>
                 <button
                   style={styles.button}
@@ -262,31 +295,21 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
                 />
                 
               </label>
+            </MDBox>
 
-              <MDBox display="flex" alignItems="center" mt={2} pt={2}>
-                <CustomSmallCircleIcon />
-                <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Important:</MDTypography>
-              </MDBox>
-              <MDBox display="flex"   >
-                <MDTypography variant="caption" ml={3} mt={1}>
-                  Please ensure that the correct PDF file is uploaded. This only accepts PDF File Format.
-                </MDTypography>                  
-              </MDBox>
-              <MDBox display="flex" alignItems="center" mt={1} pt={2}>
-                <CustomSmallCircleIcon />
-                <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>How this works:</MDTypography>
-              </MDBox>
-              <MDBox display="flex"   >
-                <MDTypography variant="caption" ml={3} my={1}>
-                  Using the React PDF Viewer, click the area where you wish the registrar to sign in your document. Then wait for the signature field coordinates to reflect below. Finally, click the 'Submit Signature' button. 
-                </MDTypography>                  
-              </MDBox>  
-            
-            {/* <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize</MDButton>    */}
-            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>1. Authorize the API</MDButton>   
-            <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={addAgreement} disabled={!isAuthorize} fullWidth>2. Submit for signing</MDButton>   
-            
-              
+            <MDBox display="flex" alignItems="center" mt={2}>
+              <CustomSmallCircleIcon />
+              <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 3:</MDTypography>
+            </MDBox>
+            <MDBox display="flex"   >
+              <MDTypography variant="caption" ml={3} my={1}>
+                After attaching the PDF file, click the 'Submit for signing' Button to send the PDF file to Adobe Sign for signing.
+              </MDTypography>                  
+            </MDBox>
+
+            <MDBox px={3} >
+              <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={addAgreement} fullWidth>Submit for signing</MDButton>   
+            </MDBox>
               
             </Grid>
           </Grid>
