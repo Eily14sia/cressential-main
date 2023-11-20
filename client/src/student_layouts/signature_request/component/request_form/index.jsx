@@ -105,8 +105,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
   
   // Retrieve the code parameter from the URL
   const urlParams = new URLSearchParams(window.location.search);
-  // const authorizationCode = urlParams.get('code');
-  const authorizationCode = 'CBNCKBAAHBCAABAAh-2XP6qgJClrt4rsfVLp6ACyLc3VRPEb';
+  const authorizationCode = urlParams.get('code');
   const formData = new FormData();
 
   const handleSubmit = async () => {
