@@ -134,7 +134,7 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
   const initiateOAuthFlow = async () => {
 
     // Construct the URL for authorization endpoint with necessary parameters
-    const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
+    const authorizationEndpoint = 'https://secure.sg1.adobesign.com/public/oauth/v2?redirect_uri=https://cressential-5435c63fb5d8.herokuapp.com/signature-request-form&response_type=code&client_id=CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm&scope=user_read:account+user_write:account+user_login:account+agreement_read:account+agreement_write:account+agreement_send:account+widget_read:account+widget_write:account+library_read:account+library_write:account+workflow_read:account+workflow_write:account';
   
     // Redirect the user to Adobe Sign's authorization endpoint
     window.location.href = authorizationEndpoint;
@@ -184,7 +184,7 @@ const handleAddDB = async () => {
   };
   
   try {
-    const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/signature-request-form/add-record', {
+    const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/signature-request/add-record', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
