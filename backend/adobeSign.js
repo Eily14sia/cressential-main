@@ -81,7 +81,9 @@ router.post('/upload', upload.single('File'), async (req, res) => {
       
         // Access the 'access_token' from the form data
         const accessToken = req.body.access_token;
-    
+
+        console.log('body access token', accessToken);
+        
         if (!accessToken) {
           return res.status(400).json({ error: 'Access token not provided' });
         }

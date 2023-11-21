@@ -75,7 +75,7 @@ const handleFileChange = (e) => {
 
 async function validatePasswordFromPDF(formData) {
   try {
-    const response = await axios.post('http://localhost:8081/files/api/validatePasswordForPDF', formData, {
+    const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/validatePasswordForPDF', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

@@ -51,6 +51,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
     const [selectedPurpose, setSelectedPurpose] = useState('');
     const [purposeCollege, setPurposeCollege] = useState('');
     const [isAuthorize, setIsAuthorize] = useState(false);
+    const [api_token, setApiToken] = useState('');
   
       
     const [selectedFile, setSelectedFile] = useState('');
@@ -119,7 +120,8 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
       if (response.status >= 200 && response.status < 300) {
         const data = response.data; // Assuming the response contains JSON data
         const access_token = data.accessToken;
-        formData.append('access_token', access_token);
+        // formData.append('access_token', access_token);
+        setApiToken(access_token);
         console.log('access_token', access_token);
         console.log('response ok');
         setIsAuthorize(true);
@@ -135,7 +137,8 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
   async function addAgreement() {
     formData.append('File', selectedFile);
-
+    formData.append('access_token', api_token);
+    
     if (selectedFile === '') {
       setIsError(true);
       setAlertMessage( "File is required. Please upload a PDF File.");
