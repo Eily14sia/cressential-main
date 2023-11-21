@@ -55,6 +55,7 @@ import Payment from "./layouts/payment";
 import Unauthorized from "./layouts/unauthorize/unauthorized_page";
 
 import Student_record_request from "./layouts/student_record_request";
+import Student_signature_request from "./layouts/student_signature_request";
 import Student_record_issuance from "./layouts/student_record_issuance";
 
 import Alumni_record_request from "./layouts/alumni_record_request";
@@ -151,6 +152,15 @@ const routes = [
         component: <Student_record_issuance />,
       },
     ],
+  },  
+  {
+    type: "collapse",
+    name: "Signature Request",
+    key: "registrar-signature-request",
+    icon: icon3,
+    route: "/registrar/signature-request",
+    role: [1, 2],
+    component: <Student_signature_request />,
   },
   {
     type: "collapse",

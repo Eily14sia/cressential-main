@@ -64,7 +64,7 @@ function Signature_request() {
 
 
   const [controller] = useMaterialUIController();
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(100);
 
   const location = useLocation();
 
@@ -204,6 +204,7 @@ function Signature_request() {
                  ctrl_number={ctrl_number}
                  setCtrlNumber={setCtrlNumber}
                  setIsError={setIsError}
+                 setIsSuccess={setIsSuccess}
                  setAlertMessage={setAlertMessage}/>
               ) : steps[activeStep] === 'Payment' ? (
                 <PaymentForm totalAmount={totalAmount} cartItems={cartItems} ctrl_number={ctrl_number} setActiveStep={setActiveStep} setAlertMessage={setAlertMessage} setIsError={setIsError}/>              

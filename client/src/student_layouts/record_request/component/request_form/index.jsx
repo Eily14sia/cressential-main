@@ -143,10 +143,16 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
   
     useEffect(() => {
       // Calculate the new totalAmount based on the updated cartItems
-      const newTotalAmount = cartItems.reduce((total, item) => total + item.price, 0);
-      setTotalAmount(newTotalAmount.toFixed(2));
+      const newTotalAmount = cartItems.reduce((total, item) => total + parseFloat(item.price || 0), 0);
     
-      renderCartItems();
+      if (!isNaN(newTotalAmount)) {
+        setTotalAmount(newTotalAmount.toFixed(2));
+      } else {
+        // Handle the case where the total amount is not a valid number
+        console.error('Total amount is not a valid number:', newTotalAmount);
+      }
+    
+      renderCartItems(); // Consider if this is necessary in the useEffect dependency array
     }, [cartItems]);
   
     function removeFromCart(itemId) {
@@ -192,29 +198,34 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
     let updatedTotalAmount = 0;
   
     for (let i = 0; i < cartItems.length; i++) {
-    let item = cartItems[i]; 
-    updatedTotalAmount  += item.price;
+      let item = cartItems[i];
+      const price = parseFloat(item.price);
   
-    updatedRows.push({
-      type: item.type,
-      price: item.price.toFixed(2),
-      quantity: item.quantity.toFixed(2),
-      action: (
-        <>
-          <Tooltip title="Remove" >
-            <IconButton color="error" onClick={() => removeFromCart(item.id)}>
-              <HighlightOffIcon />
-            </IconButton>
-          </Tooltip>
-        </>                                 
-      ), 
-    });
-      
-    setTotalAmount(updatedTotalAmount.toFixed(2));
+      if (!isNaN(price) ) {
+        updatedTotalAmount += price ;
+  
+        updatedRows.push({
+          type: item.type,
+          price: price.toFixed(2),
+          action: (
+            <>
+              <Tooltip title="Remove">
+                <IconButton color="error" onClick={() => removeFromCart(item.id)}>
+                  <HighlightOffIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          ),
+        });
+      } else {
+        console.error('Invalid price or quantity for item:', item);
+      }
     }
-   
+  
+    setTotalAmount(updatedTotalAmount.toFixed(2));
     setRows(updatedRows);
   }
+  
   
   // Function to open the dialog
   const handleOpenDialog = () => {

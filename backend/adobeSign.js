@@ -113,7 +113,7 @@ router.post('/upload', upload.single('File'), async (req, res) => {
         console.log('Transient Document ID:', transientDocumentId);
    
         // Now, you can proceed to create an agreement using the transient document ID
-    const agreementResponse = await axios.post(agreementsApiUrl, {
+      const agreementResponse = await axios.post(agreementsApiUrl, {
         fileInfos: [
           {
             transientDocumentId: transientDocumentId,

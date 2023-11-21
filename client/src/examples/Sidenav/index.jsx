@@ -134,6 +134,9 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
         <NavLink key="registrar-student-record-request" to="/student/record-request">
           <SidenavCollapseNested name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "registrar-student-record-request"} />
         </NavLink>
+        <NavLink key="registrar-signature-request" to="/registrar/signature-request">
+          <SidenavCollapseNested name="Signature Request" icon={<Icon fontSize="small">draw</Icon>} active={collapseName === "registrar-signature-request"} />
+        </NavLink>
         <NavLink key="registrar-student-record-issuance" to="/student/record-issuance">
           <SidenavCollapseNested name="Record Issuance" icon={<Icon fontSize="small">description</Icon>} active={collapseName === "registrar-student-record-issuance"} />
         </NavLink>
@@ -213,6 +216,9 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
   <NavLink key="student-request-table" to="/student-request-table" onClick={() => setCollapseName("student-request-table")}>
     <SidenavCollapse name="Record Request Table" icon={<Icon fontSize="small">assignment</Icon>} active={collapseName === "student-request-table"} />
   </NavLink>,
+  <NavLink key="student-signature-request" to="/registrar/signature-request" onClick={() => setCollapseName("signature-request-table")}>
+    <SidenavCollapse name="Signature Request Table" icon={<Icon fontSize="small">draw</Icon>} active={collapseName === "signature-request-table"} />
+  </NavLink>
   
 ]: [
   // Code to execute if none of the conditions are met

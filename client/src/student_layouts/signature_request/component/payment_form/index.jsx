@@ -47,16 +47,13 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
       setSelectedOption(option);
     };
 
-    // console.log(selectedOption);
-    // console.log(totalAmount);
-
     const handleProceedToPayment = async () => {
       setAlertMessage('');
       setIsError(false);
       if (selectedOption) {
         try {
           // Send the selected payment method to the backend
-          const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoMethod', {
+          const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/signature/paymongoMethod', {
             selectedOption,
             totalAmount,
             ctrl_number,
@@ -162,20 +159,18 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
                         </MDTypography>
                       </Grid>
                      
-                        {cartItems.map((item) => (
-                          <>
+                        
                             <Grid item xs={9}>
                               <MDTypography variant="body2" color="text">
-                                {item.type}
+                                Signature Request
                               </MDTypography>
                             </Grid>
                             <Grid item xs={3}>
                               <MDTypography variant="body2" fontWeight="bold"> 
-                                {item.price+".00"}
+                                {totalAmount}.00
                               </MDTypography>
                             </Grid>
-                          </>
-                        ))}
+                          
                       
                       <Grid item xs={9} mt={5}>
                         <MDTypography variant="body2" color="text" fontWeight="bold">
@@ -184,7 +179,7 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
                       </Grid>
                       <Grid item xs={3} mt={5}>
                         <MDTypography variant="body2" fontWeight="bold">
-                          {totalAmount}
+                          {totalAmount}.00
                         </MDTypography>
                       </Grid>
                     
@@ -218,7 +213,7 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
                   
                   <Grid item md={6} sm={12}>
                       <MDButton onClick={handleProceedToPayment} variant="gradient" color="info" size="large" fullWidth >
-                          <Icon>payment</Icon> &nbsp; Pay {totalAmount}
+                          <Icon>payment</Icon> &nbsp; Pay {totalAmount}.00
                       </MDButton>
 
                   </Grid>

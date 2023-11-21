@@ -27,7 +27,7 @@ import MDAlert from '../../components/MDAlert';
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import RequestTable from '../request_table';
+import RequestTable from './signature_table';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
 
@@ -49,14 +49,13 @@ function Student_record_request() {
   // =========== For the Datatable =================
   const [data, setData] = useState([]);
   const [registrar_data, setRegistrarData] = useState([]);
-  const [student_data, setStudentData] = useState([]);
-  const [type_of_record, setTypeOfRecord] = useState([]);  
+  const [student_data, setStudentData] = useState([]); 
   const [student_id, setStudentID] = useState('');
 
   const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+    fetch("http://localhost:8081/mysql/payment-signature-request", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -105,24 +104,6 @@ function Student_record_request() {
       })
       .then((registrar_data) => {
         setRegistrarData(registrar_data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to authenticate token");
-        }
-        return res.json();
-      })
-      .then((type_of_record) => {
-        setTypeOfRecord(type_of_record); 
       })
       .catch((err) => console.log(err));
   }, []);
@@ -340,7 +321,7 @@ function Student_record_request() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Record Request Table
+                  Signature Request Table
                 </MDTypography>
                 
                 {/* <Link to="/graduate-record/add-record" component={RouterLink}> */}

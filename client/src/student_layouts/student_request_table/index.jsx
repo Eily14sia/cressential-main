@@ -9,6 +9,7 @@ import Icon from "@mui/material/Icon";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import Tooltip from '@mui/material/Tooltip';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -25,6 +26,7 @@ import DataTable from "../../examples/Tables/DataTable";
 import RequestTable from '../../layouts/request_table';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
+import breakpoints from "../../assets/theme/base/breakpoints";
 
 function Request_table() {
   const jwtToken = localStorage.getItem('token');
@@ -75,7 +77,7 @@ function Request_table() {
         setData(data); 
       })
       .catch((err) => console.log(err));
-  }, [data]);
+  }, []);
 
   useEffect(() => {
     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
@@ -168,6 +170,24 @@ function Request_table() {
     setTabValue(newValue);
   };
 
+  const [mobileView, setMobileView] = useState(false);
+
+  useEffect(() => {
+    function handleResize() {
+      const isMobile = window.innerWidth < breakpoints.values.sm;
+      setMobileView(isMobile);
+    }
+
+    // Initial setup
+    handleResize();
+
+    // Event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoints]);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -214,7 +234,58 @@ function Request_table() {
                   
                   <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
-                      <Tabs
+                    {mobileView && (
+                        <Tabs
+                        value={tabValue}
+                        onChange={handleTabChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                      >
+                          <Tooltip title="All" placement="top">
+                            <Tab label=""
+                            icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                folder
+                              </Icon>
+                            } />
+                          </Tooltip>
+                          <Tooltip title="Pending" placement="top">
+                            <Tab label=""
+                            icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                pending
+                              </Icon>
+                            } />
+                          </Tooltip>
+                          <Tooltip title="Received" placement="top">
+                            <Tab label="" 
+                              icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                verified
+                              </Icon>
+                            } />
+                          </Tooltip>
+                          <Tooltip title="Declined" placement="top">
+                            <Tab label="" 
+                                icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  unpublished
+                                </Icon>
+                              } />
+                          </Tooltip>
+                          <Tooltip title="Completed" placement="top">
+                            <Tab label="" 
+                                icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  assignment
+                                </Icon>
+                              } />
+                          </Tooltip>
+                        </Tabs>
+                      )}
+                      {!mobileView && (
+                        <Tabs
                         value={tabValue}
                         onChange={handleTabChange}
                         indicatorColor="primary"
@@ -222,11 +293,11 @@ function Request_table() {
                         variant="fullWidth"
                       >
                         <Tab label="All"
-                          icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              folder
-                            </Icon>
-                          } />
+                        icon={
+                          <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                            folder
+                          </Icon>
+                        } />
                         <Tab label="Pending"
                           icon={
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
@@ -251,7 +322,8 @@ function Request_table() {
                               assignment
                             </Icon>
                           } />
-                      </Tabs>
+                        </Tabs>
+                      )}
                     </AppBar>
 
                     {tabValue === 0 && (

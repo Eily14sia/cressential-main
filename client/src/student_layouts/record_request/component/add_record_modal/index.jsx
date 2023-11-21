@@ -179,6 +179,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       console.error('Error:', error);
     }
   };
+
   const CustomSmallCircleIcon  = () => (
     <svg width="8" height="8" xmlns="http://www.w3.org/2000/svg">
       <circle cx="4" cy="4" r="3" fill="none" stroke="#1A73E8" strokeWidth="2" />
@@ -234,11 +235,11 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           
           <MDBox ml={3}>
           
-            {cartItems.map((item) => (             
-                <MDTypography variant="body2" >
+          {cartItems.map((item, index) => (             
+              <MDTypography key={index} variant="body2">
                   {item.type}
-                </MDTypography>             
-            ))}
+              </MDTypography>             
+          ))}
           
           </MDBox>
           <MDBox

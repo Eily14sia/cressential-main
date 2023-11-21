@@ -21,11 +21,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 
-function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, purposeCollege,
+function DialogBox({ open, onClose, handleSubmit, cartItems, totalAmount, selectedPurpose, purposeCollege,
   setIsSuccess, setIsError, setAlertMessage, handleCloseDialog, setActiveStep, setData, ctrl_number, setCtrlNumber}) {
-
-  // Extract the IDs and join them with commas
-  const record_id = cartItems.map(item => item.id).join(',');
 
   // Retrieve the user_id from localStorage
   const user_id = localStorage.getItem('user_id');
@@ -80,105 +77,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       })
       .catch((err) => console.log(err));
   }, []);
-  
-  // Function to handle add record form submission
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    // Create a new record object to send to the server
-    const newRecord = {
-      record_id: record_id,
-      student_id: student_id,
-      purpose: selectedPurpose,   
-      total_amount: totalAmount
-    };
-    
-    try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request/add-record', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(newRecord),
-      });
 
-      if (response.ok) {
-        handleCloseDialog();
-        setIsSuccess(true);
-        setAlertMessage('Record added successfully.');
-
-        const data_ctrl_number = await response.json();
-        const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
-        setCtrlNumber(ctrl_num);
-
-        // Insert a notification into the database
-        registrar_data.map(async (item) => {
-          const registrar_update = {
-            title: "New Record Request added.",
-            description: ctrl_num,
-            user_id: item.user_id
-          }
-  
-          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${jwtToken}`,
-          },
-          body: JSON.stringify(registrar_update),
-        })
-          .then((notificationResponse) => {
-            if (notificationResponse.ok) {
-              console.log('Notification inserted successfully');
-            } else {
-              console.error('Failed to insert notification');
-            }
-          })
-          .catch((err) => console.error('Error inserting notification:', err));
-        });    
-
-        // Fetch updated data and update the state
-        fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to authenticate token");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
-        })
-        .catch((err) => console.log(err));
-
-        setActiveStep((prevActiveStep) => prevActiveStep + 1)
-      } else {
-        setAlertMessage('Failed to update record');
-      }
-    } catch (error) {
-      setIsError(true);
-      console.error('Error:', error);
-    }
-
-    try {
-      const tAmount = parseInt(totalAmount, 10);
-      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
-        amount: tAmount * 100,
-      });
-
-      if (response.data && response.data.redirectUrl) {
-        setRedirectUrl(response.data.redirectUrl);
-        setPaymentResponse(response.data.paymentResponse);
-      } else {
-        console.error('Invalid response from the server');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
   const CustomSmallCircleIcon  = () => (
     <svg width="8" height="8" xmlns="http://www.w3.org/2000/svg">
       <circle cx="4" cy="4" r="3" fill="none" stroke="#1A73E8" strokeWidth="2" />
@@ -222,7 +121,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           <MDBox display="flex" flexDirection="column"  px={2}>
           
             <MDTypography variant="caption">Total Amount</MDTypography>
-            <MDTypography variant="h5">Php {totalAmount}</MDTypography>
+            <MDTypography variant="h5">Php {totalAmount}.00</MDTypography>
           </MDBox>
         </MDBox>
         <MDBox
@@ -233,22 +132,14 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         </MDBox>
           
           <MDBox ml={3}>
-          
-            {cartItems.map((item) => (             
+                      
                 <MDTypography variant="body2" >
-                  {item.type}
+                  Signature Request
                 </MDTypography>             
-            ))}
+           
           
           </MDBox>
-          <MDBox
-          display="flex" alignItems="center"  pt={2}
-          >
-            <CustomSmallCircleIcon />
-            <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Purpose:</MDTypography>
-          </MDBox>
-          <MDTypography variant="body2"  ml={3}> {selectedPurpose + " " + purposeCollege} </MDTypography> 
-
+          
           <MDBox
           display="flex" alignItems="center"  pt={2}
           >
@@ -284,15 +175,15 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         sx={{ opacity: 0.2 }}
       />
       <DialogActions>
-        <MDButton variant="text" onClick={onClose} color="secondary">
-          Cancel
-        </MDButton>
-        <MDButton
-          variant="contained"
-          color="info"
-          onClick={handleSubmit}>        
-            <Icon>send</Icon> &nbsp; Submit
-        </MDButton>
+        
+
+          <MDButton
+            color="info"            
+            onClick={handleSubmit}
+            >        
+              <Icon>send</Icon> &nbsp; Confirm Request
+          </MDButton>
+        
       </DialogActions>
     </Dialog>
   );

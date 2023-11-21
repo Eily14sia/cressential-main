@@ -42,30 +42,69 @@ import axios from 'axios';
 
 import { useMaterialUIController } from "../../../../context";
 
-const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
+const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTotalAmount, setActiveStep, cartItems, setCartItems, ctrl_number, setCtrlNumber}) => {
 
     const [controller] = useMaterialUIController();
     const { darkMode } = controller;
     const [data, setData] = useState([]);   
-    const [selectedItemID, setSelectedItemID] = useState("");
-    const [selectedPurpose, setSelectedPurpose] = useState('');
-    const [purposeCollege, setPurposeCollege] = useState('');
     const [isAuthorize, setIsAuthorize] = useState(false);
     const [api_token, setApiToken] = useState('');
+    const [transient_id, setTransientID] = useState('');
+    const [agreement_id, setAgreementID] = useState('');
   
-      
     const [selectedFile, setSelectedFile] = useState('');
     const [url, setUrl] = useState(null);
-  
-    const alertContent = (name) => (
-      <MDTypography variant="body2" color="white">
-        {alertMessage}
-      </MDTypography>
-    );
   
     // State to track whether the dialog is open
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const jwtToken = localStorage.getItem('token');  
+    const user_id = parseInt(localStorage.getItem('user_id'));    
+    const [student_id, setStudentID] = useState('');
+    const [registrar_data, setRegistrarData] = useState([]);
+
+
+    useEffect(() => {
+      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.length > 0) {
+            const matchedStudent = data.find((record) => record.user_id === user_id);
+
+            if (matchedStudent) {
+              const studentID = matchedStudent.id;
+              setStudentID(studentID);
+            }
+          }
+        })
+        .catch((err) => console.log(err));
+    }, []);
+
+  useEffect(() => {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setRegistrarData(data); 
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   const handleFileChange = async (e) => {
     // Set the URL of the file before it is selected
@@ -134,77 +173,175 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
     }
 };
 
+const handleAddDB = async (event) => {
+  event.preventDefault();
 
-  async function addAgreement() {
-    formData.append('File', selectedFile);
-    formData.append('access_token', api_token);
-    
-    if (selectedFile === '') {
-      setIsError(true);
-      setAlertMessage( "File is required. Please upload a PDF File.");
-      return;
+  // Create a new record object to send to the server
+  const newRecord = {
+    transient_id: transient_id,
+    agreement_id: agreement_id,
+    student_id: student_id, 
+    total_amount: 100
+  };
+  
+  try {
+    const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/signature-request/add-record', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(newRecord),
+    });
+
+    if (response.ok) {
+
+      const data_ctrl_number = await response.json();
+      const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
+      setCtrlNumber(ctrl_num);
+
+      // Insert a notification into the database
+      registrar_data.map(async (item) => {
+        const registrar_update = {
+          title: "New Signature Request added.",
+          description: ctrl_num,
+          user_id: item.user_id
+        }
+
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify(registrar_update),
+      })
+        .then((notificationResponse) => {
+          if (notificationResponse.ok) {
+            console.log('Notification inserted successfully');
+          } else {
+            console.error('Failed to insert notification');
+          }
+        })
+        .catch((err) => console.error('Error inserting notification:', err));
+      });    
+
+      setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    } else {
+      setAlertMessage('Failed to update record');
     }
+  } catch (error) {
+    setIsError(true);
+    console.error('Error:', error);
+  }
+
+  try {
+    const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
+      amount: 100 * 100,
+    });
+
+    if (response.data && response.data.redirectUrl) {
+      setRedirectUrl(response.data.redirectUrl);
+      setPaymentResponse(response.data.paymentResponse);
+    } else {
+      console.error('Invalid response from the server');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+
+};
+
+async function addAgreement() {
+  formData.append('File', selectedFile);
+  formData.append('access_token', api_token);
+
+  try {
+    const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log('Upload success');
+      console.log('transientDocumentId', response.data.transientDocumentId);
+      setTransientID(response.data.transientDocumentId);
+      setAgreementID(response.data.agreementId);
+      await handleAddDB();
+    } else {
+      console.error('Upload failed');
+      // Handle other status codes (e.g., error responses)
+    }
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    // Handle network errors or exceptions
+  }
+
+  setIsAuthorize(false);
+}
+
+
+useEffect(() => {
+  // Use the retrieved authorization code as needed
+  if (authorizationCode) {
+      console.log('Received authorization code:', authorizationCode);
+      // Perform actions with the authorization code
+      handleSubmit(); // Call your function to handle the code
+  } 
+}, []); 
+
+const styles = {
+  label: {
+    display: 'flex',
+    alignItems: 'center',
+    border: '1px solid #ced4da',
+    borderRadius: '5px',
+    padding: '6px 12px',
+    cursor: 'pointer',
+  },
+  input: {
+    display: 'none', // Make the input hidden
+  },
+  button: {
+    width: '35%',
+    height: 'auto',
+    margin: '7px 15px 7px 2px',      
+  },
+  placeholder: {
+    color: '#495057',
+  },
+};
+  
+  // Function to open the dialog
+  const handleOpenDialog = () => {
 
     if (!isAuthorize) {
       setIsError(true);
       setAlertMessage( "You haven't authorize the API yet. Please go back to Step 1.");
       return;
     }
-
-
-    try {
-      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/adobeSign/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-      if (response.status >= 200 && response.status < 300) {
-        console.log('Upload success');
-      } else {
-        console.error('Upload failed');
-        // Handle other status codes (e.g., error responses)
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      // Handle network errors or exceptions
+    
+    if (selectedFile === '') {
+      setIsError(true);
+      setAlertMessage( "File is required. Please upload a PDF File.");
+      return;
     }
+    
+    setIsSuccess(false);
+    setIsError(false);
+    setIsDialogOpen(true);
 
-    setIsAuthorize(false);
-  }
-
-
-  useEffect(() => {
-    // Use the retrieved authorization code as needed
-    if (authorizationCode) {
-        console.log('Received authorization code:', authorizationCode);
-        // Perform actions with the authorization code
-        handleSubmit(); // Call your function to handle the code
-    } 
-}, []); 
-
-  const styles = {
-    label: {
-      display: 'flex',
-      alignItems: 'center',
-      border: '1px solid #ced4da',
-      borderRadius: '5px',
-      padding: '6px 12px',
-      cursor: 'pointer',
-    },
-    input: {
-      display: 'none', // Make the input hidden
-    },
-    button: {
-      width: '35%',
-      height: 'auto',
-      margin: '7px 15px 7px 2px',      
-    },
-    placeholder: {
-      color: '#495057',
-    },
   };
-  
+
+  // Function to close the dialog
+  const handleCloseDialog = () => {
+    // setRecordTypeError('');
+    // setRecordPriceError('');
+    setIsDialogOpen(false);
+  };
+
   return (
     <>
         <MDBox pt={2} py={5} px={3}>
@@ -241,14 +378,6 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
             </Grid>
             <Grid item xs={12} lg={4} sx={{borderRadius: '5px'}}>         
 
-               
-              {/* <MDInput fullWidth variant="outlined" 
-                type="file"
-                id="fileUpload"
-                accept=".pdf"
-                mx={2}
-                onChange={handleFileChange}
-              />    */}
               <MDBox display="flex" alignItems="center" >
                 <CustomSmallCircleIcon />
                 <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 1:</MDTypography>
@@ -262,58 +391,68 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
                 <MDButton sx={{marginBottom: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize the API</MDButton>   
               </MDBox>
 
-            <MDBox display="flex" alignItems="center" >
-              <CustomSmallCircleIcon />
-              <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 2:</MDTypography>
-            </MDBox>
-            <MDBox display="flex"  mb={1} >
-              <MDTypography variant="caption" ml={3} my={1}>
-                Please ensure that the correct PDF file is uploaded using the PDF Viewer. This only accepts PDF File Format. 
-              </MDTypography>                  
-            </MDBox>
-            <MDBox px={3} >
-              <label htmlFor="file-upload" style={styles.label}>
-                <button
-                  style={styles.button}
-                  onClick={() => {
-                    const fileInput = document.getElementById("file-upload");
-                    if (fileInput) {
-                      fileInput.click();
-                    }
-                  }}
-                >
-                  Choose File
-                </button>
-                <span style={selectedFile ? {} : styles.placeholder}>
-                  <MDTypography variant="button">
-                  {selectedFile ? selectedFile.name : 'Select a PDF file'}
-                  </MDTypography>
-                </span>
-                <input
-                  accept=".pdf"
-                  id="file-upload"
-                  type="file"
-                  style={styles.input}
-                  onChange={handleFileChange}
-                />
-                
-              </label>
-            </MDBox>
+              <MDBox display="flex" alignItems="center" >
+                <CustomSmallCircleIcon />
+                <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 2:</MDTypography>
+              </MDBox>
+              <MDBox display="flex"  mb={1} >
+                <MDTypography variant="caption" ml={3} my={1}>
+                  Please ensure that the correct PDF file is uploaded using the PDF Viewer. This only accepts PDF File Format. 
+                </MDTypography>                  
+              </MDBox>
+              <MDBox px={3} >
+                <label htmlFor="file-upload" style={styles.label}>
+                  <button
+                    style={styles.button}
+                    onClick={() => {
+                      const fileInput = document.getElementById("file-upload");
+                      if (fileInput) {
+                        fileInput.click();
+                      }
+                    }}
+                  >
+                    Choose File
+                  </button>
+                  <span style={selectedFile ? {} : styles.placeholder}>
+                    <MDTypography variant="button">
+                    {selectedFile ? selectedFile.name : 'Select a PDF file'}
+                    </MDTypography>
+                  </span>
+                  <input
+                    accept=".pdf"
+                    id="file-upload"
+                    type="file"
+                    style={styles.input}
+                    onChange={handleFileChange}
+                  />
+                  
+                </label>
+              </MDBox>
 
-            <MDBox display="flex" alignItems="center" mt={2}>
-              <CustomSmallCircleIcon />
-              <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 3:</MDTypography>
-            </MDBox>
-            <MDBox display="flex"   >
-              <MDTypography variant="caption" ml={3} my={1}>
-                After attaching the PDF file, click the 'Submit for signing' Button to send the PDF file to Adobe Sign for signing.
-              </MDTypography>                  
-            </MDBox>
+              <MDBox display="flex" alignItems="center" mt={2}>
+                <CustomSmallCircleIcon />
+                <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 3:</MDTypography>
+              </MDBox>
+              <MDBox display="flex"   >
+                <MDTypography variant="caption" ml={3} my={1}>
+                  After attaching the PDF file, click the 'Submit for signing' Button to send the PDF file to Adobe Sign for signing.
+                </MDTypography>                  
+              </MDBox>
 
-            <MDBox px={3} >
-              <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={addAgreement} fullWidth>Submit for signing</MDButton>   
-            </MDBox>
-              
+              <MDBox px={3} >
+                <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={handleOpenDialog} fullWidth>Submit for signing</MDButton>   
+              </MDBox>
+              <DialogBox
+                open={isDialogOpen}
+                onClose={handleCloseDialog}
+                setIsSuccess={setIsSuccess}
+                setIsError={setIsError}   
+                setAlertMessage={setAlertMessage}
+                handleCloseDialog={handleCloseDialog}
+                setActiveStep={setActiveStep}
+                handleSubmit={addAgreement}
+                totalAmount={100}
+              />          
             </Grid>
           </Grid>
         </MDBox>

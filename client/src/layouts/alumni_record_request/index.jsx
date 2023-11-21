@@ -303,94 +303,98 @@ function Alumni_record_request() {
               </MDBox>
                 <MDBox p={3}>                  
                   <Grid item xs={12} lg={12} sx={{ ml: "auto" }} >
-                    <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
-                      <Tabs
+                    <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">                      
+                      {mobileView && (
+                        <Tabs
                         value={tabValue}
                         onChange={handleTabChange}
                         indicatorColor="primary"
                         textColor="primary"
                         variant="fullWidth"
                       >
-                        {mobileView && (
-                          <>
-                            <Tooltip title="All" placement="top">
-                              <Tab label=""
-                              icon={
-                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                  folder
-                                </Icon>
-                              } />
-                            </Tooltip>
-                            <Tooltip title="Pending" placement="top">
-                              <Tab label=""
-                              icon={
-                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                  pending
-                                </Icon>
-                              } />
-                            </Tooltip>
-                            <Tooltip title="Received" placement="top">
-                              <Tab label="" 
-                                icon={
-                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                  verified
-                                </Icon>
-                              } />
-                            </Tooltip>
-                            <Tooltip title="Declined" placement="top">
-                              <Tab label="" 
-                                  icon={
-                                  <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                    unpublished
-                                  </Icon>
-                                } />
-                            </Tooltip>
-                            <Tooltip title="Completed" placement="top">
-                              <Tab label="" 
-                                  icon={
-                                  <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                    assignment
-                                  </Icon>
-                                } />
-                            </Tooltip>
-                            </>
-                        )}
-                        {!mobileView && (
-                          <>
-                          <Tab label="All"
-                          icon={
-                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                              folder
-                            </Icon>
-                          } />
-                          <Tab label="Pending"
+                          <Tooltip title="All" placement="top">
+                            <Tab label=""
+                            icon={
+                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                folder
+                              </Icon>
+                            } />
+                          </Tooltip>
+                          <Tooltip title="Pending" placement="top">
+                            <Tab label=""
                             icon={
                               <Icon fontSize="small" sx={{ mt: -0.25 }}>
                                 pending
                               </Icon>
                             } />
-                          <Tab label="Received" 
+                          </Tooltip>
+                          <Tooltip title="Received" placement="top">
+                            <Tab label="" 
                               icon={
                               <Icon fontSize="small" sx={{ mt: -0.25 }}>
                                 verified
                               </Icon>
                             } />
-                          <Tab label="Declined" 
-                              icon={
-                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                unpublished
-                              </Icon>
-                            } />
-                          <Tab label="Completed" 
-                              icon={
-                              <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                                assignment
-                              </Icon>
-                            } />
-                          </>
-                        )}
+                          </Tooltip>
+                          <Tooltip title="Declined" placement="top">
+                            <Tab label="" 
+                                icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  unpublished
+                                </Icon>
+                              } />
+                          </Tooltip>
+                          <Tooltip title="Completed" placement="top">
+                            <Tab label="" 
+                                icon={
+                                <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                                  assignment
+                                </Icon>
+                              } />
+                          </Tooltip>
+                        </Tabs>
+                      )}
+                      {!mobileView && (
+                        <Tabs
+                        value={tabValue}
+                        onChange={handleTabChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                      >
+                        <Tab label="All"
+                        icon={
+                          <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                            folder
+                          </Icon>
+                        } />
+                        <Tab label="Pending"
+                          icon={
+                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                              pending
+                            </Icon>
+                          } />
+                        <Tab label="Received" 
+                            icon={
+                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                              verified
+                            </Icon>
+                          } />
+                        <Tab label="Declined" 
+                            icon={
+                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                              unpublished
+                            </Icon>
+                          } />
+                        <Tab label="Completed" 
+                            icon={
+                            <Icon fontSize="small" sx={{ mt: -0.25 }}>
+                              assignment
+                            </Icon>
+                          } />
+                        </Tabs>
+                      )}
 
-                      </Tabs>
                     </AppBar>
 
                     {tabValue === 0 && (

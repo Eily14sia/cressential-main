@@ -54,157 +54,161 @@ function verifyToken(req, res, next) {
   next();
 }
 
+// ========================= Login  =========================
 
+  // login with metamask
+  router.post('/login-metamask', (req, res) => {
+    const { wallet_address } = req.body;
+    const sql = "SELECT * FROM user_management WHERE wallet_address = $1";
 
-// Define a route to get user data by wallet_address
-router.post('/login-metamask', (req, res) => {
-  const { wallet_address } = req.body;
-  const sql = "SELECT * FROM user_management WHERE wallet_address = $1";
+    db.query(sql, [wallet_address], (err, results) => {
+      if (err) {
+        console.error('Error fetching user data:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
 
-  db.query(sql, [wallet_address], (err, results) => {
-    if (err) {
-      console.error('Error fetching user data:', err);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
+      if (results.rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
 
-    if (results.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+      const user = results.rows[0];
 
-    const user = results.rows[0];
+      // Generate a JWT token
+      const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
+        expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+      });
 
-    // Generate a JWT token
-    const token = jwt.sign({ userId: user.user_id, role: user.role }, secretKey, {
-      expiresIn: '1h', // Token expires in 1 hour (adjust as needed)
+      // Include the token in the response
+      res.json({ user, token });
     });
-
-    // Include the token in the response
-    res.json({ user, token });
   });
-});
 
-
-router.post('/login', (req, res) => {
-  const { email, password } = req.body.loginRecord;
-  
-  // Hash the password using SHA-256
-  const hashedPassword = hashPassword(password);
-  
-  // Query the database to retrieve user data
-  const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
-  const values = [email, hashedPassword];
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error('MySQL query error:', err);
-      res.status(500).json({ success: false, message: 'Internal server error' });
-      return;
-    }
-
-    if (results.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const user = results.rows[0];
-    const userData = {
-      user_id: user.user_id,
-      role: user.role,
-      status: user.status,
-    };
-
-    // Generate a JWT token
-    const token = jwt.sign(userData, secretKey, {
-      expiresIn: '2h', // Token expires in 1 hour (adjust as needed)
-    });
-
-    // Include the token in the response
-    res.json({ user: userData, token });
-  });
-});
-
-router.post('/checkTxHash', (req, res) => {
-  const { transaction_hash} = req.body;
-
-  // First query to check if a record with the provided transaction_hash exists
-  const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1';
-  db.query(checkHashSql, [transaction_hash], (checkErr, checkResults) => {
-    if (checkErr) {
-      console.error('MySQL query error:', checkErr);
-      res.status(500).json({ success: false, message: 'Internal server error' });
-      return;
-    }
-
-    if (checkResults.rows.length === 0) {
-      // Transaction hash not found in the database
-      return res.status(404).json({ message: 'Transaction hash not found' });
-    } else{
-      return res.status(200).json({ message: 'Transaction hash found.' });
-    }
-
+  // default login
+  router.post('/login', (req, res) => {
+    const { email, password } = req.body.loginRecord;
     
-  });
-});
-
-router.post('/verify', (req, res) => {
-  const { transaction_hash, password, hash } = req.body;
-
-    // If the transaction hash exists, proceed to the second query
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(password);
-
+    
     // Query the database to retrieve user data
-    const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND password = $2';
-    db.query(sql, [transaction_hash, hashedPassword], (err, results) => {
+    const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
+    const values = [email, hashedPassword];
+    db.query(sql, values, (err, results) => {
       if (err) {
         console.error('MySQL query error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
         return;
       }
 
-      if (results.rows.length > 0) {
-        // Record found in the database
-        const data = results.rows[0];
-        res.json({ success: true, record_status: data.record_status, record_expiration: data.is_expired, date_issued: data.date_issued });
-      } else {
-        // Record not found in the database or invalid password
-        res.status(401).json({ success: false }); // Return a 401 status code
+      if (results.rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
       }
+
+      const user = results.rows[0];
+      const userData = {
+        user_id: user.user_id,
+        role: user.role,
+        status: user.status,
+      };
+
+      // Generate a JWT token
+      const token = jwt.sign(userData, secretKey, {
+        expiresIn: '2h', // Token expires in 1 hour (adjust as needed)
+      });
+
+      // Include the token in the response
+      res.json({ user: userData, token });
     });
-  
-});
+  });
+
+// ========================= Verification  =========================
+
+  // for verify, check if txHash is existing
+  router.post('/checkTxHash', (req, res) => {
+    const { transaction_hash} = req.body;
+
+    // First query to check if a record with the provided transaction_hash exists
+    const checkHashSql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1';
+    db.query(checkHashSql, [transaction_hash], (checkErr, checkResults) => {
+      if (checkErr) {
+        console.error('MySQL query error:', checkErr);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+        return;
+      }
+
+      if (checkResults.rows.length === 0) {
+        // Transaction hash not found in the database
+        return res.status(404).json({ message: 'Transaction hash not found' });
+      } else{
+        return res.status(200).json({ message: 'Transaction hash found.' });
+      }
+
+      
+    });
+  });
+
+  // for verification portal
+  router.post('/verify', (req, res) => {
+    const { transaction_hash, password, hash } = req.body;
+
+      // If the transaction hash exists, proceed to the second query
+      // Hash the password using SHA-256
+      const hashedPassword = hashPassword(password);
+
+      // Query the database to retrieve user data
+      const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND password = $2';
+      db.query(sql, [transaction_hash, hashedPassword], (err, results) => {
+        if (err) {
+          console.error('MySQL query error:', err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+          return;
+        }
+
+        if (results.rows.length > 0) {
+          // Record found in the database
+          const data = results.rows[0];
+          res.json({ success: true, record_status: data.record_status, record_expiration: data.is_expired, date_issued: data.date_issued });
+        } else {
+          // Record not found in the database or invalid password
+          res.status(401).json({ success: false }); // Return a 401 status code
+        }
+      });
+    
+  });
 
 // ========================= Notification  =========================
 
-router.get('/notif/:user_id', (req, res) => {
-  const user_id = req.params.user_id;
+  router.get('/notif/:user_id', (req, res) => {
+    const user_id = req.params.user_id;
 
-  const sql = `
-      SELECT *
-      FROM notification as n
-      WHERE n.user_id = $1
-  `;
-  
-  db.query(sql, [user_id], (err, results) => {
-    if (err) return res.json(err);
-    const data = results.rows;
-    return res.json(data);
+    const sql = `
+        SELECT *
+        FROM notification as n
+        WHERE n.user_id = $1
+    `;
+    
+    db.query(sql, [user_id], (err, results) => {
+      if (err) return res.json(err);
+      const data = results.rows;
+      return res.json(data);
+    });
   });
-});
 
-// Add Record
-router.post('/notif/add-record', verifyToken, (req, res) => {
-  const { title, description, user_id } = req.body;
-  
-  const sql = "INSERT INTO notification (title, description, user_id) VALUES ($1, $2, $3)";
-  
-  db.query(sql, [title, description, user_id], (err, result) => {
-  if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Failed to add record' });
-  }
-  return res.status(200).json({ message: 'Record added successfully' });
+  // Add Record
+  router.post('/notif/add-record', verifyToken, (req, res) => {
+    const { title, description, user_id } = req.body;
+    
+    const sql = "INSERT INTO notification (title, description, user_id) VALUES ($1, $2, $3)";
+    
+    db.query(sql, [title, description, user_id], (err, result) => {
+    if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to add record' });
+    }
+    return res.status(200).json({ message: 'Record added successfully' });
+    });
+    
   });
-  
-});
 
 // ========================= Email  =========================
 
@@ -288,8 +292,8 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     });
   });
 
-    // Update Record
-    router.put('/payment/update-record/:ctrl_number', verifyToken, (req, res) => {
+  // Update Record
+  router.put('/payment/update-record/:ctrl_number', verifyToken, (req, res) => {
       const ctrl_number = req.params.ctrl_number;
       const { 
         payment_id,
@@ -331,7 +335,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
 
 // ================== Alumni Record Issuance  ==================
 
-router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
+  router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
     const sql = `
@@ -363,6 +367,20 @@ router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
         FROM student_management
         WHERE is_alumni = 0
       )
+    `;
+  
+    db.query(sql, (err, results) => {
+      if (err) return res.json(err);
+      const data = results.rows;
+      return res.json(data);
+    });
+  });
+
+  router.get('/payment-signature-request', verifyToken, (req, res) => {
+    const sql = `
+      SELECT *
+      FROM signature_request AS sr
+      INNER JOIN signature_payment AS sp ON sr.ctrl_number = sp.ctrl_number
     `;
   
     db.query(sql, (err, results) => {
@@ -433,7 +451,7 @@ router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
         }
         return res.status(200).json({ message: 'Record updated successfully' });
     });
-});
+  });
 
   // Update Record - automatically update the request status to completed
   router.put('/update-record-request/request_status/:new_ctrl_number', verifyToken, (req, res) => {
@@ -451,92 +469,92 @@ router.get('/record-per-request/:ctrl_number', verifyToken, (req, res) => {
         }
         return res.status(200).json({ message: 'Record updated successfully' });
     });
-});
-
-  
-
- // Define the GET route for '/mysql/record-issuance'
-router.get('/alumni/record-issuance', verifyToken, (req, res) => {
-  const sql = `
-    SELECT *
-    FROM record_per_request as rpr
-    INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
-    INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
-    INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
-    WHERE r.student_id IN (
-      SELECT id
-      FROM student_management
-      WHERE is_alumni = 1
-    )
-    AND rpr.date_issued IS NOT NULL
-  `;
-
-  db.query(sql, (err, results) => {
-    if (err) return res.json(err);
-    const data = results.rows;
-    return res.json(data);
   });
-});
+
+  // Define the GET route for '/mysql/record-issuance'
+  router.get('/alumni/record-issuance', verifyToken, (req, res) => {
+    const sql = `
+      SELECT *
+      FROM record_per_request as rpr
+      INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+      INNER JOIN payment ON rpr.ctrl_number = payment.ctrl_number
+      INNER JOIN type_of_record ON rpr.record_type_id = type_of_record.id
+      WHERE r.student_id IN (
+        SELECT id
+        FROM student_management
+        WHERE is_alumni = 1
+      )
+      AND rpr.date_issued IS NOT NULL
+    `;
+
+    db.query(sql, (err, results) => {
+      if (err) return res.json(err);
+      const data = results.rows;
+      return res.json(data);
+    });
+  });
 
    // Add Record
   router.post('/record-per-request/add-record', verifyToken, (req, res) => {
-  const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
+    const { ctrl_number, recordType, recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
-  // Hash the password using SHA-256
-  const hashedPassword = hashPassword(recordPassword);
+    // Hash the password using SHA-256
+    const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES ($1, $2, $3, $4, $5, $6, $7)";
+    const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES ($1, $2, $3, $4, $5, $6, $7)";
 
-  db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued, transactionHash], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Failed to update record' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Record not found' });
-    }
-    return res.status(200).json({ message: 'Record updated successfully' });
+    db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued, transactionHash], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
   });
-});
+
    // Update Record
   router.put('/upload-record-per-request/:recordID', verifyToken, (req, res) => {
-  const recordID = req.params.recordID;
-  const { recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
+    const recordID = req.params.recordID;
+    const { recordPassword, uploadedCID, hash, dateIssued, transactionHash } = req.body;
 
-  // Hash the password using SHA-256
-  const hashedPassword = hashPassword(recordPassword);
+    // Hash the password using SHA-256
+    const hashedPassword = hashPassword(recordPassword);
 
-  const sql = "UPDATE record_per_request SET password = $1, ipfs = $2, hash = $3 , date_issued = $4, transaction_hash = $5 WHERE rpr_id = $6";
+    const sql = "UPDATE record_per_request SET password = $1, ipfs = $2, hash = $3 , date_issued = $4, transaction_hash = $5 WHERE rpr_id = $6";
 
-  db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, transactionHash, recordID], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Failed to update record' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Record not found' });
-    }
-    return res.status(200).json({ message: 'Record updated successfully' });
+    db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, transactionHash, recordID], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
   });
-});
+
    // Update Record
-router.put('/update-record-per-request/:recordID', verifyToken, (req, res) => {
-  const recordID = req.params.recordID;
-  const { recordStatus } = req.body;
+  router.put('/update-record-per-request/:recordID', verifyToken, (req, res) => {
+    const recordID = req.params.recordID;
+    const { recordStatus } = req.body;
 
-  const sql = "UPDATE record_per_request SET record_status = $1 WHERE rpr_id = $2";
+    const sql = "UPDATE record_per_request SET record_status = $1 WHERE rpr_id = $2";
 
-  db.query(sql, [recordStatus, recordID], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Failed to update record' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Record not found' });
-    }
-    return res.status(200).json({ message: 'Record updated successfully' });
+    db.query(sql, [recordStatus, recordID], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
   });
-});
 
    // Update Record Expiration
    router.put('/update-record-per-request/is_expired/:recordID', verifyToken, (req, res) => {
@@ -555,7 +573,8 @@ router.put('/update-record-per-request/:recordID', verifyToken, (req, res) => {
       return res.status(200).json({ message: 'Record updated successfully' });
     });
   });
-     // Update Record Notify
+  
+  // Update Record Notify
   router.put('/update-record-per-request/is_notified/:recordID', verifyToken, (req, res) => {
     const recordID = req.params.recordID;
   
@@ -582,21 +601,21 @@ function hashPassword(password) {
 
 // ======================= Student Record Request =========================== 
 
-router.get('/due-request', verifyToken, (req, res) => {
-  const today = new Date();
-  const sql = `
-    SELECT *
-    FROM record_request AS r
-    INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
-    WHERE r.date_releasing <= $1 AND r.request_status IN ('Pending', 'Received'); 
-  `;
+  router.get('/due-request', verifyToken, (req, res) => {
+    const today = new Date();
+    const sql = `
+      SELECT *
+      FROM record_request AS r
+      INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
+      WHERE r.date_releasing <= $1 AND r.request_status IN ('Pending', 'Received'); 
+    `;
 
-  db.query(sql, [today], (err, results) => {
-    if (err) return res.json(err);
-    const data = results.rows;
-    return res.json(data);
+    db.query(sql, [today], (err, results) => {
+      if (err) return res.json(err);
+      const data = results.rows;
+      return res.json(data);
+    });
   });
-});
 
 // ================ Type of Record Tab =======================
 
@@ -670,20 +689,20 @@ router.get('/due-request', verifyToken, (req, res) => {
 
 // ================ User Management =======================
 
-    // User Management Tab
-    router.get('/users', verifyToken, (req, res)=> {
+  // User Management Tab
+  router.get('/users', verifyToken, (req, res)=> {
         
-        const sql = `
-            SELECT *
-            FROM user_management;      
-                
-        `;
-        db.query(sql, (err, results)=> {
-            if(err) return res.json(err);
-            const data = results.rows;
-            return res.json(data);
-        })
-    })
+      const sql = `
+          SELECT *
+          FROM user_management;      
+              
+      `;
+      db.query(sql, (err, results)=> {
+          if(err) return res.json(err);
+          const data = results.rows;
+          return res.json(data);
+      })
+  })
 
 // ================ Student Management =======================
 
@@ -722,7 +741,7 @@ router.get('/due-request', verifyToken, (req, res) => {
     })
 
     // Add Record
-    router.post('/student-management/add-record', verifyToken, (req, res) => {
+  router.post('/student-management/add-record', verifyToken, (req, res) => {
     const formData = req.body;
 
     const email = formData.emailAddress;
@@ -774,22 +793,22 @@ router.get('/due-request', verifyToken, (req, res) => {
 // ================ Registrar Management =======================
 
   // Registrar Management Tab
-    router.get('/registrar-management', verifyToken, (req, res)=> {
-        
-        const sql = `
-            SELECT *
-            FROM registrar_management 
-            JOIN user_management ON registrar_management.user_id = user_management.user_id;              
-        `;
+  router.get('/registrar-management', verifyToken, (req, res)=> {
+      
+      const sql = `
+          SELECT *
+          FROM registrar_management 
+          JOIN user_management ON registrar_management.user_id = user_management.user_id;              
+      `;
 
-        db.query(sql, (err, results)=> {
-            if(err) return res.json(err);
-            const data = results.rows;
-            return res.json(data);
-        })
-    })
+      db.query(sql, (err, results)=> {
+          if(err) return res.json(err);
+          const data = results.rows;
+          return res.json(data);
+      })
+  })
 
-      // Student Management with UserID
+  // Student Management with UserID
   router.get('/registrar-management/:user_id', verifyToken, (req, res) => {
     const user_id = req.params.user_id;
         
@@ -875,6 +894,49 @@ router.get('/student-record-request/:user_id', verifyToken, (req, res) => {
 });
 
 // Add Record
+router.post('/signature-request/add-record', verifyToken, (req, res) => {
+  const { student_id, total_amount, transient_id, agreement_id } = req.body;
+
+  // Calculate the date_releasing 15 days after the date_requested
+  const date_requested = new Date();
+  const date_releasing = new Date(date_requested);
+  date_releasing.setDate(date_releasing.getDate() + 15);
+
+  const recordRequestSQL = "INSERT INTO signature_request (transient_id, agreement_id, student_id, date_requested, date_releasing) VALUES ($1, $2, $3, $4, $5) RETURNING ctrl_number";
+  const paymentSQL = "INSERT INTO signature_payment (ctrl_number, total_amount) VALUES ($1, $2)";
+
+  db.query('BEGIN', async (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to start transaction' });
+    }
+  
+    try {
+      const recordResult = await db.query(recordRequestSQL, [transient_id, agreement_id, student_id, date_requested, date_releasing]);
+      const ctrl_number = recordResult.rows[0].ctrl_number;
+  
+      const paymentResult = await db.query(paymentSQL, [ctrl_number, total_amount]);
+  
+      // Commit the transaction if all queries were successful
+      db.query('COMMIT', (commitErr) => {
+        if (commitErr) {
+          console.error(commitErr);
+          return res.status(500).json({ message: 'Failed to commit transaction' });
+        }
+  
+        return res.status(200).json({ message: 'Record added successfully', ctrl_number });
+      });
+    } catch (error) {
+      // Rollback the transaction if any error occurs
+      db.query('ROLLBACK', () => {
+        console.error(error);
+        return res.status(500).json({ message: 'Failed to add record' });
+      });
+    }
+  });
+
+});
+
 router.post('/record-request/add-record', verifyToken, (req, res) => {
   const { record_id, student_id, purpose, total_amount } = req.body;
 
@@ -978,6 +1040,25 @@ router.put('/update-payment/:ctrl_number', verifyToken, (req, res) => {
 
   const payment_date = new Date();
   const sql = "UPDATE payment SET payment_id = $1, payment_date = $2, total_amount = $3, payment_method = $4, payment_status = 'Paid'  WHERE ctrl_number = $5";
+
+  db.query(sql, [payment_id, payment_date, total_amount, payment_method, ctrl_number], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
+
+router.put('/signature/update-payment/:ctrl_number', verifyToken, (req, res) => {
+  const ctrl_number = req.params.ctrl_number;
+  const {total_amount, payment_method, payment_id } = req.body;
+
+  const payment_date = new Date();
+  const sql = "UPDATE signature_payment SET payment_id = $1, payment_date = $2, total_amount = $3, payment_method = $4, payment_status = 'Paid'  WHERE ctrl_number = $5";
 
   db.query(sql, [payment_id, payment_date, total_amount, payment_method, ctrl_number], (err, result) => {
       if (err) {

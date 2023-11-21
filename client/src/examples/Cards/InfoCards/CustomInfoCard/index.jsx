@@ -21,14 +21,14 @@ function DefaultInfoCard({ color, icon, title, description, name, value, handleO
     <Card style={{ backgroundColor: '#f0f2f5', ...(selectedOption === name ? selectedCardStyle : {}) }} className={cardClasses}>
       <CardActionArea onClick={() => handleOptionClick(name)}>
         <CardContent>
-          <MDBox p={2} mx={3} display="flex"  justifyContent="center">
+          <MDBox py={2} mx={3} display="flex"  justifyContent="center">
             <MDBox
               display="grid"
               justifyContent="center"
               alignItems="center"
               bgColor={color}
               color="white"
-              width="4rem"
+              width="6rem"
               height="4rem"
               shadow="md"
               borderRadius="lg"
@@ -37,7 +37,7 @@ function DefaultInfoCard({ color, icon, title, description, name, value, handleO
               <Icon fontSize="default">{icon}</Icon>
             </MDBox>
           </MDBox>
-          <MDBox pb={2} px={2} textAlign="center" lineHeight={1.25}>
+          <MDBox pb={1} px={2} textAlign="center" lineHeight={1.25}>
             <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
               {title}
             </MDTypography>
