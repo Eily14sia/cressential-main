@@ -19,7 +19,7 @@ router.post('/getAccessToken', async (req, res) => {
       grantType = 'authorization_code',
       clientId = 'CBJCHBCAABAARe7cQZ-s5GKs3x1hejZiDftJTu7qZjxm',
       clientSecret = process.env.CLIENT_SECRET,
-      redirectUri = 'https://cressential-5435c63fb5d8.herokuapp.com/signature-request',
+      redirectUri = 'https://cressential-5435c63fb5d8.herokuapp.com/signature-request-form',
       code = authorizationCode,
     } = req.body;
 

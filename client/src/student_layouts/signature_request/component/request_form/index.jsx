@@ -184,7 +184,7 @@ const handleAddDB = async () => {
   };
   
   try {
-    const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/signature-request/add-record', {
+    const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/signature-request-form/add-record', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
