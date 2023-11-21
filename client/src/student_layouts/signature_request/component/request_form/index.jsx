@@ -173,8 +173,7 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
     }
 };
 
-const handleAddDB = async (event) => {
-  event.preventDefault();
+const handleAddDB = async () => {
 
   // Create a new record object to send to the server
   const newRecord = {

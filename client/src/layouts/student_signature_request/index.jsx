@@ -55,7 +55,7 @@ function Student_record_request() {
   const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch("http://localhost:8081/mysql/payment-signature-request", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-signature-request", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },

@@ -156,9 +156,9 @@ const routes = [
   {
     type: "collapse",
     name: "Signature Request",
-    key: "registrar-signature-request",
+    key: "signature-request",
     icon: icon3,
-    route: "/registrar/signature-request",
+    route: "signature-request",
     role: [1, 2],
     component: <Student_signature_request />,
   },
@@ -360,9 +360,9 @@ const routes = [
   {
     type: "collapse",
     name: "Signature Request",
-    key: "signature-request",
+    key: "signature-request-form",
     icon: <Icon fontSize="small">assignment</Icon>,
-    route: "/signature-request",
+    route: "/signature-request-form",
     role: [2],
     component: <Signature_request />,
   },

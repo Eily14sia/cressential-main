@@ -210,13 +210,13 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
   <NavLink key="record-request" to="/record-request" onClick={() => setCollapseName("record-request")}>
     <SidenavCollapse name="Record Request" icon={<Icon fontSize="small">send</Icon>} active={collapseName === "record-request"} />
   </NavLink>,
-  <NavLink key="signature-request" to="/signature-request" onClick={() => setCollapseName("signature-request")}>
-    <SidenavCollapse name="Signature Request " icon={<Icon fontSize="small">draw</Icon>} active={collapseName === "signature-request"} />
+  <NavLink key="signature-request-form" to="/signature-request-form" onClick={() => setCollapseName("signature-request-form")}>
+    <SidenavCollapse name="Signature Request " icon={<Icon fontSize="small">draw</Icon>} active={collapseName === "signature-request-form"} />
   </NavLink>,
   <NavLink key="student-request-table" to="/student-request-table" onClick={() => setCollapseName("student-request-table")}>
     <SidenavCollapse name="Record Request Table" icon={<Icon fontSize="small">assignment</Icon>} active={collapseName === "student-request-table"} />
   </NavLink>,
-  <NavLink key="student-signature-request" to="/registrar/signature-request" onClick={() => setCollapseName("signature-request-table")}>
+  <NavLink key="student-signature-request" to="/signature-request" onClick={() => setCollapseName("signature-request-table")}>
     <SidenavCollapse name="Signature Request Table" icon={<Icon fontSize="small">draw</Icon>} active={collapseName === "signature-request-table"} />
   </NavLink>
   

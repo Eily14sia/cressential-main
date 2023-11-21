@@ -165,8 +165,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const columns = [
     { Header: "Ctrl No.", accessor: "ctrl_num"},
     { Header: "Student Name", accessor: "student_id"},
-    { Header: "Transient", accessor: "transient_id"},
-    { Header: "Agreement", accessor: "agreement_id"},
     { Header: "Date", accessor: "date_requested"},
     { Header: "Payment Status", accessor: "payment_status"},
     { Header: "Request Status", accessor: "request_status"},
@@ -276,8 +274,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         rows: table_data.map((item) => ({
         ctrl_num: "CTRL-"+item.ctrl_number,
         student_id: getStudentName(item.student_id),
-        transient_id: item.transient_id,
-        agreement_id: item.agreement_id,
         
         // date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested
         date_requested: (
@@ -344,13 +340,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
             </>
             ) : ( 
               <>
-              <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
-                <Tooltip title="View" >
-                  <IconButton color="info" >
-                      <VisibilityIcon />
-                    </IconButton>
-                </Tooltip>
-              </Link>
               <Tooltip title="Pay now" >
                 <span>
                 <IconButton  
