@@ -390,6 +390,28 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     });
   });
 
+  router.get('/payment-signature-request/:user_id', verifyToken, (req, res) => {
+    const user_id = req.params.user_id;
+
+    const sql = `
+    SELECT *
+    FROM signature_request AS sr
+    INNER JOIN signature_payment AS sp ON sr.ctrl_number = sp.ctrl_number
+    WHERE sr.student_id = (
+      SELECT id
+      FROM student_management
+      WHERE user_id = $1
+      LIMIT 1
+    )
+  `;
+
+    db.query(sql, [user_id], (err, results) => {
+      if (err) return res.json(err);
+      const data = results.rows;
+      return res.json(data);
+    });
+  });
+
   router.get('/student/record-issuance', verifyToken, (req, res) => {
     const sql = `
       SELECT *

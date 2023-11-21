@@ -74,7 +74,7 @@ const index = () => {
                           </MDTypography>           
                         </Grid>   
                         <Grid item xs={8} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
-                          <Link to="/student-request-table" component={RouterLink} >
+                          <Link to="/signature-request" component={RouterLink} >
                             <MDButton variant="gradient" color="info" size="large" fullWidth >
                                 <Icon>done</Icon> &nbsp; Done 
                             </MDButton>

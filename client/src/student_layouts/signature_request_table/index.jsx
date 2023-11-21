@@ -10,6 +10,11 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Tooltip from '@mui/material/Tooltip';
+import IconButton from "@mui/material/IconButton";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import breakpoints from "../../assets/theme/base/breakpoints";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -22,15 +27,11 @@ import MDAlert from '../../components/MDAlert';
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import DataTable from "../../examples/Tables/DataTable";
-import RequestTable from '../../layouts/request_table';
+import RequestTable from './signature_table';
 import regeneratorRuntime from "regenerator-runtime";
 import { useLocation } from "react-router-dom";
-import breakpoints from "../../assets/theme/base/breakpoints";
 
-function Request_table() {
-  const jwtToken = localStorage.getItem('token');
-  
+function Student_record_request() {
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -47,59 +48,35 @@ function Request_table() {
 
   // =========== For the Datatable =================
   const [data, setData] = useState([]);
-  const [student_data, setStudentData] = useState([]);
   const [registrar_data, setRegistrarData] = useState([]);
-  const [type_of_record, setTypeOfRecord] = useState([]);
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [student_data, setStudentData] = useState([]); 
+  const [student_id, setStudentID] = useState('');
+
+  const jwtToken = localStorage.getItem('token');
+  const local_userID = localStorage.getItem('user_id');
+
   
-  // Retrieve the user_role from localStorage
-  const user_id = localStorage.getItem('user_id');
-  const user_data = data.filter((record) => record.request_status === "Pending");
-
-
-  const pending_data = data.filter((record) => record.request_status === "Pending");
-  const received_data = data.filter((record) => record.request_status === "Received");
-  const declined_data = data.filter((record) => record.request_status === "Declined");
-  const completed_data = data.filter((record) => record.request_status === "Completed");
-
   useEffect(() => {
-    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-record-request/${user_id}`, {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to authenticate token");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setData(data); 
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to authenticate token");
+          throw new Error("Failed to authenticate token"); 
         }
         return res.json();
       })
       .then((student_data) => {
-        setStudentData(student_data); 
+        setStudentData(student_data)
       })
       .catch((err) => console.log(err));
   }, []);
 
+
   useEffect(() => {
-    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-signature-request/${local_userID}`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -111,13 +88,13 @@ function Request_table() {
         return res.json();
       })
       .then((data) => {
-        setRegistrarData(data); 
+          setData(data);        
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record`, {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -128,48 +105,175 @@ function Request_table() {
         }
         return res.json();
       })
-      .then((data) => {
-        setTypeOfRecord(data); 
+      .then((registrar_data) => {
+        setRegistrarData(registrar_data);
       })
       .catch((err) => console.log(err));
   }, []);
 
-  function getTypeOfRecord(type_ids) {
-    // Split the type_ids into an array of individual IDs
-    const idsArray = type_ids.split(',');
-  
-    // Initialize an array to store the fetched type values
-    const typeValues = [];
-  
-    // Loop through each ID and fetch the corresponding type value
-    idsArray.forEach((id) => {
-      // Find the type record that matches the current ID
-      const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
-  
-      // If a matching record is found, push its type value to the typeValues array
-      if (typeRecord) {
-        typeValues.push(typeRecord.type);
-      }
-    });
-  
-    return(typeValues.join(', '));
-  }
+  const pending_data = data.filter((record) => record.request_status === "Pending");
+  const received_data = data.filter((record) => record.request_status === "Received");
+  const declined_data = data.filter((record) => record.request_status === "Declined" || record.request_status === "Cancelled");
+  const completed_data = data.filter((record) => record.request_status === "Completed");
+  const user_id = student_data.find((item) => item.id == student_id)?.user_id;
 
-  const columns = [
-    { Header: "Ctrl No.", accessor: "ctrl_num"},
-    { Header: "Student Name", accessor: "student_id"},
-    { Header: "Record Type", accessor: "record_type" },
-    { Header: "Date", accessor: "date_requested"},
-    { Header: "Processing Officer", accessor: "processing_officer"},
-    { Header: "Payment Status", accessor: "payment_status"},
-    { Header: "Request Status", accessor: "request_status"},
-    { Header: "action", accessor: "action"}
-  ];
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  // =================  UPDATE =======================
+
+  const [processing_officer, setProcessingOfficer] = useState('');
+  const [request_status, updateRequestStatus] = useState('');
+  const [date_releasing, updateDateReleasing] = useState('');
+  // State to track whether the dialog is open
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+
+  // Create a new Date object from the date string
+  const parsedDate = new Date(date_releasing);
+
+    // Function to handle update record form submission
+    const handleUpdateSubmit = async (event) => {
+      event.preventDefault();
+      // Create an updated record object to send to the server
+      const updatedRecord = {
+        date_releasing: date_releasing,
+        processing_officer: processing_officer,
+        request_status: request_status,      
+      };
+
+      try {
+        const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-request/${ctrl_number}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+             Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify(updatedRecord),
+        });
+  
+        if (response.ok) {
+          handleCloseUpdateDialog();
+          setIsSuccess(true);
+          setAlertMessage('Record updated successfully.');
+
+          registrar_data.map(async (item) => {
+            const registrar_update = {
+              title: "Record request updated",
+              description: ctrl_number,
+              user_id: item.user_id
+            }
+
+            const notif_response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+               Authorization: `Bearer ${jwtToken}`,
+            },
+            body: JSON.stringify(registrar_update),
+          });
+
+          });
+
+          const student_update = {
+            title: "Record request updated",
+            description: ctrl_number,
+            user_id: user_id
+          }
+
+          const notif_response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify(student_update),
+          });
+        
+
+          // Fetch updated data and update the state          
+          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to authenticate token");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              setData(data);
+            })
+            .catch((err) => console.log(err));
+          
+        } else {
+          setAlertMessage('Failed to update record');
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error('Error:', error);
+      }
+    };
+  
+  // Function to close the dialog
+  const handleCloseUpdateDialog = () => {
+    setIsUpdateDialogOpen(false);
+  };
+  // const unpaidDecline = async () => {
+  //     const currentDate = new Date();
+  
+  //     // Use map to iterate through the data array
+  //     data.map(async (item) => {
+  //     const requestedDate = new Date(item.date_requested);
+  
+  //     // Check if the request is more than or equal to 3 days old and the status is "Unpaid"
+  //     if (
+  //       currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
+  //       item.payment_status === "Unpaid" &&
+  //       item.request_status !== "Cancelled"
+  //     ) {
+        
+  //       try {
+  //         const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${item.ctrl_number}`, {
+  //           method: 'PUT',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //              Authorization: `Bearer ${jwtToken}`,
+  //           },
+  //         });
+  
+  //         if (response.ok) {
+  //           // Fetch updated data and update the state            
+  //           fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-student-record-request", {
+  //             headers: {
+  //               Authorization: `Bearer ${jwtToken}`,
+  //             },
+  //           })
+  //             .then((res) => {
+  //               if (!res.ok) {
+  //                 throw new Error("Failed to authenticate token");
+  //               }
+  //               return res.json();
+  //             })
+  //             .then((data) => {
+  //               setData(data);
+  //             })
+  //             .catch((err) => console.log(err));
+            
+  //         } else {
+  //           // Handle the case where the update request is not successful
+  //         }
+  //       } catch (error) {
+  //         console.error('Error:', error);
+  //       }
+  //     }
+  //   });
+  // }
+  // unpaidDecline();
 
   const [mobileView, setMobileView] = useState(false);
 
@@ -220,22 +324,21 @@ function Request_table() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Record Request Table
+                  Signature Request Table
                 </MDTypography>
                 
+                {/* <Link to="/graduate-record/add-record" component={RouterLink}> */}
+                {/* <Link to="/graduate-record/add-record" component={RouterLink}>
+                  <MDButton variant="gradient" color="dark">
+                    Add Record&nbsp;
+                    <Icon>add</Icon>
+                  </MDButton>
+                </Link> */}
               </MDBox>
-                <MDBox p={3}>
-                  {/* <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={false}
-                    showTotalEntries={false}
-                    noEndBorder
-                  /> */}
-                  
+                <MDBox p={3}>                  
                   <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
-                    {mobileView && (
+                      {mobileView && (
                         <Tabs
                         value={tabValue}
                         onChange={handleTabChange}
@@ -330,14 +433,21 @@ function Request_table() {
                     {tabValue === 0 && (
                       // Render content for the "All" tab
                       <MDBox pt={3}>
-                        <RequestTable 
-                        table_data={data} 
-                        setData={setData} 
+                        <RequestTable table_data={data} setData={setData} 
                         setIsSuccess={setIsSuccess}
                         setIsError={setIsError}   
-                        setAlertMessage={setAlertMessage} 
+                        setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
+                        updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -354,9 +464,15 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
-                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}
-                        />
+                        setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
                       </MDBox>
                     )}
 
@@ -370,6 +486,13 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -386,6 +509,13 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -402,6 +532,13 @@ function Request_table() {
                         setAlertMessage={setAlertMessage}
                         ctrl_number={ctrl_number}
                         set_ctrl_number={set_ctrl_number}
+                        handleUpdateSubmit={(event) => handleUpdateSubmit(event)}
+                        processing_officer = {processing_officer}
+                        updateProcessingOfficer={setProcessingOfficer}
+                        request_status={request_status}
+                        updateRequestStatus={updateRequestStatus}
+                        date_releasing={date_releasing}
+                        updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -420,4 +557,4 @@ function Request_table() {
   );
 }
 
-export default Request_table;
+export default Student_record_request;

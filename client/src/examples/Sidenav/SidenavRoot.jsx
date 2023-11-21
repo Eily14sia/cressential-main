@@ -86,6 +86,22 @@ export default styled(Drawer)(({ theme, ownerState }) => {
       boxShadow: xxl,
       border: "none",
 
+       // Custom scrollbar styles
+      scrollbarWidth: "thin", // "auto" may also be used depending on the browser support
+      scrollbarColor: "rgba(155, 155, 155, 0.5) rgba(255, 255, 255, 0.5)", // Change these colors as needed
+      "&::-webkit-scrollbar": {
+        width: "8px", // Adjust scrollbar width as needed
+      },
+      "&::-webkit-scrollbar-track": {
+        backgroundColor: "rgba(255, 255, 255, 0.1)", // Change scrollbar track color
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "rgba(155, 155, 155, 0.5)", // Change scrollbar thumb color
+        borderRadius: "4px", // Adjust scrollbar thumb border radius
+        "&:hover": {
+          backgroundColor: "rgba(155, 155, 155, 0.7)", // Change scrollbar thumb color on hover
+        },
+      },
       ...(miniSidenav ? drawerCloseStyles() : drawerOpenStyles()),
     },
   };

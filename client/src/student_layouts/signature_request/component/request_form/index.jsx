@@ -173,12 +173,12 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
     }
 };
 
-const handleAddDB = async () => {
+const handleAddDB = async (transientID, agreementID) => {
 
   // Create a new record object to send to the server
   const newRecord = {
-    transient_id: transient_id,
-    agreement_id: agreement_id,
+    transient_id: transientID,
+    agreement_id: agreementID,
     student_id: student_id, 
     total_amount: 100
   };
@@ -268,7 +268,8 @@ async function addAgreement() {
       console.log('transientDocumentId', response.data.transientDocumentId);
       setTransientID(response.data.transientDocumentId);
       setAgreementID(response.data.agreementId);
-      await handleAddDB();
+
+      await handleAddDB(response.data.transientDocumentId, response.data.agreementId);
     } else {
       console.error('Upload failed');
       // Handle other status codes (e.g., error responses)
