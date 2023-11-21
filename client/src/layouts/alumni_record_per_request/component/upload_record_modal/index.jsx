@@ -46,7 +46,7 @@ const [selectedFile, setSelectedFile] = useState(null);
 const [url, setUrl] = useState(null);
 const [errorMessage, setErrorMessage] = useState('');
 const [initialPassword, setInitialPassword] = useState('');
-const [isPasswordMatch, setIsPasswordMatch] = useState('');
+const [isPasswordMatch, setIsPasswordMatch] = useState(false);
 
 // State to track whether the loading dialog is open
 const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
@@ -83,7 +83,8 @@ async function validatePasswordFromPDF(formData) {
 
     if (response.status >= 200 && response.status < 300) {
       console.log('isPasswordValid:', response.data.isPasswordValid);
-      setIsPasswordMatch(response.data.isPasswordValid)
+      // setIsPasswordMatch(response.data.isPasswordValid)
+      return (response.data.isPasswordValid)
     } else {
       console.error('Request failed with status:', response.status);
       // Handle other status codes (e.g., error responses)
@@ -100,9 +101,9 @@ const handleFileUpload = async () => {
   formData.append('password', initialPassword);
   
   if (selectedFile) {
-    await validatePasswordFromPDF(formData);
+    const password_match = await validatePasswordFromPDF(formData);
  
-    if (isPasswordMatch) {
+    if (password_match) {
 
       try {
         const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {

@@ -147,7 +147,7 @@ const index = ( {setIsError, setAlertMessage, totalAmount, setTotalAmount, setAc
 
     if (!isAuthorize) {
       setIsError(true);
-      setAlertMessage( "You haven't authorize the API. Please go back to Step 1.");
+      setAlertMessage( "You haven't authorize the API yet. Please go back to Step 1.");
       return;
     }
 
