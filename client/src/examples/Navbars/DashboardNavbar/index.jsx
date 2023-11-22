@@ -26,6 +26,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
@@ -37,6 +38,7 @@ import MDTypography from "../../../components/MDTypography";
 // Material Dashboard 2 React example components
 import Breadcrumbs from "../../Breadcrumbs";
 import NotificationItem from "../../Items/NotificationItem";
+import LogoutItem from "../../Items/LogoutItem";
 
 // Custom styles for DashboardNavbar
 import {
@@ -55,6 +57,7 @@ import {
   setOpenConfigurator,
 } from "../../../context";
 import { useAuth } from '../../../context2';
+import { Iso } from "@mui/icons-material";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const [navbarType, setNavbarType] = useState();
@@ -62,6 +65,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { logout } = useAuth(); 
 
@@ -95,6 +99,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+
+  const handleOpenDialog = () => {setIsDialogOpen(event.currentTarget)};
 
   const [data, setData] = useState([]);
   const [today_notif, setTodayNotif] = useState([]);
@@ -191,6 +197,33 @@ const renderMenu = () => (
     
   </Menu>
 );
+
+
+const handleCloseDialog = () => {
+  setIsDialogOpen(false);
+};
+
+const logoutMenu = () => (
+  <Menu
+  anchorEl={isDialogOpen}
+    anchorReference={null}
+    anchorOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    open={Boolean(isDialogOpen)}
+    onClose={handleCloseDialog}
+    sx={{ mt: 8, padding: 5, maxWidth: "400px" }}
+
+>
+  <LogoutItem         
+    icon={<Icon>error</Icon>}
+    title="Are you sure you want to logout?"
+    handleCloseDialog={handleCloseDialog}
+    logout={logout}
+  />
+</Menu>
+);
   
 
   // Styles for the navbar icons
@@ -205,6 +238,8 @@ const renderMenu = () => (
       return colorValue;
     },
   });
+
+ 
 
   return (
     <AppBar
@@ -267,12 +302,13 @@ const renderMenu = () => (
                 disableRipple
                 color="inherit"
                 sx={navbarIconButton}
-                onClick={logout}
+                onClick={handleOpenDialog}
               >
                 <Tooltip title="Logout" >
                   <Icon sx={iconsStyle}>logout</Icon>
                 </Tooltip>
               </IconButton>
+              {logoutMenu()}
               {renderMenu()}
             </MDBox>
           </MDBox>

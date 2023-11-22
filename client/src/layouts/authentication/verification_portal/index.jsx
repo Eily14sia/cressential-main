@@ -12,6 +12,8 @@ import MDInput from "../../../components/MDInput";
 import MDButton from "../../../components/MDButton";
 import MDAlert from "../../../components/MDAlert";
 import PDFViewer2 from '../../../layouts/render_pdf';
+import { InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import axios from 'axios';
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -266,6 +268,12 @@ function Verifier_portal() {
     setAlertMessage('');
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <CoverLayout image={bgImage}>
       <Card>
@@ -341,7 +349,28 @@ function Verifier_portal() {
                   <MDInput type="text" label="Transaction Number" value={transaction_hash} variant="outlined" onChange={(e) => setTransactionHash(e.target.value)} fullWidth />
                 </MDBox>
                 <MDBox mb={2}>
-                  <MDInput type="password" value={password} label="Password" variant="outlined" onChange={(e) => setPassword(e.target.value)} fullWidth />
+                  {/* <MDInput type="password" value={password} label="Password" variant="outlined" onChange={(e) => setPassword(e.target.value)} fullWidth /> */}
+                  <MDInput
+                  type={showPassword ? 'text' : 'password'}
+                  label="Password"
+                  value={password}
+                    onChange={(e) => setPassword(e.target.value)}                  
+                    fullWidth               
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={handlePasswordVisibility}
+                            edge="end"
+                            aria-label="toggle password visibility"
+                            size="small"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
                 </MDBox>
                 <MDBox mb={2}>
                   <MDInput fullWidth variant="outlined" 

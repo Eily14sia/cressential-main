@@ -397,7 +397,10 @@ const styles = {
               </MDBox>
               <MDBox display="flex" mb={1} >
                 <MDTypography variant="caption" ml={3} my={1}>
-                  In order to use the Adobe API, you need to authorize it first by clicking the 'Authorize the API' Button.
+                  In order to use the Adobe API, you need to authorize it first by clicking the 'Authorize the API' Button. <br/> <br/>
+                  You will be redirected to another window. For testing purposes, make sure to save these adobe credentials: <br/><br/>
+                  <b>Username:</b> digrefiel2020@plm.edu.ph <br/>
+                  <b>Password:</b> @Cressential1234
                 </MDTypography>                  
               </MDBox>
               <MDBox px={3} >

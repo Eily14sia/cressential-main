@@ -320,7 +320,7 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
                             <FormControlLabel
                             value="For further studies"
                             control={<Radio />}
-                            label="3. For further studies (Specify the college/university)"
+                            label="3. For further studies"
                             />
                         </RadioGroup>
                         {selectedPurpose === "For further studies" && (

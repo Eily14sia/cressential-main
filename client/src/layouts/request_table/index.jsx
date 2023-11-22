@@ -21,6 +21,7 @@ import MDButton from "../../components/MDButton";
 import MDBadge from "../../components/MDBadge";
 import MDAlert from '../../components/MDAlert';
 import CircularProgress from '../../examples/CircularProgress';
+import MetamaskModal from "../../examples/MetamaskModal";
 
 // Material Dashboard 2 React example components
 import DataTable from "../../examples/Tables/DataTable";
@@ -40,6 +41,16 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const jwtToken = localStorage.getItem('token');
   const user_role = localStorage.getItem('user_role');
   const [loading, setLoading] = useState(true);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   const [student_data, setStudentData] = useState([]);
 
@@ -254,58 +265,8 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
       const releasingDate = new Date(date);
       
       if (releasingDate < currentDate) {
-        // Insert a notification into the database
-        // registrar_data.map(async (item) => {
-        //   const registrar_update = {
-        //     title: "Record request is past due.",
-        //     description: ctrl_num,
-        //     user_id: item.user_id
-        //   }
-  
-        //   fetch("http://localhost:8081/mysql/notif/add-record", {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(registrar_update),
-        // })
-        //   .then((notificationResponse) => {
-        //     if (notificationResponse.ok) {
-        //       console.log('Notification inserted successfully');
-        //     } else {
-        //       console.error('Failed to insert notification');
-        //     }
-        //   })
-        //   .catch((err) => console.error('Error inserting notification:', err));
-        // });    
-  
-        return "error"; // Past due
-      } else if (releasingDate.toDateString() === currentDate.toDateString()) {
-        // Insert a notification into the database
-        // registrar_data.map(async (item) => {
-        //   const registrar_update = {
-        //     title: "Record request is due today.",
-        //     description: ctrl_num,
-        //     user_id: item.user_id
-        //   }
-  
-        //   fetch("http://localhost:8081/mysql/notif/add-record", {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(registrar_update),
-        // })
-        //   .then((notificationResponse) => {
-        //     if (notificationResponse.ok) {
-        //       console.log('Notification inserted successfully');
-        //     } else {
-        //       console.error('Failed to insert notification');
-        //     }
-        //   })
-        //   .catch((err) => console.error('Error inserting notification:', err));
-        // });
-  
+          return "error"; // Past due
+      } else if (releasingDate.toDateString() === currentDate.toDateString()) {  
         return "warning"; // Today
       }
     
@@ -320,6 +281,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
 
   return (
     <>
+      <MetamaskModal open={isDialogOpen} onClose={handleCloseDialog} />
       <DataTable table={{ columns, 
         rows: table_data.map((item) => ({
         ctrl_num: "CTRL-"+item.ctrl_number,
@@ -384,59 +346,90 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         ),
         action: (
           <>
-          {parseInt(user_role) === 1 ? (
-            <>
-            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
-              <Tooltip title={`View CTRL-${item.ctrl_number}`} >
-                <IconButton color="info" >
-                    <VisibilityIcon />
-                  </IconButton>
-              </Tooltip>
-            </Link>
-            <Tooltip title={`Update CTRL-${item.ctrl_number}`} >
-              <IconButton color="success" onClick={() => 
-                handleOpenUpdateDialog( 
-                  item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id
-                )}>
-                <EditIcon /> 
-              </IconButton>
-            </Tooltip>
-            {/* <Tooltip title="Delete" >
-              <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip> */}
-            </>
-            ) : ( 
+          {(window.ethereum) ? (
+             
+            parseInt(user_role) === 1 ? (
               <>
-              <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
-                <Tooltip title="View" >
+              <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
+                <Tooltip title={`View CTRL-${item.ctrl_number}`} >
                   <IconButton color="info" >
                       <VisibilityIcon />
                     </IconButton>
                 </Tooltip>
               </Link>
-              <Tooltip title="Pay now" >
-                <span>
-                <IconButton  
-                  to={`/record-request`} component={RouterLink} 
-                  state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}
-                  disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
-                    >
-                  <PaymentsIcon />
+              <Tooltip title={`Update CTRL-${item.ctrl_number}`} >
+                <IconButton color="success" onClick={() => 
+                  handleOpenUpdateDialog( 
+                    item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id
+                  )}>
+                  <EditIcon /> 
                 </IconButton>
-                </span>
               </Tooltip>
-              <Tooltip title="Cancel Request" >
-                <span>
-                <IconButton disabled={item.request_status !== 'Pending' || item.payment_status !== 'Unpaid'} color="secondary" 
-                  onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
-                  <CancelIcon />
+              {/* <Tooltip title="Delete" >
+                <IconButton color="secondary" onClick={() => handleOpenDeleteDialog(item.id)}>
+                  <DeleteIcon />
                 </IconButton>
-                </span>
-              </Tooltip>
+              </Tooltip> */}
               </>
-            )}
+              ) : ( 
+                <>
+                <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink}>
+                  <Tooltip title={`View CTRL-${item.ctrl_number}`} >
+                    <IconButton color="info" >
+                        <VisibilityIcon />
+                      </IconButton>
+                  </Tooltip>
+                </Link>
+                <Tooltip title={`Pay CTRL-${item.ctrl_number}`} >
+                  <span>
+                  <IconButton  
+                    to={`/record-request`} component={RouterLink} 
+                    state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}
+                    disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
+                      >
+                    <PaymentsIcon />
+                  </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title="Cancel Request" >
+                  <span>
+                  <IconButton disabled={item.request_status !== 'Pending' || item.payment_status !== 'Unpaid'} color="secondary" 
+                    onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
+                    <CancelIcon />
+                  </IconButton>
+                  </span>
+                </Tooltip>
+                </>
+              )
+            
+          ) : (
+            <>
+            <Tooltip title={`View CTRL-${item.ctrl_number}`}>
+              <IconButton color="info" onClick={handleOpenDialog}>
+                <VisibilityIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={`Pay CTRL-${item.ctrl_number}`} >
+              <span>
+              <IconButton  
+                to={`/record-request`} component={RouterLink} 
+                state={{ activeStep: 1, total_amount: item.total_amount, recordIDs: item.request_record_type_id, ctrl_number: item.ctrl_number }}
+                disabled={item.payment_status !== 'Unpaid' || item.request_status !== 'Pending'} color="success"                     
+                  >
+                <PaymentsIcon />
+              </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title="Cancel Request" >
+              <span>
+              <IconButton disabled={item.request_status !== 'Pending' || item.payment_status !== 'Unpaid'} color="secondary" 
+                onClick={() => handleOpenCancelDialog(item.ctrl_number)}>
+                <CancelIcon />
+              </IconButton>
+              </span>
+            </Tooltip>
+          </>
+          )} 
           </>                                 
         ), 
         })), 

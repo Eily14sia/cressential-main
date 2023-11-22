@@ -564,14 +564,17 @@ function Dashboard() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // pending
   const rq_pending_data = record_request_data.filter((record) => record.request_status === "Pending");
   const sign_pending_data = sign_data.filter((record) => record.request_status === "Pending");
   const pending_data = rq_pending_data.concat(sign_pending_data);
 
+  // pending today
   const sign_pending_data_today = sign_data.filter((record) => {
     const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
     return record.request_status === "Pending" && dateRequested === today;
   });
+  
   const rq_pending_data_today = record_request_data.filter((record) => {
     const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
     return record.request_status === "Pending" && dateRequested === today;
@@ -579,20 +582,39 @@ function Dashboard() {
 
   const pending_data_today = rq_pending_data_today.concat(sign_pending_data_today);
 
+  // received
   const rq_receieved_data = record_request_data.filter((record) => record.request_status === "Received" );
   const sign_receieved_data = sign_data.filter((record) => record.request_status === "Received" );
   const receieved_data = rq_receieved_data.concat(sign_receieved_data);
 
-  const rq_receieved_data_today = record_request_data.filter((record) => record.request_status === "Received" && record.date_requested === today);
-  const sign_receieved_data_today = sign_data.filter((record) => record.request_status === "Received" && record.date_requested === today);
-  const receieved_data_today = rq_receieved_data_today.concat(sign_receieved_data_today);
+  // received today
+  const sign_received_data_today = sign_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Received" && dateRequested === today;
+  });
+  
+  const rq_received_data_today = record_request_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Received" && dateRequested === today;
+  });  
 
+  const received_data_today = rq_received_data_today.concat(sign_received_data_today);
+
+  // completed
   const rq_completed_data = record_request_data.filter((record) => record.request_status === "Completed");
   const sign_completed_data = sign_data.filter((record) => record.request_status === "Completed");
   const completed_data = rq_completed_data.concat(sign_completed_data);
 
-  const rq_completed_data_today = record_request_data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
-  const sign_completed_data_today = sign_data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
+  // completed today
+  const sign_completed_data_today = sign_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Completed" && dateRequested === today;
+  });
+  
+  const rq_completed_data_today = record_request_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Completed" && dateRequested === today;
+  });  
   const completed_data_today = rq_completed_data_today.concat(sign_completed_data_today);
 
   const active_users = user_data ? user_data.filter((record) => record.status === "active") : null;
@@ -627,7 +649,7 @@ function Dashboard() {
                 count={receieved_data.length}
                 percentage={{
                   color: "success",
-                  amount: "+"+receieved_data_today.length,
+                  amount: "+"+received_data_today.length,
                   label: "received request today",
                 }}
               />
