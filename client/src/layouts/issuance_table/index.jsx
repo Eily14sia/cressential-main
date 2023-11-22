@@ -207,7 +207,7 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
           <MDBox lineHeight={1}>
               <MDTypography display="block" variant="button" fontWeight="medium">
               {item.ipfs ? (
-                <a target="_blank" rel="noopener noreferrer" href={`http://localhost:8080/ipfs/${item.ipfs}`}>
+                <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
                   {item.type}
                 </a>
               ) : (

@@ -33,24 +33,24 @@ const secretKey = process.env.TOKEN_SECRET_KEY;
 
 function verifyToken(req, res, next) {
   // Get the token from the request header
-  const authorizationHeader = req.headers.authorization;
+  // const authorizationHeader = req.headers.authorization;
 
-  if (!authorizationHeader) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  // if (!authorizationHeader) {
+  //   return res.status(401).json({ error: "Unauthorized" });
+  // }
 
-  const token = authorizationHeader.split(' ')[1];
-  // Verify the token
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      console.error("Failed to authenticate token:", err);
-      return res.status(401).json({ message: "Failed to authenticate token" });
-    }
+  // const token = authorizationHeader.split(' ')[1];
+  // // Verify the token
+  // jwt.verify(token, secretKey, (err, decoded) => {
+  //   if (err) {
+  //     console.error("Failed to authenticate token:", err);
+  //     return res.status(401).json({ message: "Failed to authenticate token" });
+  //   }
 
-    // Store the decoded user information in the request for later use
-    req.user = decoded;
-    next();
-  });
+  //   // Store the decoded user information in the request for later use
+  //   req.user = decoded;
+  //   next();
+  // });
   next();
 }
 
