@@ -83,6 +83,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   async function connectWallet() {
+    
+    setIsSuccess(false);
+    setIsError(false);
+    setAlertMessage("");
+
     // Check if MetaMask is available
     if (window.ethereum) {
       // Access the MetaMask Ethereum provider
@@ -97,13 +102,14 @@ export const AuthProvider = ({ children }) => {
   
         // Do something with the wallet address (e.g., store it in state)
         setWalletAddress(account);
-        
+        console.log(account);
         await login_metamask(account);
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
     } else {
-      console.error("MetaMask is not available in this browser.");
+      setIsError(true);
+      setAlertMessage('MetaMask is not available in this browser. Please use the default login through email and password.');
     }
   }
 
@@ -124,27 +130,40 @@ export const AuthProvider = ({ children }) => {
             const token = data.token; // Assuming the token is returned from the server
             const user = data.user;
 
-            // Extract user_role from the user object
-            const user_role = user ? user.role : null;
-            const user_id = user? user.user_id : null;
+            /// Extract user_role from the user object
+          const user_role = user ? user.role : null;
+          const user_id = user? user.user_id : null;
+          const user_status = user? user.status : null;
+        
+          
+          // Redirect the user to the dashboard or perform other actions
+          console.log('Login successful');
+          if (user_status === 'active'){
             localStorage.setItem('user_role', user_role);
             localStorage.setItem('user_id', user_id);
-
+    
             // Save the token in localStorage or sessionStorage
             localStorage.setItem('token', token);
-            
-            // Redirect the user to the dashboard or perform other actions
-            console.log('Login successful');
-            navigate('/dashboard');
-            } else {
-            // Authentication failed
-            // You can display an error message to the user
-            console.error('Login failed');
-            }
+            parseInt(user_role) === 1 ? navigate('/dashboard') : navigate('/student-request-table');
+          } else {
+            setIsError(true);
+            setAlertMessage('Login failed. Your account is inactive.');
+          }
+
+
+          } else {
+          // Authentication failed
+          // You can display an error message to the user
+          console.error('Login failed');
+          setIsError(true);
+          setAlertMessage('Wallet Address not found. Ensure that correct account is connected in your MetaMask.');
+          }
         } catch (error) {
             console.error('Error:', error);
         }
-    };
+        setPassword('');
+        setEmail('');
+  };
 
   // Define a function for logging out
   const logout = () => {

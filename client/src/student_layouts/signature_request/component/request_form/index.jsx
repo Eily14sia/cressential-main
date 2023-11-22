@@ -37,6 +37,7 @@ import DataTable from "../../../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 import DocumentSelection from "../document_selection";
 import DialogBox from '../add_record_modal';
+import LoadingModal from "../loading_modal";
 
 import axios from 'axios';
 
@@ -62,6 +63,8 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
     const [student_id, setStudentID] = useState('');
     const [registrar_data, setRegistrarData] = useState([]);
 
+    // State to track whether the loading dialog is open
+    const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
 
     useEffect(() => {
       fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
@@ -253,6 +256,7 @@ const handleAddDB = async (transientID, agreementID) => {
 };
 
 async function addAgreement() {
+  setIsLoadingDialogOpen(true);
   formData.append('File', selectedFile);
   formData.append('access_token', api_token);
 
@@ -270,12 +274,15 @@ async function addAgreement() {
       setAgreementID(response.data.agreementId);
 
       await handleAddDB(response.data.transientDocumentId, response.data.agreementId);
+      setIsLoadingDialogOpen(false);
     } else {
       console.error('Upload failed');
+      setIsLoadingDialogOpen(false);
       // Handle other status codes (e.g., error responses)
     }
   } catch (error) {
     console.error('Error uploading file:', error);
+    setIsLoadingDialogOpen(false);
     // Handle network errors or exceptions
   }
 
@@ -345,9 +352,15 @@ const styles = {
   return (
     <>
         <MDBox pt={2} py={5} px={3}>
+          {isLoadingDialogOpen && ( 
+            <LoadingModal
+              open={isLoadingDialogOpen}
+              onClose={isLoadingDialogOpen}
+            />) 
+          } 
           <Grid container spacing={2} justifyContent="center">
             <Grid item textAlign="center" xs={12} lg={8} sx={{borderRadius: '5px'}}>             
-                
+            
                   {/* {pdfUrl && <PDFViewer2 />} */}
                   
                   {url ? (
@@ -379,7 +392,7 @@ const styles = {
             <Grid item xs={12} lg={4} sx={{borderRadius: '5px'}}>         
 
               <MDBox display="flex" alignItems="center" >
-                <CustomSmallCircleIcon />
+                <CustomSmallCircleIcon /> 
                 <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Step 1:</MDTypography>
               </MDBox>
               <MDBox display="flex" mb={1} >

@@ -20,7 +20,7 @@ import CoverLayout from "../components/CoverLayout";
 
 // Images
 import bgImage from "../../../assets/images/university.jpg";
-import LoginModal from '../components/LoginModal';
+import LoginModal from '../components/ConnectWallet';
 import { InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -33,6 +33,7 @@ function Log_in() {
     setEmail,
     password,
     setPassword,
+    setAlertMessage,
     alertMessage, 
     isSuccess, setIsSuccess,
     isError, setIsError } = useAuth();
@@ -81,7 +82,7 @@ function Log_in() {
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3 }>
-              {isSuccess && (
+            {isSuccess && (
               <MDAlert color="success" dismissible sx={{marginBottom: '40px'}} onClose={() => setIsSuccess(false)}>
                     {alertContent("success", alertMessage)}
               </MDAlert>

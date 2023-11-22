@@ -39,11 +39,12 @@ import axios from 'axios';
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
-  const [data, setData] = useState([]);
+  const [record_request_data, setRecordRequestData] = useState([]);
+  const [sign_data, setSignData] = useState([]);
   const [user_data, setUserData] = useState([]);
   const jwtToken = localStorage.getItem('token');
 
-     /* ================= Emails ===================== */
+  /* ================= Emails ===================== */
 
   // ================ For the Data =======================
   const [request_data, setRequestData] = useState([]);
@@ -266,7 +267,7 @@ function Dashboard() {
       This is a friendly reminder that your record with the following information is set to expire on ${formattedDate}.
 
         • Record Type: ${recordType}
-        • IPFS Link: https://cressential-5435c63fb5d8.herokuapp.com/ipfs/${ipfs}
+        • IPFS Link: https://cressential.infura-ipfs.io/ipfs/${ipfs}
         • Expiration Date: ${formattedDate}
 
       To maintain access to your records, you can submit a new record request. You can easily do this by following these steps:
@@ -318,7 +319,7 @@ function Dashboard() {
       We regret to inform you that your record with the following information has expired on ${formattedDate}.
 
         • Record Type: ${recordType}
-        • IPFS Link: https://cressential-5435c63fb5d8.herokuapp.com/ipfs/${ipfs}
+        • IPFS Link: https://cressential.infura-ipfs.io/ipfs/${ipfs}
         • Expiration Date: ${formattedDate}
 
       Your record may no longer be valid for use. To regain access to your record, you will need to submit a new record request. Please note that the process of submitting a new request may take some time to complete.
@@ -519,7 +520,25 @@ function Dashboard() {
           return res.json();
         })
         .then((data) => {
-          setData(data);
+          setRecordRequestData(data);
+        })
+        .catch((err) => console.log(err));
+    }, []);
+
+    useEffect(() => {
+      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-signature-request", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Failed to authenticate token");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setSignData(data);
         })
         .catch((err) => console.log(err));
     }, []);
@@ -543,14 +562,39 @@ function Dashboard() {
     }, []);
   
 
-  const today = new Date();
+  const today = new Date().toISOString().split('T')[0];
 
-  const pending_data = data.filter((record) => record.request_status === "Pending");
-  const pending_data_today = data.filter((record) => record.request_status === "Pending" && record.date_requested === today);
-  const receieved_data = data.filter((record) => record.request_status === "Received" );
-  const receieved_data_today = data.filter((record) => record.request_status === "Received" && record.date_requested === today);
-  const completed_data = data.filter((record) => record.request_status === "Completed");
-  const completed_data_today = data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
+  const rq_pending_data = record_request_data.filter((record) => record.request_status === "Pending");
+  const sign_pending_data = sign_data.filter((record) => record.request_status === "Pending");
+  const pending_data = rq_pending_data.concat(sign_pending_data);
+
+  const sign_pending_data_today = sign_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Pending" && dateRequested === today;
+  });
+  const rq_pending_data_today = record_request_data.filter((record) => {
+    const dateRequested = new Date(record.date_requested).toISOString().split('T')[0];
+    return record.request_status === "Pending" && dateRequested === today;
+  });
+
+  const pending_data_today = rq_pending_data_today.concat(sign_pending_data_today);
+
+  const rq_receieved_data = record_request_data.filter((record) => record.request_status === "Received" );
+  const sign_receieved_data = sign_data.filter((record) => record.request_status === "Received" );
+  const receieved_data = rq_receieved_data.concat(sign_receieved_data);
+
+  const rq_receieved_data_today = record_request_data.filter((record) => record.request_status === "Received" && record.date_requested === today);
+  const sign_receieved_data_today = sign_data.filter((record) => record.request_status === "Received" && record.date_requested === today);
+  const receieved_data_today = rq_receieved_data_today.concat(sign_receieved_data_today);
+
+  const rq_completed_data = record_request_data.filter((record) => record.request_status === "Completed");
+  const sign_completed_data = sign_data.filter((record) => record.request_status === "Completed");
+  const completed_data = rq_completed_data.concat(sign_completed_data);
+
+  const rq_completed_data_today = record_request_data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
+  const sign_completed_data_today = sign_data.filter((record) => record.request_status === "Completed" && record.date_requested === today);
+  const completed_data_today = rq_completed_data_today.concat(sign_completed_data_today);
+
   const active_users = user_data ? user_data.filter((record) => record.status === "active") : null;
 
 

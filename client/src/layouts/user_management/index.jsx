@@ -200,12 +200,6 @@ function User_Management() {
                                 </IconButton>
                               )}
                             </Tooltip>
-
-                            <Tooltip title="Delete" >
-                              <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
                           </>  
                           // <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
                           //   more_vert

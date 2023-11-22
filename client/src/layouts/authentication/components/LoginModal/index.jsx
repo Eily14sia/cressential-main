@@ -31,7 +31,7 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
   const [selectedOption, setSelectedOption] = useState('');
   // const [walletAddress, setWalletAddress] = useState('');
   const navigate = useNavigate();
-  const { user, connectWallet, logout } = useAuth();
+  const { connectWallet} = useAuth();
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -119,8 +119,7 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
                   borderWidth: selectedOption === 'student' ? 2 : 0,
                 }}
                 onClick={() => {
-                  handleOptionClick('student'); 
-                  set_user_id(2);                 
+                  handleOptionClick('student');           
                 }}
                 className={selectedOption === 'student' ? 'selected-card' : ''}
               >
@@ -157,8 +156,7 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
                   borderWidth: selectedOption === 'registrar' ? 2 : 0,
                 }}
                 onClick={() => {
-                  handleOptionClick('registrar'); 
-                  set_user_id(1);                 
+                  handleOptionClick('registrar');        
                 }}
                 className={selectedOption === 'registrar' ? 'selected-card' : ''}
               >

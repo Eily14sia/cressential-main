@@ -1,17 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
@@ -22,6 +8,7 @@ import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from "@mui/material/IconButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import MetamaskModal from "../../../../../examples/MetamaskModal";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../../components/MDBox";
@@ -39,6 +26,15 @@ function Request_table() {
     const [data, setData] = useState([]);
     const jwtToken = localStorage.getItem('token');
     const [loading, setLoading] = useState(true);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const handleOpenDialog = () => {
+      setIsDialogOpen(true);
+    };
+  
+    const handleCloseDialog = () => {
+      setIsDialogOpen(false);
+    };
 
     useEffect(() => {
       fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
@@ -144,6 +140,7 @@ function Request_table() {
   return (
     <>
       
+      <MetamaskModal open={isDialogOpen} onClose={handleCloseDialog} />
       <DataTable 
         table={{ columns, 
         rows: data.map((item) => ({
@@ -183,7 +180,8 @@ function Request_table() {
           </>
         ),
         action: (
-          <>
+          <> 
+          {(window.ethereum) ? (
             <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
               <Tooltip title="View" >
                 <IconButton color="info" >
@@ -191,7 +189,13 @@ function Request_table() {
                   </IconButton>
               </Tooltip>
             </Link>
-            
+          ) : (
+            <Tooltip title="View">
+              <IconButton color="info" onClick={handleOpenDialog}>
+                <VisibilityIcon />
+              </IconButton>
+            </Tooltip>
+          )}          
           </>                                 
         ), 
         })), 

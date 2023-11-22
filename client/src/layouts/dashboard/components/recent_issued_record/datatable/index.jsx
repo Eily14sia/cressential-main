@@ -110,7 +110,7 @@ function Issuance_table() {
           <MDBox lineHeight={1}>
               <MDTypography display="block" variant="button" fontWeight="medium">
               {item.ipfs ? (
-                  <a target="_blank" rel="noopener noreferrer" href={`http://localhost:8080/ipfs/${item.ipfs}`}>
+                  <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
                     {getTypeOfRecord(item.record_type_id)}
                   </a>     
               ) : (

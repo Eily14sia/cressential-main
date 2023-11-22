@@ -768,8 +768,8 @@ function hashPassword(password) {
 
     const email = formData.emailAddress;
     const password = hashPassword(formData.studentNumber);
-    const wallet_address = formData.walletAddress;
-  
+    const wallet_address = formData.walletAddress.toLowerCase();
+    
     const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 2) RETURNING user_id";
     
     db.query(user_management_sql, [email, password, wallet_address], (err, result) => {
