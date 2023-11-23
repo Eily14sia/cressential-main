@@ -26,7 +26,7 @@ function DialogBox({ open, onClose, setData, ctrl_number, setIsSuccess, setIsErr
     event.preventDefault();
     // Create an canceld record object to send to the server
     try {
-      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-record-request/${new_ctrl_number}`, {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-signature-request/${new_ctrl_number}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -40,19 +40,19 @@ function DialogBox({ open, onClose, setData, ctrl_number, setIsSuccess, setIsErr
         setAlertMessage('Request cancelled successfully.');
 
         // Fetch updated data and update the state
-        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-record-request/${user_id}`, {
+        fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment-signature-request/${user_id}`, {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
         })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to authenticate token");
-          }
-          return res.json();
-        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to authenticate token");
+            }
+            return res.json();
+          })
           .then((data) => {
-            setData(data); // Set the fetched data into the state
+              setData(data);        
           })
           .catch((err) => console.log(err));
       } else {

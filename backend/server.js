@@ -33,25 +33,24 @@ const secretKey = process.env.TOKEN_SECRET_KEY;
 
 function verifyToken(req, res, next) {
   // Get the token from the request header
-  // const authorizationHeader = req.headers.authorization;
+  const authorizationHeader = req.headers.authorization;
 
-  // if (!authorizationHeader) {
-  //   return res.status(401).json({ error: "Unauthorized" });
-  // }
+  if (!authorizationHeader) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
-  // const token = authorizationHeader.split(' ')[1];
-  // // Verify the token
-  // jwt.verify(token, secretKey, (err, decoded) => {
-  //   if (err) {
-  //     console.error("Failed to authenticate token:", err);
-  //     return res.status(401).json({ message: "Failed to authenticate token" });
-  //   }
+  const token = authorizationHeader.split(' ')[1];
+  // Verify the token
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      console.error("Failed to authenticate token:", err);
+      return res.status(401).json({ message: "Failed to authenticate token" });
+    }
 
-  //   // Store the decoded user information in the request for later use
-  //   req.user = decoded;
-  //   next();
-  // });
-  next();
+    // Store the decoded user information in the request for later use
+    req.user = decoded;
+    next();
+  });
 }
 
 // ========================= Login  =========================
@@ -854,7 +853,7 @@ function hashPassword(password) {
 
     const email = formData.emailAddress;
     const password = hashPassword('Registrar123');
-    const wallet_address = formData.walletAddress;
+    const wallet_address = formData.walletAddress.toLowerCase();
   
     const user_management_sql = "INSERT INTO user_management (email, password, wallet_address, role) VALUES ($1, $2, $3, 1) RETURNING user_id";
     
@@ -957,6 +956,43 @@ router.post('/signature-request/add-record', verifyToken, (req, res) => {
     }
   });
 
+});
+
+// Update Signature Record
+router.put('/update-signature-request/:new_ctrl_number', verifyToken, (req, res) => {
+  const new_ctrl_number = req.params.new_ctrl_number;
+  const { date_releasing, request_status } = req.body;
+
+  const sql = "UPDATE signature_request SET date_releasing = $1, request_status = $2 WHERE ctrl_number = $3";
+
+  db.query(sql, [date_releasing, request_status, new_ctrl_number], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+  });
+});
+
+// Cancel signature Request
+router.put('/cancel-signature-request/:ctrl_number', verifyToken, (req, res) => {
+  const ctrl_number = req.params.ctrl_number;
+
+  const sql = "UPDATE signature_request SET request_status = 'Cancelled' WHERE ctrl_number = $1";
+
+  db.query(sql, [ctrl_number], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
+      }
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Record not found' });
+      }
+      return res.status(200).json({ message: 'Record updated successfully' });
+  });
 });
 
 router.post('/record-request/add-record', verifyToken, (req, res) => {

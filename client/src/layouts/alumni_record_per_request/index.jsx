@@ -136,6 +136,7 @@ function Alumni_record_per_request() {
   const new_date_releasing = date_releasing ? new Date(date_releasing).toLocaleDateString() : "loading";
 
   const status = data.find((item) => item.ctrl_number == ctrl_number)?.payment_status;
+  const request_status = data.find((item) => item.ctrl_number == ctrl_number)?.request_status;
   const payment_status = status ?  String(status) : 'loading';
   const student_id = data.find((item) => item.ctrl_number == ctrl_number)?.student_id;
 
@@ -341,9 +342,15 @@ function Alumni_record_per_request() {
                       <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                         <Icon>arrow_back</Icon>&nbsp; Record Request
                       </MDButton>
-                      <MDButton onClick={() => handleOpenAddDialog()} variant="gradient" color="dark" size="small">
-                        <Icon>add</Icon>&nbsp; Add Record
-                      </MDButton>
+                      <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={payment_status !== "Unpaid" && (request_status !== "Pending" || request_status !== "Cancelled")}>
+                        <span>
+                          <MDButton onClick={() => handleOpenAddDialog()} 
+                            disabled={payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled")}
+                            variant="gradient" color="dark" size="small">
+                            <Icon>add</Icon>&nbsp; Add Record
+                          </MDButton>
+                        </span>
+                      </Tooltip>
                     </>
                   ) : (
                     <>
@@ -392,18 +399,18 @@ function Alumni_record_per_request() {
                             <>
                             {parseInt(user_role) === 1 ? (
                               <>
-                            <Tooltip title="Upload" >
+                            <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={item.ipfs !== null || (payment_status !== "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}>
                               <span>
                                 <IconButton
                                   color="info"
-                                  disabled={item.ipfs !== null || payment_status === "Unpaid"}
+                                  disabled={item.ipfs !== null || (payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}
                                   onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
                                 >
                                   <UploadFileIcon />
                                 </IconButton>
                               </span>
                             </Tooltip>
-
+                            
                             <Tooltip title="Update" >
                                 <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
                                     <EditIcon />

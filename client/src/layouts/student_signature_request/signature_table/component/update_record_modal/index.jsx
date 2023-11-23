@@ -76,13 +76,6 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
               </MDBox>
             </Grid>
           </Grid>
-          <Grid item textAlign="center" xs={11} mb={1}>            
-            <ProcessingOfficer 
-              data={data} 
-              processing_officer={processing_officer} 
-              setProcessingOfficer={setProcessingOfficer}
-            />
-          </Grid>
           <Grid item textAlign="center" xs={11} >
             <MDInput
               label="Date Releasing"

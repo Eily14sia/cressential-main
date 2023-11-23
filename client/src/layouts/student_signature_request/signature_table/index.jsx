@@ -136,31 +136,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
       .catch((err) => console.log(err));
   }, [table_data]);
 
-  function getTypeOfRecord(type_ids) {
-    
-    // Split the type_ids into an array of individual IDs
-    const idsArray = type_ids.split(',');
-  
-    // Initialize an array to store the fetched type values
-    const typeValues = [];
-  
-    // Loop through each ID and fetch the corresponding type value
-    idsArray.forEach((id) => {
-  
-      
-      // Find the type record that matches the current ID
-      const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
-      if (!typeRecord) {
-        return "loading ..."; // or any other appropriate message
-      }
-      // If a matching record is found, push its type value to the typeValues array
-      if (typeRecord) {
-        typeValues.push(typeRecord.type);
-      }
-    });
-  
-    return(typeValues.join(', '));
-  }
 
   const columns = [
     { Header: "Ctrl No.", accessor: "ctrl_num"},
