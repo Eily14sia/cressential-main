@@ -124,7 +124,7 @@ router.post('/upload', upload.single('File'), async (req, res) => {
           {
             memberInfos: [
               {
-                email: 'dhargrefiel@gmail.com',
+                email: 'cressential.student@gmail.com',
               },
             ],
             order: 1,

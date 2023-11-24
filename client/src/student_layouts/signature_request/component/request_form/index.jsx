@@ -403,8 +403,11 @@ const styles = {
                   <b>Password:</b> @Cressential1234
                 </MDTypography>                  
               </MDBox>
-              <MDBox px={3} >
-                <MDButton sx={{marginBottom: "20px"}} variant="gradient" color="dark" onClick={initiateOAuthFlow} fullWidth>Authorize the API</MDButton>   
+              <MDBox px={3} >                
+                <MDButton sx={{marginBottom: "20px"}} variant="gradient" disabled={authorizationCode} color={authorizationCode ? "success" : "dark"} onClick={initiateOAuthFlow} fullWidth>
+                  <Icon sx={{marginBottom: "2px", marginRight: "10px"}}>{authorizationCode ? "check" : "lock_open_icon"}</Icon> 
+                  {authorizationCode ? "Successfully Authorized the API" : "Authorize the API"} 
+                </MDButton>   
               </MDBox>
 
               <MDBox display="flex" alignItems="center" >
@@ -456,7 +459,10 @@ const styles = {
               </MDBox>
 
               <MDBox px={3} >
-                <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={handleOpenDialog} fullWidth>Submit for signing</MDButton>   
+                <MDButton sx={{marginTop: "20px"}} variant="gradient" color="dark" onClick={handleOpenDialog} fullWidth>
+                  <Icon sx={{marginBottom: "2px", marginRight: "10px"}}>send</Icon> 
+                  Submit for signing
+                </MDButton>   
               </MDBox>
               <DialogBox
                 open={isDialogOpen}
