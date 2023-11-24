@@ -379,7 +379,6 @@ function Dashboard() {
             const to_email = getStudentEmail(item.student_id);
             if (to_email && item.ctrl_number) {
               sendCancelationEmail(to_email, item.ctrl_number);
-              console.log('sendCancelationEmail');
             }
             // Fetch updated data and update the state
             fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/record-request', {
@@ -416,7 +415,6 @@ function Dashboard() {
         const to_email = getStudentEmail(item.student_id);
         if (to_email && item.ctrl_number && item.total_amount) {
           sendReminderEmail(to_email, item.ctrl_number, item.total_amount);
-          console.log('sendReminderEmail');
         }
       }
     });
@@ -451,8 +449,7 @@ function Dashboard() {
             const record_type = getRecordType(item.request_record_type_id);
   
               if (to_email && record_type){
-                // sendExpirationEmail(to_email, record_type, item.ipfs, item.date_issued);      
-                console.log('sendExpirationEmail');        
+                sendExpirationEmail(to_email, record_type, item.ipfs, item.date_issued);      
               }
             
           } else {
@@ -483,7 +480,6 @@ function Dashboard() {
   
             if (to_email && record_type){
               sendNotifEmail(to_email, record_type, item.ipfs, item.date_issued);  
-              console.log('sendNotifEmail');            
             }
           } else {
             setAlertMessage('Failed to update record');

@@ -84,7 +84,7 @@ const LoginModal = ({ open, onClose, userID, set_user_id }) => {
                     <Grid item xs={10} sx={{marginBottom:"10px", textAlign: "center"}}>
                       <MDTypography variant="h3" color="info" textGradient >Login with Metamask</MDTypography>     
                       <MDTypography variant="body2" mt={3}>
-                        By clicking the 'Connect Wallet' button, you are allowing the application to access your Metamask account.
+                        Clicking 'Connect Wallet' grants access to your Metamask account for retrieving your wallet address only. No other data will be accessed.                      
                       </MDTypography>           
                     </Grid>   
                     <Grid item xs={6} sx={{marginTop:"30px", marginBottom:"20px", textAlign: "center"}} >

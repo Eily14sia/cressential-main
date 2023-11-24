@@ -399,7 +399,7 @@ function Alumni_record_per_request() {
                             <>
                             {parseInt(user_role) === 1 ? (
                               <>
-                            <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={item.ipfs !== null || (payment_status !== "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}>
+                            <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={item.ipfs !== null || (payment_status !== "Unpaid" && (request_status !== "Pending" || request_status !== "Cancelled"))}>
                               <span>
                                 <IconButton
                                   color="info"
