@@ -146,16 +146,16 @@ function Record_request() {
       {alertMessage}
     </MDTypography>
   );
-
-  const [activeStep, setActiveStep] = useState(activeSteps ? activeSteps : 0);
-
+  const urlParams = new URLSearchParams(window.location.search);
+  const payment_intent = urlParams.get('payment_intent_id');
+  
+  const [activeStep, setActiveStep] = useState(payment_intent ? 2 : (activeSteps ? activeSteps : 0));
+  
   const steps = [
     'Request Form',
     'Payment',
     'Completed',
   ];
-
-
 
 
   return (

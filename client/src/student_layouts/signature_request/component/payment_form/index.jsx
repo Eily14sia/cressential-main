@@ -50,6 +50,9 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
     const handleProceedToPayment = async () => {
       setAlertMessage('');
       setIsError(false);
+
+      const landing_page = 'https://cressential-5435c63fb5d8.herokuapp.com/signature-request-form';
+
       if (selectedOption) {
         try {
           // Send the selected payment method to the backend
@@ -57,14 +60,16 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
             selectedOption,
             totalAmount,
             ctrl_number,
-            jwtToken
+            jwtToken,
+            landing_page
           });
       
           // Handle the response from the backend if needed
           console.log('Response from the backend:', response.data);
       
           // Open the payment method page in a new tab
-          window.open(response.data.redirectUrl, '_blank');
+          // window.open(response.data.redirectUrl, '_blank');
+          window.location.href = response.data.redirectUrl;
           setActiveStep(2);
         } catch (error) {
           console.error('Error:', error);

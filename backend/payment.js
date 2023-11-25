@@ -52,7 +52,7 @@ router.post('/paymongoIntent', async (req, res) => {
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
-  const { selectedOption, totalAmount, ctrl_number, jwtToken } = req.body;
+  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {
@@ -90,7 +90,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
@@ -229,7 +229,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
@@ -373,7 +373,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
@@ -487,7 +487,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
 router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
-  const { selectedOption, totalAmount, ctrl_number, jwtToken } = req.body;
+  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page } = req.body;
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {
@@ -525,7 +525,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
@@ -664,7 +664,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
@@ -808,7 +808,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
               attributes: {
                 payment_method: paymentmethodID, 
                 client_key: req.clientKey,
-                return_url: 'https://cressential-5435c63fb5d8.herokuapp.com'
+                return_url: landing_page
               }
             }
           }
