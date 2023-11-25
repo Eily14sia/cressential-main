@@ -70,7 +70,7 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
           // Open the payment method page in a new tab
           // window.open(response.data.redirectUrl, '_blank');
           window.location.href = response.data.redirectUrl;
-          setActiveStep(2);
+          // setActiveStep(2);
         } catch (error) {
           console.error('Error:', error);
         }
