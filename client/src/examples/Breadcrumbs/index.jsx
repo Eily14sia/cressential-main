@@ -29,6 +29,9 @@ import MDTypography from "../../components/MDTypography";
 
 function Breadcrumbs({ icon, title, route, light }) {
   const routes = route.slice(0, -1);
+  const user_role = localStorage.getItem('user_role');
+
+  const role = parseInt(user_role) === 1 ? "/dashboard" : "/student-request-table";
 
   return (
     <MDBox mr={{ xs: 0, xl: 8 }}>
@@ -39,7 +42,7 @@ function Breadcrumbs({ icon, title, route, light }) {
           },
         }}
       >
-        <Link to="/">
+        <Link to={role}>
           <MDTypography
             component="span"
             variant="body2"

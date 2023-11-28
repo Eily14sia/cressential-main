@@ -64,7 +64,14 @@ function DefaultProjectCard({ image, label, title, description, authors }) {
         <MDTypography variant="button" fontWeight="regular" color="text" textTransform="capitalize">
           {label}
         </MDTypography>
-        
+        <MDBox mb={1}>
+            <MDTypography
+              variant="h5"
+              textTransform="capitalize"
+            >
+              {title}
+            </MDTypography>         
+        </MDBox>
         <MDBox mb={3} lineHeight={0}>
           <MDTypography variant="button" fontWeight="light" color="text">
             {description}

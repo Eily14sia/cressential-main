@@ -14,51 +14,51 @@ Coded by www.creative-tim.com
 */
 
 // prop-types is a library for typechecking of props
-import PropTypes from "prop-types";
-
-// react-router-dom components
-import { Link } from "react-router-dom";
-
-// @mui material components
-import Icon from "@mui/material/Icon";
-
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox";
-import MDTypography from "../../../components/MDTypography";
+import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
+import Icon from '@mui/material/Icon';
+import MDBox from '../../../components/MDBox';
+import MDTypography from '../../../components/MDTypography';
 
 function DefaultNavbarLink({ icon, name, route, light }) {
   return (
-    <MDBox
-      component={Link}
+   
+      <MDTypography
+      variant="button"
+      fontWeight="regular"
+      color={light ? 'white' : 'dark'}
+      textTransform="capitalize"
+      component={NavLink}
       to={route}
       mx={1}
       p={1}
       display="flex"
       alignItems="center"
-      sx={{ cursor: "pointer", userSelect: "none" }}
+      sx={{
+        cursor: 'pointer',
+        userSelect: 'none',
+        textDecoration: 'underline', // Ensure no default text decoration
+        '&.active': {        
+          fontWeight: 'bold', // Set the text to bold for the active link
+        },
+      }}
+      activeClassName="active" // CSS class for the active link
     >
-      <Icon fontSize="small"
+      <Icon
+        fontSize="small"
         sx={{
           color: ({ palette: { white, secondary } }) => (light ? white.main : secondary.main),
-          verticalAlign: "middle", 
+          verticalAlign: 'middle',
         }}
       >
         {icon}
       </Icon>
-      <MDTypography
-        variant="button"
-        fontWeight="regular"
-        color={light ? "white" : "dark"}
-        textTransform="capitalize"
-        sx={{ width: "100%", lineHeight: 2 }}
-      >
-        &nbsp;{name} 
-      </MDTypography>
-    </MDBox>
+      &nbsp;{name}
+    </MDTypography>
+
   );
 }
 
-// Typechecking props for the DefaultNavbarLink
 DefaultNavbarLink.propTypes = {
   icon: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -67,3 +67,4 @@ DefaultNavbarLink.propTypes = {
 };
 
 export default DefaultNavbarLink;
+

@@ -141,8 +141,8 @@ function DefaultNavbar({ transparent, light, action, userID, set_user_id }) {
         </MDBox>
         <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
           <DefaultNavbarLink icon="home" name="home" route="/" light={light} />
-          <DefaultNavbarLink icon="info" name="about" route="/"  light={light} />
-          <DefaultNavbarLink icon="call" name="contact" route="/"  light={light} />
+          <DefaultNavbarLink icon="info" name="about" route="/about-us"  light={light} />
+          <DefaultNavbarLink icon="call" name="contact" route="/contact-us"  light={light} />
         </MDBox>
         {action &&
           (action.type === "internal" ? (

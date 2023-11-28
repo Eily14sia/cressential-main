@@ -17,7 +17,7 @@ Coded by www.creative-tim.com
 import PropTypes from "prop-types";
 
 // @mui material components
-import Link from "@mui/material/Link";
+import { Link } from 'react-router-dom';
 import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
@@ -32,15 +32,19 @@ function Footer({ company, links }) {
   const { size } = typography;
 
   const renderLinks = () =>
-    links.map((link) => (
-      <MDBox key={link.name} component="li" px={2} lineHeight={1}>
-        <Link href={link.href} target="_blank">
-          <MDTypography variant="button" fontWeight="regular" color="text">
-            {link.name}
-          </MDTypography>
-        </Link>
+  links.map((link) => (
+    <MDBox key={link.name} component="li" px={2} lineHeight={1}>
+      <MDBox
+          component={Link}
+          to={link.href}
+        >                
+        <MDTypography variant="button"  component={Link}
+          to={link.href} fontWeight="regular" color="text">
+          {link.name}
+        </MDTypography>
       </MDBox>
-    ));
+    </MDBox>
+  ));
 
   return (
     <MDBox
@@ -60,12 +64,10 @@ function Footer({ company, links }) {
         fontSize={size.sm}
         px={1.5}
       >
-        &copy; {new Date().getFullYear()} | Developed by
-        <Link href={href} target="_blank">
-          <MDTypography variant="button" fontWeight="medium">
-            &nbsp;{name}&nbsp;
-          </MDTypography>
-        </Link>
+        &copy; {new Date().getFullYear()} | Developed by        
+        <MDTypography variant="button" fontWeight="medium">
+          &nbsp;{name}&nbsp;
+        </MDTypography>
       </MDBox>
       <MDBox
         component="ul"
@@ -84,7 +86,29 @@ function Footer({ company, links }) {
           },
         })}
       >
-        {renderLinks()}
+        <MDBox px={2}
+          component={Link}
+          to="/" >    
+          <MDTypography variant="button" fontWeight="regular" color="text">
+              Cressential
+          </MDTypography>
+        </MDBox>
+        <MDBox px={2}
+          component={Link}
+          to="/about-us" >    
+          <MDTypography variant="button" fontWeight="regular" color="text">
+            About us
+          </MDTypography>
+        </MDBox>
+        <MDBox px={2}
+          component={Link}
+          to="/contact-us" >    
+          <MDTypography variant="button" fontWeight="regular" color="text">
+            Contact
+          </MDTypography>
+        </MDBox>
+         
+        
       </MDBox>
     </MDBox>
   );
@@ -92,11 +116,11 @@ function Footer({ company, links }) {
 
 // Setting default values for the props of Footer
 Footer.defaultProps = {
-  company: { href: "#", name: "Stonecap" },
+  company: { to: "/", name: "Stonecap" },
   links: [
-    { href: "#", name: "Stonecap" },
-    { href: "#", name: "About Us" },
-    { href: "#", name: "Contact" },
+    { to: "/", name: "Stonecap" },
+    { to: "/about-us", name: "About Us" },
+    { to: "/", name: "Contact" },
   ],
 };
 

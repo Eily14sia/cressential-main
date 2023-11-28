@@ -53,8 +53,8 @@ function DefaultNavbarMobile({ open, close, action, handleOpenDialog, light}) {
     >
       <MDBox px={0.5} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <DefaultNavbarLink icon="home" name="home" route="/" light={false}/>
-        <DefaultNavbarLink icon="info" name="about" route="/" light={false}/>
-        <DefaultNavbarLink icon="call" name="contact" route="/" light={false}/>
+        <DefaultNavbarLink icon="info" name="about" route="/about-us" light={false}/>
+        <DefaultNavbarLink icon="call" name="contact" route="/contact-us" light={false}/>
       </MDBox>
 
     <Divider/>

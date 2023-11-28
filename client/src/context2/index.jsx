@@ -15,10 +15,8 @@ export const AuthProvider = ({ children }) => {
   const [isError, setIsError] = useState(false);  
   const navigate = useNavigate();
 
-  const login = async () => {
-
-    setIsSuccess(false);
-    setIsError(false);
+  const login = async (e) => {
+    e.preventDefault();
 
     const loginRecord = {
       email: email,
@@ -27,7 +25,9 @@ export const AuthProvider = ({ children }) => {
     
     if (!email || !password){
       setIsError(true);
-      setAlertMessage('Email and password are required.');
+      const isEmailNull = "Email is required.";
+      const isPasswordNull = "Password is required."
+      setAlertMessage(!email ? isEmailNull : isPasswordNull);
     } else {
       try {
         // Make an authentication request to your server or API
@@ -72,14 +72,12 @@ export const AuthProvider = ({ children }) => {
         setIsError(true);
         setAlertMessage('Login failed. Incorrect credentials.');
         }
-    } catch (error) {
-        console.error('Error:', error);
+      } catch (error) {
+          console.error('Error:', error);
+      }
     }
-
-      setPassword('');
-      setEmail('');
-    }
-    
+    setPassword('');
+    setEmail('');
   };
 
   async function connectWallet() {

@@ -121,8 +121,9 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
     } else {
       // File is not a PDF, display an error or handle it as needed
       alert('Please select a PDF file');
+      setUrl('');
+      setSelectedFile('');
     }
-
     setIsError(false);
     setAlertMessage('');
   };
@@ -145,7 +146,8 @@ const index = ( {setIsError, setAlertMessage, setIsSuccess, totalAmount, setTota
   
   // Retrieve the code parameter from the URL
   const urlParams = new URLSearchParams(window.location.search);
-  const authorizationCode = urlParams.get('code');
+  // const authorizationCode = urlParams.get('code');
+  const authorizationCode = 'sadsad';
   const formData = new FormData();
 
   const handleSubmit = async () => {

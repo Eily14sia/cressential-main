@@ -50,7 +50,6 @@ import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import LogIn from "./layouts/authentication/log_in";
 import Home from "./layouts/authentication/home";
-import Verifier_Portal from "./layouts/authentication/verification_portal";
 import Payment from "./layouts/payment";
 import Unauthorized from "./layouts/unauthorize/unauthorized_page";
 

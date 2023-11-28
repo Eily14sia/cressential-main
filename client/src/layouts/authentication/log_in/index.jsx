@@ -31,6 +31,7 @@ function Log_in() {
   const { 
     login,
     setEmail,
+    email,
     password,
     setPassword,
     setAlertMessage,
@@ -59,6 +60,36 @@ function Log_in() {
   const handlePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleEmailChange = (newValue) => {
+    const maxLength = 100; // Define a maximum allowed email length
+  
+    if (newValue.length <= maxLength) {
+      setEmail(newValue);
+      setIsError(false); // Reset isError when email changes
+      setIsSuccess(false); // Reset isSuccess when email changes
+      setAlertMessage("");
+    } else {
+      setIsError(true);
+      setAlertMessage(`Email should not exceed ${maxLength} characters.`);
+    }
+  };
+  
+  
+  const handlePasswordChange = (newValue) => {
+    const maxLength = 20; // Define a maximum allowed password length
+  
+    if (newValue.length <= maxLength) {
+      setPassword(newValue);
+      setIsError(false); // Reset isError when password changes
+      setIsSuccess(false); // Reset isSuccess when password changes
+      setAlertMessage("");
+    } else {
+      setIsError(true);
+      setAlertMessage(`Password should not exceed ${maxLength} characters.`);
+    }
+  };
+  
 
   return (
     <CoverLayout image={bgImage}>      
@@ -92,17 +123,17 @@ function Log_in() {
                 {alertContent("error", alertMessage)}
               </MDAlert>
             )}
-          <MDBox component="form" role="form">
-            <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth onChange={(e) => setEmail(e.target.value)} />
-            </MDBox>
-            <MDBox mb={2}>
-              {/* <MDInput type="password" label="Password" onChange={(e) => setPassword(e.target.value)} fullWidth /> */}
-              <MDInput
-                 type={showPassword ? 'text' : 'password'}
-                 label="Password"
-                 value={password}
-                  onChange={(e) => setPassword(e.target.value)}                  
+          <MDBox >
+            <form onSubmit={login}>
+              <MDBox mb={2}>
+                <MDInput value={email} type="email" label="Email" fullWidth onChange={(e) => handleEmailChange(e.target.value)} />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type={showPassword ? 'text' : 'password'}
+                  label="Password"
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}                  
                   fullWidth               
                   InputProps={{
                     endAdornment: (
@@ -119,9 +150,9 @@ function Log_in() {
                     ),
                   }}
                 />
-            </MDBox>
-            <MDBox display="flex" alignItems="center" ml={1}>
-              <MDTypography
+              </MDBox>
+              <MDBox display="flex" alignItems="center" ml={1}>
+                <MDTypography
                   component={Link}
                   to="/authentication/sign-up"
                   variant="button"
@@ -131,12 +162,14 @@ function Log_in() {
                 >
                   Forgot Password?
                 </MDTypography>
-            </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth onClick={login}>
-               Log in
-              </MDButton>
-            </MDBox>
+              </MDBox>
+              <MDBox mt={4} mb={1}>
+                <MDButton variant="gradient" color="info" fullWidth type="submit">
+                  Log in
+                </MDButton>
+              </MDBox>
+            </form>
+            
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Log in with {" "}

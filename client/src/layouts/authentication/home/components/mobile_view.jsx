@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Icon from "@mui/material/Icon";
 
-import bg_link from "../../../../assets/images/homepage_main.png"
+import bg_link from "../../../../assets/images/home_final.png"
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";

@@ -13,14 +13,14 @@ import Container from '@mui/material/Container';
 import Divider from "@mui/material/Divider";
 import breakpoints from "../../../assets/theme/base/breakpoints";
 
-import bg_link from "../../../assets/images/homepage_main.png"
+import bg_link from "../../../assets/images/home_final.png"
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import DefaultProjectCard from "../../../examples/Cards/ProjectCards/HomeProjectCard";
 import Footer from '../../../examples/Footer/index';
 
-import registrar from "../../../assets/images/registrar_long.png";
-import student from "../../../assets/images/student_long.png";
-import verifier from "../../../assets/images/verifier_long.png";
+import registrar from "../../../assets/images/final_registrars.png";
+import student from "../../../assets/images/final_student.png";
+import verifier from "../../../assets/images/final_verifier.png";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -58,12 +58,12 @@ function Basic({userID, set_user_id} ) {
   return (
     // <BasicLayout image={bgImage}>
     <BasicLayout userID={userID} set_user_id={set_user_id}>
-      <Box mt={3} sx={{ pt: 8 }} >
+      <Box mt={3} sx={{ pt: 8 }} my={10}>
         <Container >         
         {mobileView && <Mobile_view />}
           {tabletView && !mobileView && <Tablet_view />}
           {!mobileView && !tabletView && (
-              <Grid container spacing={2}>
+              <Grid container spacing={2} >
                 <Grid item xs={12} lg={5} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <MDTypography variant="h1" gutterBottom>
                     Take verifier experience to the{' '}
@@ -100,22 +100,21 @@ function Basic({userID, set_user_id} ) {
                         </MDBox>      
                 </Grid>
               </Grid>             
-              )
-              }
+              )}
           
         </Container>
       </Box>
-      <MDBox component="section" py={6} sx={{ backgroundColor: '#f8f9fa'}}>
-        <Container>
+      <MDBox component="section" py={6} sx={{backgroundColor: '#f8f9fa'}}>
+        <Container sx={{mb: 8 }}> 
           <Grid container item xs={12} lg={6} justifyContent="center" mx="auto" textAlign="center">
-            <MDTypography variant="h2" mb={2}>
+            <MDTypography variant="h2" mt={8} mb={2}>
               User Profiles
             </MDTypography>
             <MDTypography variant="body2" color="text" mb={2}>
             Dive into the Rich Tapestry of User Profiles within Our Web System
             </MDTypography>
           </Grid>
-          <Divider sx={{ my: 5 }} />
+          <Divider sx={{ mt: 5 , mb: 10}} />
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
@@ -151,8 +150,7 @@ function Basic({userID, set_user_id} ) {
               </MDBox>
             </Grid>
           </Grid>
-          
-          
+
         </Container>
         
       </MDBox>

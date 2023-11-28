@@ -36,6 +36,8 @@ import brandDark from "./assets/images/cressential-logo-dark.png";
 import RouteGuard  from "./route_guard";
 import LogIn from "./layouts/authentication/log_in";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
+import AboutUs from "./layouts/authentication/about_us";
+import ContactUs from "./layouts/authentication/contact_us";
 
 export default function App() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -171,6 +173,8 @@ export default function App() {
           <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
           <Route path="/authentication/log-in" element={<LogIn/>} />   
           <Route path="/verifier-portal" element={<Verifier_Portal/>} key="verifier-portal"/>   
+          <Route path="/about-us" element={<AboutUs/>} key="about-us"/>   
+          <Route path="/contact-us" element={<ContactUs/>} key="contact-us"/>   
 
           {isAuthenticated ? (
             <Route path="/*" element={<Navigate to="/unauthorized" />} />
