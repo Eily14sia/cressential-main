@@ -89,74 +89,103 @@ function Basic({userID, set_user_id} ) {
                                 FAQs
                             </MDTypography>
                             <List>
+                                {/* Question # 1 */}
                                 <Accordion>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="faq-panel1a-content"
                                         id="faq-panel1a-header"
                                     >
-                                        <MDTypography variant="subtitle1">Question 1</MDTypography>
+                                        <MDTypography variant="body1">
+                                            What is Cressential?
+                                        </MDTypography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <MDTypography variant="body2">
-                                        Answer to the question goes here.
+                                            Cressential is an innovative academic records management system developed as part of our Bachelor of Science in Information Technology capstone project. It leverages web 3 technologies, specifically blockchain, IPFS and Smart Contract, to issue and verify academic credentials securely and efficiently.
                                         </MDTypography>
                                     </AccordionDetails>
                                 </Accordion>
+                                {/* Question # 2 */}
                                 <Accordion>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="faq-panel2a-content"
                                         id="faq-panel2a-header"
                                     >
-                                        <MDTypography variant="subtitle1">Question 2</MDTypography>
+                                        <MDTypography variant="body1">
+                                        How does Cressential use blockchain technology?
+                                        </MDTypography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <MDTypography variant="body2">
-                                        Answer to the question goes here.
+                                        Cressential maximizes blockchain's security by storing academic records on Interplenatary File System (IPFS), referencing their unique code (multihash) in the blockchain. During verification, the stored multihash in the bloackchain is fetched. A comparison between the retrieved file's hash and the received record's hash ensures integrity. Any mismatch alerts possible data tampering, ensuring a secure and immutable academic record verification process.                                   
                                         </MDTypography>
                                     </AccordionDetails>
                                 </Accordion>
+                                {/* Question # 3 */}
                                 <Accordion>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="faq-panel1a-content"
                                         id="faq-panel1a-header"
                                     >
-                                        <MDTypography variant="subtitle1">Question 3</MDTypography>
+                                        <MDTypography variant="body1">
+                                        What problem does Cressential aim to solve?
+                                        </MDTypography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <MDTypography variant="body2">
-                                        Answer to the question goes here.
+                                        Cressential addresses issues of credential fraud and labor-intensive verification processes in academic record management. By employing blockchain-based issuance and verification, it enhances data security, authenticity, and accessibility for academic credentials.
                                         </MDTypography>
                                     </AccordionDetails>
                                 </Accordion>
+                                {/* Question # 4 */}
                                 <Accordion>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="faq-panel2a-content"
                                         id="faq-panel2a-header"
                                     >
-                                        <MDTypography variant="subtitle1">Question 4</MDTypography>
+                                        <MDTypography variant="body1">
+                                        How does Cressential ensure security for academic records?                                     
+                                        </MDTypography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <MDTypography variant="body2">
-                                        Answer to the question goes here.
-                                        </MDTypography>
+                                        While academic records themselves are stored in IPFS—a decentralized and resilient file system—Cressential stores the multihash (a cryptographic fingerprint) of each record on the blockchain. This approach ensures the integrity and authenticity of records. Smart contracts within the blockchain network automate verification processes, ensuring tamper-proof records without relying on intermediaries. Blockchain's immutable nature coupled with IPFS's decentralized storage fortifies the security of academic credentials within Cressential.                                        </MDTypography>
                                     </AccordionDetails>
                                 </Accordion>
+                                {/* Question # 5 */}
                                 <Accordion>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="faq-panel2a-content"
                                         id="faq-panel2a-header"
                                     >
-                                        <MDTypography variant="subtitle1">Question 5</MDTypography>
+                                        <MDTypography variant="body1">
+                                        What benefits does Cressential offer to students and institutions?
+                                        </MDTypography>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <MDTypography variant="body2">
-                                        Answer to the question goes here.
+                                        Cressential streamlines the academic credential process, offering students ownership and control over their records while simplifying verification for institutions. It ensures data integrity, reduces fraud, and enhances the credibility of academic credentials.                                        </MDTypography>
+                                    </AccordionDetails>
+                                </Accordion>
+                                {/* Question # 6 */}
+                                <Accordion>
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="faq-panel2a-content"
+                                        id="faq-panel2a-header"
+                                    >
+                                        <MDTypography variant="body1">
+                                        What sets Cressential apart from traditional academic records management systems?                                        
                                         </MDTypography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <MDTypography variant="body2">
+                                        Cressential eliminates the risk of record falsification or loss by providing a decentralized and transparent platform. It enables instant verification, reduces administrative burden, and empowers individuals to control and share their academic achievements securely.                                        </MDTypography>
                                     </AccordionDetails>
                                 </Accordion>
                             </List>

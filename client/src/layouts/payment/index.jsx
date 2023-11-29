@@ -28,7 +28,6 @@ import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
 import UpdateDialogBox from "./component/UpdateRecordModal";
-import CircularProgress from '../../examples/CircularProgress';
 
 function Payment() {
 
@@ -39,7 +38,6 @@ function Payment() {
   const [payment_method, setPaymentMethod] = useState('');
   const [payment_status, setPaymentStatus] = useState('');
 
-  const [loading, setLoading] = useState(true);
   const jwtToken = localStorage.getItem('token');
 
   useEffect(() => {
@@ -56,7 +54,6 @@ function Payment() {
       })
       .then((fetchedData) => {
         setData(fetchedData);
-        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -69,7 +66,6 @@ function Payment() {
     { Header: "Total Amount", accessor: "total_amount"},
     { Header: "Payment Method", accessor: "payment_method"},
     { Header: "Payment Status", accessor: "payment_status"},
-    { Header: "action", accessor: "action"}
   ];
 
   function getStatusColor(payment_status) {
@@ -233,7 +229,7 @@ function Payment() {
                 </MDTypography>
               </MDBox>              
                 <MDBox p={3}>   
-                {loading && (<CircularProgress/>)}
+                
                   <DataTable table={{ columns, 
                   rows: data.map((item) => ({
                     ctrl_num: "CTRL-"+item.ctrl_number,
@@ -263,17 +259,7 @@ function Payment() {
                           size="sm"
                         />
                       </MDBox></>
-                    ),
-                    action: (
-                      <>
-                        <Tooltip title="Update" >
-                          <IconButton color="info" onClick={() => handleOpenUpdateDialog(item.ctrl_number, item.payment_id, item.payment_date, item.payment_method, item.payment_status)}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        
-                      </>                                 
-                    ), 
+                    )
                     })), 
                   }} canSearch={true} />
                   <UpdateDialogBox

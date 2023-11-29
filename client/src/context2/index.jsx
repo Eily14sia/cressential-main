@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
       email: email,
       password: password,
     };
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)?(gmail|yahoo|edu\.ph)(?:\.[a-zA-Z]{2,})$/i;
     
     if (!email || !password){
       setIsError(true);
@@ -29,51 +30,57 @@ export const AuthProvider = ({ children }) => {
       const isPasswordNull = "Password is required."
       setAlertMessage(!email ? isEmailNull : isPasswordNull);
     } else {
-      try {
-        // Make an authentication request to your server or API
-        const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ loginRecord }),
-        });
-    
-        if (response.ok) {
-        const data = await response.json();
-        const token = data.token; // Assuming the token is returned from the server
-        const user = data.user;
+      if (emailRegex.test(email.toLowerCase())) {
 
-        // Extract user_role from the user object
-        const user_role = user ? user.role : null;
-        const user_id = user? user.user_id : null;
-        const user_status = user? user.status : null;
-       
-        
-        // Redirect the user to the dashboard or perform other actions
-        console.log('Login successful');
-        if (user_status === 'active'){
-          localStorage.setItem('user_role', user_role);
-          localStorage.setItem('user_id', user_id);
+        try {
+          // Make an authentication request to your server or API
+          const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ loginRecord }),
+          });
+      
+          if (response.ok) {
+          const data = await response.json();
+          const token = data.token; // Assuming the token is returned from the server
+          const user = data.user;
   
-          // Save the token in localStorage or sessionStorage
-          localStorage.setItem('token', token);
-          parseInt(user_role) === 1 ? navigate('/dashboard') : navigate('/student-request-table');
-        } else {
+          // Extract user_role from the user object
+          const user_role = user ? user.role : null;
+          const user_id = user? user.user_id : null;
+          const user_status = user? user.status : null;
+         
+          
+          // Redirect the user to the dashboard or perform other actions
+          console.log('Login successful');
+          if (user_status === 'active'){
+            localStorage.setItem('user_role', user_role);
+            localStorage.setItem('user_id', user_id);
+    
+            // Save the token in localStorage or sessionStorage
+            localStorage.setItem('token', token);
+            parseInt(user_role) === 1 ? navigate('/dashboard') : navigate('/student-request-table');
+          } else {
+            setIsError(true);
+            setAlertMessage('Login failed. Your account is inactive.');
+          }
+  
+  
+          } else {
+          // Authentication failed
+          // You can display an error message to the user
+          console.error('Login failed');
           setIsError(true);
-          setAlertMessage('Login failed. Your account is inactive.');
+          setAlertMessage('Login failed. Incorrect credentials.');
+          }
+        } catch (error) {
+            console.error('Error:', error);
         }
-
-
-        } else {
-        // Authentication failed
-        // You can display an error message to the user
-        console.error('Login failed');
+      } else {
         setIsError(true);
-        setAlertMessage('Login failed. Incorrect credentials.');
-        }
-      } catch (error) {
-          console.error('Error:', error);
+        setAlertMessage('Invalid email format. Email should be a valid Gmail, Yahoo or School email.');
       }
     }
     setPassword('');

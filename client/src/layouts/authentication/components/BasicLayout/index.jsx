@@ -33,10 +33,9 @@ function BasicLayout({ image, children, set_user_id, userID}) {
   return (
     <PageLayout>
       <DefaultNavbar 
-        userID={userID} set_user_id={set_user_id}
         action={{
           type: "external",
-          route: "authentication/log-in",
+          route: "/authentication/log-in",
           label: "Login",
           color: "dark",
         }}

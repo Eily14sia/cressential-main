@@ -42,7 +42,6 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   // State for form inputs
   const [record_type, setRecordType] = useState('');
   const [record_IPFS, setRecordIPFS] = useState('');
-  const [loading, setLoading] = useState(true);
 
 
   // =========== For the Datatable =================
@@ -50,14 +49,6 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   const user_role = localStorage.getItem('user_role');
   const jwtToken = localStorage.getItem('token');
   const [student_data, setStudentData] = useState([]);
-
-  useEffect(() => {
-    // Check if data is not an empty array and set loading to false
-    if (data.length > 0) {
-      setLoading(false);
-    }
-
-  }, [data]); // This useEffect watches for changes in the data state
 
   useEffect(() => {
     fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
@@ -189,10 +180,6 @@ function Issuance_table({data, setData, setAlertMessage, setIsError, setIsSucces
   const handleCloseCancelDialog = () => {
     setIsCancelDialogOpen(false);
   };
-
-  if (loading) {   
-    return <CircularProgress/>  ;
-  }
 
   return (
     <>

@@ -39,17 +39,8 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   // Retrieve the user_role from localStorage
   const jwtToken = localStorage.getItem('token');
   const user_role = localStorage.getItem('user_role');
-  const [loading, setLoading] = useState(true);
 
   const [student_data, setStudentData] = useState([]);
-
-  useEffect(() => {
-    // Check if data is not an empty array and set loading to false
-    if (table_data.length >= 0) {
-      setLoading(false);
-    }
-
-  }, [table_data]); // This useEffect watches for changes in the data state
 
   useEffect(() => {
     fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
@@ -237,10 +228,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
       return "dark"; // Not past due and not today
     }
     
-  }
-  
-  if (loading) {   
-    return <CircularProgress/>  ;
   }
 
   return (

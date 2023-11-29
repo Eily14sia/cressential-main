@@ -205,30 +205,30 @@ const handleAddDB = async (transientID, agreementID) => {
       setCtrlNumber(ctrl_num);
 
       // Insert a notification into the database
-      registrar_data.map(async (item) => {
-        const registrar_update = {
-          title: "New Signature Request added.",
-          description: ctrl_num,
-          user_id: item.user_id
-        }
+      // registrar_data.map(async (item) => {
+      //   const registrar_update = {
+      //     title: "New Signature Request added.",
+      //     description: ctrl_num,
+      //     user_id: item.user_id
+      //   }
 
-      fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(registrar_update),
-      })
-        .then((notificationResponse) => {
-          if (notificationResponse.ok) {
-            console.log('Notification inserted successfully');
-          } else {
-            console.error('Failed to insert notification');
-          }
-        })
-        .catch((err) => console.error('Error inserting notification:', err));
-      });    
+      // fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${jwtToken}`,
+      //   },
+      //   body: JSON.stringify(registrar_update),
+      // })
+      //   .then((notificationResponse) => {
+      //     if (notificationResponse.ok) {
+      //       console.log('Notification inserted successfully');
+      //     } else {
+      //       console.error('Failed to insert notification');
+      //     }
+      //   })
+      //   .catch((err) => console.error('Error inserting notification:', err));
+      // });    
 
       setActiveStep((prevActiveStep) => prevActiveStep + 1)
     } else {

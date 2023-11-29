@@ -52,7 +52,7 @@ const index = () => {
             <Grid container spacing={4} justifyContent="center">
 
               {/* LEFT COLUMN */}                  
-              <Grid item lg={7} textsm={12}>     
+              <Grid item lg={8} textsm={12}>     
 
                   {/* Payment Method */}
                   <MDBox   
@@ -67,13 +67,12 @@ const index = () => {
                           height: "auto", 
                         }}/>
                         </Grid>
-                        <Grid item xs={10} sx={{marginBottom:"10px", textAlign: "center"}}>
-                          <MDTypography variant="h2" color="info" textGradient >Request Completed!</MDTypography>     
+                        <Grid item xs={12} sx={{marginBottom:"10px", textAlign: "center"}}>
+                          <MDTypography variant="h2" color="info" textGradient >Request Submitted!</MDTypography>     
                           <MDTypography variant="body2" mt={3}>
-                          Your request has been submitted. Please wait for the payment to be reflected in the request table.
-                          </MDTypography>           
+                          Your request is being processed. You'll receive an email confirming your payment status shortly. Payment status will also be automatically reflected in the request table.                          </MDTypography>           
                         </Grid>   
-                        <Grid item xs={8} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
+                        <Grid item xs={6} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
                           <Link to="/signature-request" component={RouterLink} >
                             <MDButton variant="gradient" color="info" size="large" fullWidth >
                                 <Icon>done</Icon> &nbsp; Done 

@@ -25,7 +25,6 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import regeneratorRuntime from "regenerator-runtime";
-import CircularProgress from '../../examples/CircularProgress';
 
 function Student_Management() {
   // const { columns, rows } = authorsTableData();
@@ -33,7 +32,6 @@ function Student_Management() {
 
   const [data, setData] = useState([]);
   const jwtToken = localStorage.getItem('token');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
@@ -49,7 +47,6 @@ function Student_Management() {
       })
       .then((data) => {
         setData(data);
-        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -133,7 +130,6 @@ function Student_Management() {
               </MDBox>
 
                 <MDBox pt={3}>
-                  {loading && (<CircularProgress/>)}
                   <DataTable 
                     table={{ columns, 
                       rows: data.map((item) => ({

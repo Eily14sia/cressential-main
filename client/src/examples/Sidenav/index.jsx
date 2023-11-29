@@ -53,6 +53,7 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
 
   // Retrieve the user_role from localStorage
   const user_role = localStorage.getItem('user_role');
+  const role = parseInt(user_role) === 1 ? "/dashboard" : "/student-request-table";
 
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
@@ -225,11 +226,6 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
 ];
     
 
-
-
-
-
-
   return (
     <SidenavRoot
       {...rest}
@@ -250,7 +246,7 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
             <Icon sx={{ fontWeight: "bold" }}>close</Icon>
           </MDTypography>
         </MDBox>
-        <MDBox component={NavLink} to="/" display="flex" alignItems="center">
+        <MDBox component={NavLink} to={role} display="flex" alignItems="center">
           {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />}
           <MDBox
             width={!brandName && "100%"}

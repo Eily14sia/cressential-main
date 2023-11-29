@@ -27,21 +27,9 @@ import RadioGroup from '@mui/material/RadioGroup';
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 import MDButton from "../../../../components/MDButton";
-import MDInput from "../../../../components/MDInput";
-import MDAlert from "../../../../components/MDAlert";
-
-// Material Dashboard 2 React example components
-import DataTable from "../../../../examples/Tables/DataTable";
-import regeneratorRuntime from "regenerator-runtime";
-import DocumentSelection from "../document_selection";
-import DialogBox from '../add_record_modal';
-
-import { useMaterialUIController } from "../../../../context";
-import CustomInfoCard from '../../../../examples/Cards/InfoCards/CustomInfoCard';
 
 import illustration from "../../../../assets/images/illustrations/business-task-list.svg"
 
-import axios from 'axios';
 
 const index = () => {
 
@@ -52,7 +40,7 @@ const index = () => {
             <Grid container spacing={4} justifyContent="center">
 
               {/* LEFT COLUMN */}                  
-              <Grid item lg={7} textsm={12}>     
+              <Grid item lg={8} textsm={12}>     
 
                   {/* Payment Method */}
                   <MDBox   
@@ -67,13 +55,13 @@ const index = () => {
                           height: "auto", 
                         }}/>
                         </Grid>
-                        <Grid item xs={10} sx={{marginBottom:"10px", textAlign: "center"}}>
-                          <MDTypography variant="h2" color="info" textGradient >Request Completed!</MDTypography>     
+                        <Grid item xs={12} sx={{marginBottom:"10px", textAlign: "center"}}>
+                          <MDTypography variant="h2" color="info" textGradient >Request Submitted!</MDTypography>     
                           <MDTypography variant="body2" mt={3}>
-                          Your request has been submitted. Please wait for the payment to be reflected in the request table.
+                          Your request is being processed. You'll receive an email confirming your payment status shortly. Payment status will also be automatically reflected in the request table.                                  
                           </MDTypography>           
                         </Grid>   
-                        <Grid item xs={8} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
+                        <Grid item xs={6} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
                           <Link to="/student-request-table" component={RouterLink} >
                             <MDButton variant="gradient" color="info" size="large" fullWidth >
                                 <Icon>done</Icon> &nbsp; Done 

@@ -77,7 +77,7 @@ function Log_in() {
   
   
   const handlePasswordChange = (newValue) => {
-    const maxLength = 20; // Define a maximum allowed password length
+    const maxLength = 100; // Define a maximum allowed password length
   
     if (newValue.length <= maxLength) {
       setPassword(newValue);
@@ -119,14 +119,14 @@ function Log_in() {
               </MDAlert>
             )}
             {isError && (
-              <MDAlert color="error" dismissible sx={{marginBottom: '20px'}} onClose={() => setIsError(false)}>
+              <MDAlert color="error" dismissible sx={{marginBottom: '20px'}} onClose={() => {setIsError(false); setEmail('');}}>
                 {alertContent("error", alertMessage)}
               </MDAlert>
             )}
           <MDBox >
             <form onSubmit={login}>
               <MDBox mb={2}>
-                <MDInput value={email} type="email" label="Email" fullWidth onChange={(e) => handleEmailChange(e.target.value)} />
+                <MDInput value={email} type="email" required label="Email" fullWidth onChange={(e) => handleEmailChange(e.target.value)} />
               </MDBox>
               <MDBox mb={2}>
                 <MDInput
@@ -134,7 +134,8 @@ function Log_in() {
                   label="Password"
                   value={password}
                   onChange={(e) => handlePasswordChange(e.target.value)}                  
-                  fullWidth               
+                  fullWidth   
+                  required            
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -164,7 +165,7 @@ function Log_in() {
                 </MDTypography>
               </MDBox>
               <MDBox mt={4} mb={1}>
-                <MDButton variant="gradient" color="info" fullWidth type="submit">
+                <MDButton variant="gradient" color="info" size="medium" fullWidth type="submit">
                   Log in
                 </MDButton>
               </MDBox>

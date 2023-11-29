@@ -18,7 +18,7 @@ import PropTypes from "prop-types";
 
 // @mui material components
 import Container from "@mui/material/Container";
-import Link from "@mui/material/Link";
+import { Link } from 'react-router-dom';
 import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
@@ -72,48 +72,30 @@ function Footer({ light }) {
               },
             })}
           >
-            <MDBox component="li" pr={2} lineHeight={1}>
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  Stonecap
-                </MDTypography>
+            
+            <MDBox px={2}
+              component={Link}
+              to="/" >    
+              <MDTypography variant="button" fontWeight="regular" color={light ? "white" : "dark"}>
+                  Cressential
+              </MDTypography>
             </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="#" target="_blank">
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  About Us
-                </MDTypography>
-              </Link>
+            <MDBox px={2}
+              component={Link}
+              to="/about-us" >    
+              <MDTypography variant="button" fontWeight="regular" color={light ? "white" : "dark"}>
+                About us
+              </MDTypography>
             </MDBox>
-            <MDBox component="li" px={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/blog" target="_blank">
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  Contact
-                </MDTypography>
-              </Link>
+            <MDBox px={2}
+              component={Link}
+              to="/contact-us" >    
+              <MDTypography variant="button" fontWeight="regular" color={light ? "white" : "dark"}>
+                Contact
+              </MDTypography>
             </MDBox>
-            {/* <MDBox component="li" pl={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/license" target="_blank">
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  License
-                </MDTypography>
-              </Link>
-            </MDBox> */}
+
+            
           </MDBox>
         </MDBox>
       </Container>

@@ -37,15 +37,40 @@ import axios from 'axios';
 
 const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMessage, setIsError}) => {
   const jwtToken = localStorage.getItem('token');
-   const [controller] = useMaterialUIController();
-   const [redirectUrl, setRedirectUrl] = useState('');
+  const user_id = localStorage.getItem('user_id');
+  
+  const [controller] = useMaterialUIController();
+  const [redirectUrl, setRedirectUrl] = useState('');
   // const [paymentResponse, setPaymentResponse] = useState(null);
     
-    const [selectedOption, setSelectedOption] = useState('');
-  
-    const handleOptionClick = (option) => {
-      setSelectedOption(option);
-    };
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+  };
+
+  const [user_email, setUserEmail] = useState([]);
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/users`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const foundUser = data.find((user) => user.user_id === parseInt(user_id)).email;
+        if(foundUser){
+          setUserEmail(foundUser);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
     const handleProceedToPayment = async () => {
       setAlertMessage('');
@@ -61,7 +86,8 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
             totalAmount,
             ctrl_number,
             jwtToken,
-            landing_page
+            landing_page,
+            user_email
           });
       
           // Handle the response from the backend if needed

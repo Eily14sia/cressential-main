@@ -28,11 +28,9 @@ import regeneratorRuntime from "regenerator-runtime";
 import AddDialogBox from './component/AddRecordModal';
 import UpdateDialogBox from './component/UpdateRecordModal';
 import DeleteDialogBox from './component/DeleteRecordModal';
-import CircularProgress from '../../examples/CircularProgress';
 
 function Type_of_Record() {
   const jwtToken = localStorage.getItem('token');
-  const [loading, setLoading] = useState(true);
 
 // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -62,7 +60,6 @@ function Type_of_Record() {
       })
       .then((fetchedData) => {
         setData(fetchedData);
-        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -379,7 +376,7 @@ function Type_of_Record() {
                 </MDBox>
 
                 <MDBox pt={3}>
-                  {loading && (<CircularProgress/>)}
+                 
                   <DataTable table={{ columns, 
                   rows: data.map((item) => ({
                     id: item.id,

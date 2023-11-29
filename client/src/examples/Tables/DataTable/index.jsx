@@ -26,8 +26,12 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
 import Icon from "@mui/material/Icon";
 import Autocomplete from "@mui/material/Autocomplete";
+import CircularProgress from '../../../examples/CircularProgress';
+
+import 'dragscroll';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -145,6 +149,19 @@ function DataTable({
     entriesEnd = pageSize * (pageIndex + 1);
   }
 
+  const [showNoDataMessage, setShowNoDataMessage] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // Check if there are no rows, then display "No data found" message
+      if (rows.length === 0) {
+        setShowNoDataMessage(true);
+      }
+    }, 2000); // 2000 milliseconds = 2 seconds
+
+    return () => clearTimeout(timeout); // Clear timeout if the component unmounts or re-renders
+  }, [rows]); // Run the effect whenever 'rows' changes
+
   return (
     <TableContainer sx={{ boxShadow: "none" }}>
       {entriesPerPage || canSearch ? (
@@ -170,7 +187,7 @@ function DataTable({
           {canSearch && (
             <MDBox width="12rem" ml="auto">
               <MDInput
-                placeholder="Search..."
+                placeholder="Search Ctrl No. or ID"
                 value={search}
                 size="small"
                 fullWidth
@@ -183,44 +200,87 @@ function DataTable({
           )}
         </MDBox>
       ) : null}
-      <Table {...getTableProps()}>
-        <MDBox component="thead">
-          {headerGroups.map((headerGroup, key) => (
-            <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, idx) => (
-                <DataTableHeadCell
-                  key={idx}
-                  {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
-                  width={column.width ? column.width : "auto"}
-                  align={column.align ? column.align : "left"}
-                  sorted={setSortedValue(column)}
-                >
-                  {column.render("Header")}
-                </DataTableHeadCell>
-              ))}
-            </TableRow>
-          ))}
-        </MDBox>
-        <TableBody {...getTableBodyProps()}>
-          {page.map((row, key) => {
-            prepareRow(row);
-            return (
-              <TableRow key={key} {...row.getRowProps()}>
-                {row.cells.map((cell, idx) => (
-                  <DataTableBodyCell
+      <MDBox
+        className="dragscroll"
+        sx={{
+          maxWidth: '100%',
+          overflowX: 'auto',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch', 
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(155, 155, 155, 0.5) rgba(255, 255, 255, 0.5)',
+          '&::-webkit-scrollbar': {
+            height: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(155, 155, 155, 0.5)',
+            borderRadius: '4px',
+            '&:hover': {
+              backgroundColor: 'rgba(155, 155, 155, 0.7)',
+            },
+          },
+        }}
+      >
+        <Table {...getTableProps()}>
+          <MDBox component="thead">
+            {headerGroups.map((headerGroup, key) => (
+              <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, idx) => (
+                  <DataTableHeadCell
                     key={idx}
-                    noBorder={noEndBorder && rows.length - 1 === key}
-                    align={cell.column.align ? cell.column.align : "left"}
-                    {...cell.getCellProps()}
+                    {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
+                    width={column.width ? column.width : "auto"}
+                    align={column.align ? column.align : "left"}
+                    sorted={setSortedValue(column)}
                   >
-                    {cell.render("Cell")}
-                  </DataTableBodyCell>
+                    {column.render("Header")}
+                  </DataTableHeadCell>
                 ))}
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            ))}
+          </MDBox>
+          {rows.length > 0 ? (
+          <TableBody {...getTableBodyProps()}>
+            {page.map((row, key) => {
+              prepareRow(row);
+              return (
+                <TableRow key={key} {...row.getRowProps()}>
+                  {row.cells.map((cell, idx) => (
+                    <DataTableBodyCell
+                      key={idx}
+                      noBorder={noEndBorder && rows.length - 1 === key}
+                      align={cell.column.align ? cell.column.align : "left"}
+                      {...cell.getCellProps()}
+                    >
+                      {cell.render("Cell")}
+                    </DataTableBodyCell>
+                  ))}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        ) : showNoDataMessage ? (
+          <TableRow>
+            <TableCell colSpan={columns.length} align="center">
+              <MDTypography variant="body2" color="textSecondary" fontWeight="bold">
+                No data found
+              </MDTypography>
+            </TableCell>
+          </TableRow>
+        ) : 
+          <TableRow>
+            <TableCell colSpan={columns.length} align="center">
+              <CircularProgress/>
+            </TableCell>
+          </TableRow>
+          }
+        
+          
+        </Table>
+      </MDBox>
 
       <MDBox
         display="flex"
