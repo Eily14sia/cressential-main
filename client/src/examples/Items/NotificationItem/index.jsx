@@ -30,10 +30,9 @@ import MDTypography from "../../../components/MDTypography";
 // custom styles for the NotificationItem
 import menuItem from "./styles";
 
-const NotificationItem = forwardRef(({ icon, title, desc, ctrl_num, ...rest }, ref) => (
+const NotificationItem = forwardRef(({ icon, title, desc, ctrl_num, disabled, ...rest }, ref) => (
   <MenuItem {...rest} ref={ref} sx={(theme) => menuItem(theme)}>
-    <MDBox component={RouterLink} to={`/record-per-request/${ctrl_num}`} py={0.5} display="flex" alignItems="center" lineHeight={1}>
-      <MDTypography variant="body1" color="secondary" lineHeight={0.75}>
+ <MDBox component={disabled ? 'div' : RouterLink} to={disabled ? null : `/record-per-request/${ctrl_num}`} py={0.5} display="flex" alignItems="center" lineHeight={1}>      <MDTypography variant="body1" color="secondary" lineHeight={0.75}>
         {icon}
       </MDTypography>
       <MDTypography variant="button" fontWeight="regular" sx={{ ml: 1 }}>

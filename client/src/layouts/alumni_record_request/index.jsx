@@ -336,7 +336,7 @@ function Alumni_record_request() {
                               </Icon>
                             } />
                           </Tooltip>
-                          <Tooltip title="Declined" placement="top">
+                          <Tooltip title="Cancelled" placement="top">
                             <Tab label="" 
                                 icon={
                                 <Icon fontSize="small" sx={{ mt: -0.25 }}>
@@ -380,7 +380,7 @@ function Alumni_record_request() {
                               verified
                             </Icon>
                           } />
-                        <Tab label="Declined" 
+                        <Tab label="Cancelled" 
                             icon={
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
                               unpublished
@@ -437,6 +437,8 @@ function Alumni_record_request() {
                         request_status={request_status}
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         updateDateReleasing={updateDateReleasing}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
@@ -460,6 +462,8 @@ function Alumni_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -483,6 +487,8 @@ function Alumni_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -506,6 +512,8 @@ function Alumni_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />

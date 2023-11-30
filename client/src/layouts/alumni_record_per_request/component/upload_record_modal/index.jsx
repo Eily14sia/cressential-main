@@ -36,7 +36,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 
 import useEth from "../../../../contexts/EthContext/useEth";
 
-function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS, 
+function DialogBox({ open, onClose, recordType, setRecordType, recordIPFS, student_id,
 recordID, recordPassword, setRecordPassword, payment_status, ctrl_number,
 setAlertMessage, setIsError, setIsSuccess, handleCloseUploadDialog, data, setData, student_email}) {
 
@@ -55,6 +55,37 @@ const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
 const { state: { contract, accounts } } = useEth();
 
 const jwtToken = localStorage.getItem('token');
+
+const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const wallet_address = data.find((user) => user.id == student_id).wallet_address;
+        const last_name = data.find((user) => user.id == student_id).last_name;
+        // Extract the last 5 characters from the wallet address
+        const last5Characters = wallet_address.slice(-5);
+
+        // Concatenate the lowercase last name with the last 5 characters of the wallet address
+        const password = last_name.toLowerCase() + last5Characters.toLowerCase();
+
+        if(wallet_address && last_name){
+          setPassword(password);        
+        }
+
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
 const handleFileChange = (e) => {
   // Set the URL of the file before it is selected
@@ -98,7 +129,7 @@ async function validatePasswordFromPDF(formData) {
 const handleFileUpload = async () => {
   const formData = new FormData();
   formData.append('file', selectedFile);
-  formData.append('password', initialPassword);
+  formData.append('password', password);
   
   if (selectedFile) {
     const password_match = await validatePasswordFromPDF(formData);
@@ -154,7 +185,7 @@ const handleFileUpload = async () => {
     } else {
       handleCloseUploadDialog();
       setIsError(true);
-      setAlertMessage('The entered password did not match the password of the encrypted file. Please try again.');
+      setAlertMessage('The password of the encrypted file did not match the generated password. Please check your uploaded file.');
       setRecordType('');
       setSelectedFile(null);
       setRecordPassword('');
@@ -179,7 +210,7 @@ const handleFileUpload = async () => {
 
   const dateIssued = new Date();
 
-  const sendEmail = async (toEmail, cid, password, recordType, txHash) => {
+  const sendEmail = async (toEmail, cid, password, recordType, txHash, ctrlNumber) => {
 
     const ipfsLink = `https://cressential.infura-ipfs.io/ipfs/${cid}`; // Replace with the IPFS link to the record    
 
@@ -191,15 +222,23 @@ const handleFileUpload = async () => {
 
       We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
 
+        • Ctrl Number: ${ctrlNumber}
         • Record Type: ${recordType}
         • Transaction Number: ${txHash}
         • IPFS Link: ${ipfsLink}
-        • Password: ${password}
+        • Password Format:
 
+          Concatenate your Last Name and the last 5 digits of your wallet address, all in lowercase.
+
+          Example:
+          Last Name: smith
+          Wallet Address: 0xAbCdEfGhIjKlMnOpQrStUvWxYz123456ab90
+
+          Sample Password: smith6ab90
 
       You can access your record by clicking on the IPFS Link. Use the provided password to securely access and download your record.
 
-      **Note: Please keep the password and transaction number secure. They authorize record verification in the portal, ensuring only authorized individuals can access and verify your record's authenticity. Your record's security relies on the confidentiality of these credentials.
+      **Note: Please keep the password and Transaction Number secured, as they will also be used for verifying the validity of your record in the verifier portal. Your record's security relies on the confidentiality of these credentials.
 
       If you have any questions or need further assistance, please feel free to contact our office.
 
@@ -249,7 +288,7 @@ const handleFileUpload = async () => {
             handleCloseUploadDialog();
             setIsSuccess(true);
             setAlertMessage('Record updated successfully.');
-            sendEmail(student_email, CID, recordPassword, recordType, transactionHash);
+            sendEmail(student_email, CID, recordPassword, recordType, transactionHash, ctrl_number);
     
             // Fetch updated data and update the state
             fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
@@ -339,6 +378,12 @@ const handleFileUpload = async () => {
     setShowFinalPassword(!showFinalPassword);
   };
 
+  const CustomSmallCircleIcon  = () => (
+    <svg width="8" height="8" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="4" cy="4" r="3" fill="none" stroke="#1A73E8" strokeWidth="2" />
+    </svg>
+  );
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" fullWidth>
        <LoadingModal
@@ -401,7 +446,7 @@ const handleFileUpload = async () => {
           </Grid>
 
           {/* left section */}
-          <Grid item textAlign="center" xs={12} md={5} mb={2}>
+          <Grid item xs={12} md={5} mb={2}>
             <Grid container justifyContent="center" alignItems="center">
               <Grid item textAlign="center" xs={12} mb={2}>
                  {/* title */}
@@ -453,68 +498,9 @@ const handleFileUpload = async () => {
               </label>
               
               </Grid>
+              
               <Grid item textAlign="center" xs={11} mt={2}>
-                <MDInput
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={initialPassword || ''}
-                  onChange={(e) => setInitialPassword(e.target.value)}
-                  required
-                  sx={{ width: '100%' }}
-                  disabled={!selectedFile}
-                  error={initialPassword && !isValidPassword(initialPassword)}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handlePasswordVisibility}
-                          edge="end"
-                          aria-label="toggle password visibility"
-                          size="small"
-                          sx={{marginRight: "15px"}}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <MDBox sx={{ textAlign: "left" }}>
-                {initialPassword && !isValidPassword(initialPassword) && (
-                <MDTypography variant="caption" sx={{ color: 'red', textAlign: 'left' }}>
-                  * Password should be at least 8 characters long <br/> * It should contain an uppercase letter, a lowercase letter, and a digit.
-                </MDTypography>
-              )}
-
-
-                </MDBox>
-              </Grid>
-              <Grid item textAlign="center" xs={11} mt={2}>
-                <MDInput
-                  label="Retype Password"
-                  type={showFinalPassword ? 'text' : 'password'}
-                  value={recordPassword || ''}
-                  onChange={(e) => setRecordPassword(e.target.value)}
-                  required
-                  sx={{ width: '100%', marginBottom: "30px" }}
-                  disabled={!isValidPassword(initialPassword)}
-                  error={recordPassword && recordPassword !== initialPassword}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handleFinalPasswordVisibility}
-                          edge="end"
-                          aria-label="toggle password visibility"
-                          size="small"
-                          sx={{marginRight: "15px"}}
-                        >
-                          {showFinalPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                
                 
                 <MDButton
                   variant="contained"
@@ -526,6 +512,37 @@ const handleFileUpload = async () => {
                 >
                     Upload Record
                 </MDButton>
+              </Grid>
+              <Grid item xs={11} mt={2}>                
+                <MDBox mb={3}>
+                  
+                  <MDBox display="flex" alignItems="center" pt={2}>
+                    <CustomSmallCircleIcon />
+                    <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Important:</MDTypography>
+                  </MDBox>
+                  <MDBox display="flex"   >
+                    <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
+                      Please ensure that the correct file is uploaded. Preview the encrypted file using the React PDF Viewer before clicking the 'Add Record' button.
+                    </MDTypography>                  
+                  </MDBox>
+                  <MDBox display="flex"   >
+                    <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
+                      Password is required to verify the authenticity of the record. Please ensure that the password of the encrypted PDF matches the password convention.
+                    </MDTypography>                  
+                  </MDBox>
+                  <MDBox display="flex" alignItems="center" mt={1} pt={2}>
+                    <CustomSmallCircleIcon />
+                    <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>How this works:</MDTypography>
+                  </MDBox>
+                  <MDBox display="flex" >
+                      <MDTypography variant="caption" ml={3} my={1} sx={{ lineHeight: '1.5' }}>
+                          Academic records are securely stored using IPFS (InterPlanetary File System), ensuring both their integrity and accessibility. Upon storage, each record is assigned a unique identifier, which is subsequently stored on the blockchain. <br/><br/>This identifier serves as a reference point in the verifier portal to validate the integrity of a document. By cross-referencing this identifier, the verifier portal confirms the authenticity and integrity of the document, providing a reliable means of validation.
+                      </MDTypography>                  
+                  </MDBox>
+                
+              </MDBox>
+               
+                
               </Grid>
             </Grid>
           </Grid>

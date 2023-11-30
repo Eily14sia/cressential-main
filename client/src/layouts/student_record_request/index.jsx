@@ -352,7 +352,7 @@ function Student_record_request() {
                 </Link> */}
               </MDBox>
                 <MDBox p={3}>                  
-                  <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
+                  <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       {mobileView && (
                         <Tabs
@@ -386,7 +386,7 @@ function Student_record_request() {
                               </Icon>
                             } />
                           </Tooltip>
-                          <Tooltip title="Declined" placement="top">
+                          <Tooltip title="Cancelled" placement="top">
                             <Tab label="" 
                                 icon={
                                 <Icon fontSize="small" sx={{ mt: -0.25 }}>
@@ -430,7 +430,7 @@ function Student_record_request() {
                               verified
                             </Icon>
                           } />
-                        <Tab label="Declined" 
+                        <Tab label="Cancelled" 
                             icon={
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
                               unpublished
@@ -487,6 +487,8 @@ function Student_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}/>
                       </MDBox>
@@ -509,6 +511,8 @@ function Student_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -532,6 +536,8 @@ function Student_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />
@@ -555,6 +561,8 @@ function Student_record_request() {
                         updateRequestStatus={updateRequestStatus}
                         date_releasing={date_releasing}
                         updateDateReleasing={updateDateReleasing}
+                        student_id={student_id}
+                        setStudentID={setStudentID}
                         isUpdateDialogOpen={isUpdateDialogOpen}
                         setIsUpdateDialogOpen={setIsUpdateDialogOpen}
                         />

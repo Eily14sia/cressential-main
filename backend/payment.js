@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const bodyParser = require('body-parser');
+require('dotenv').config();
 // Replace with your actual PayMongo API keys
 
 // const PAYMONGO_SECRET_KEY = 'sk_test_MCKKhBcvwnY5aZdziTRiqGtf';
@@ -26,7 +27,7 @@ router.post('/paymongoIntent', async (req, res) => {
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6',
+            authorization: process.env.AUTHORIZATION,
           },
           data: {
             data: {
@@ -52,7 +53,95 @@ router.post('/paymongoIntent', async (req, res) => {
 
 router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
-  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page } = req.body;
+  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page, user_email } = req.body;
+  
+  const today = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = today.toLocaleDateString('en-US', options);
+
+  const sendSuccessEmail = async (toEmail, ctrlNumber, paymentID, amountPaid, dateToday, paymentMethod) => {
+
+    const emailData = {
+      to: toEmail,
+      subject: 'Successful Payment Confirmation',
+      text: `
+      Good day!
+  
+        • Payment Receipt
+        • Control Number: Ctrl-${ctrlNumber}
+        • Payment ID: ${paymentID}
+        • Date: ${dateToday}
+        • Payment method: ${paymentMethod}
+        • Amount Paid: ${amountPaid}
+
+      Payment Confirmation:
+      We're delighted to inform you that your payment for the record request has been successfully received and processed.
+
+      Thank you.
+
+      Sincerely,
+      Registrar's Office
+      `,
+    };
+
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+
+  };
+
+  const sendFailedEmail = async (toEmail, ctrlNumber, amountPaid, dateToday, paymentMethod) => {
+
+    const emailData = {
+      to: toEmail,
+      subject: 'Payment Failure Notice',
+      text: `
+      Good day!
+  
+        • Payment Receipt
+        • Control Number: Ctrl-${ctrlNumber}
+        • Date: ${dateToday}
+        • Payment method: ${paymentMethod}
+        • Amount to be paid: ${amountPaid}
+    
+      Payment Failure Notice:
+      We regret to inform you that your payment for the record request has failed or was cancelled.
+
+      To complete the payment and reinstate your request, please follow these steps:
+      1. Log in to our system: https://cressential-5435c63fb5d8.herokuapp.com
+      2. Navigate to the "Record Request Table" or "Signature Request Table" section, depending on the type of your request.      3. Select your record request and click the "Pay now" Button.
+      4. Proceed with the payment process.
+    
+      If you have any queries or need further assistance, please feel free to contact our office.
+    
+      Thank you.
+
+      Sincerely,
+      Registrar's Office
+      `,
+    };
+
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+
+  };
+
+
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {
@@ -62,7 +151,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -83,7 +172,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -118,7 +207,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                 url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                 headers: {
                   accept: 'application/json',
-                  authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                  authorization: process.env.AUTHORIZATION
                 },
               };
               const response = await axios.request(checkStatusOptions);
@@ -149,22 +238,25 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                 
                   if (response.status === 200) {
                     console.log('Successfully updated the payment:', response.data);
-                    // Handle success here
+
+                    sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                   } else {
                     console.error('Error:', response.statusText);
-                    // Handle error here
+                    // sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                   }
                 } catch (error) {
                   console.error('An error occurred:', error);
-                  // Handle the error
+                  // sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate);
                 }
 
                 console.log('Payment has succeeded!');
               } else if (paymentIntentStatus === 'canceled') {
-                // The payment was canceled
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has been canceled.');
               } else if (paymentIntentStatus === 'failed') {
-                // The payment has failed
+                
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has failed.');
               } else {
                 // The payment is still in progress, you can set up a timer to poll again
@@ -201,7 +293,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -222,7 +314,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -257,7 +349,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                   headers: {
                     accept: 'application/json',
-                    authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                    authorization: process.env.AUTHORIZATION
                   },
                 };
                 const response = await axios.request(checkStatusOptions);
@@ -289,7 +381,8 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   
                     if (response.status === 200) {
                       console.log('Successfully updated the payment:', response.data);
-                      // Handle success here
+                      
+                      sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                     } else {
                       console.error('Error:', response.statusText);
                       // Handle error here
@@ -302,9 +395,13 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                   console.log('Payment has succeeded!');
                 } else if (paymentIntentStatus === 'canceled') {
                   // The payment was canceled
+
+                  sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                   console.log('Payment has been canceled.');
                 } else if (paymentIntentStatus === 'failed') {
                   // The payment has failed
+
+                  sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                   console.log('Payment has failed.');
                 } else {
                   // The payment is still in progress, you can set up a timer to poll again
@@ -342,7 +439,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -366,7 +463,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -401,7 +498,7 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                 url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                 headers: {
                   accept: 'application/json',
-                  authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                  authorization: process.env.AUTHORIZATION
                 },
               };
               const response = await axios.request(checkStatusOptions);
@@ -433,7 +530,8 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                 
                   if (response.status === 200) {
                     console.log('Successfully updated the payment:', response.data);
-                    // Handle success here
+
+                    sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                   } else {
                     console.error('Error:', response.statusText);
                     // Handle error here
@@ -446,9 +544,13 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
                 console.log('Payment has succeeded!');
               } else if (paymentIntentStatus === 'canceled') {
                 // The payment was canceled
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has been canceled.');
               } else if (paymentIntentStatus === 'failed') {
                 // The payment has failed
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has failed.');
               } else {
                 // The payment is still in progress, you can set up a timer to poll again
@@ -487,7 +589,94 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
 router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
 
-  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page } = req.body;
+  const { selectedOption, totalAmount, ctrl_number, jwtToken, landing_page, user_email } = req.body;
+  
+  const today = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = today.toLocaleDateString('en-US', options);
+
+  const sendSuccessEmail = async (toEmail, ctrlNumber, paymentID, amountPaid, dateToday, paymentMethod) => {
+
+    const emailData = {
+      to: toEmail,
+      subject: 'Successful Payment Confirmation',
+      text: `
+      Good day!
+  
+        • Payment Receipt
+        • Control Number: Ctrl-${ctrlNumber}
+        • Payment ID: ${paymentID}
+        • Date: ${dateToday}
+        • Payment method: ${paymentMethod}
+        • Amount Paid: ${amountPaid}
+
+      Payment Confirmation:
+      We're delighted to inform you that your payment for the record request has been successfully received and processed.
+
+      Thank you.
+
+      Sincerely,
+      Registrar's Office
+      `,
+    };
+
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+
+  };
+
+  const sendFailedEmail = async (toEmail, ctrlNumber, amountPaid, dateToday, paymentMethod) => {
+
+    const emailData = {
+      to: toEmail,
+      subject: 'Payment Failure Notice',
+      text: `
+      Good day!
+  
+        • Payment Receipt
+        • Control Number: Ctrl-${ctrlNumber}
+        • Date: ${dateToday}
+        • Payment method: ${paymentMethod}
+        • Amount to be paid: ${amountPaid}
+    
+      Payment Failure Notice:
+      We regret to inform you that your payment for the record request has failed or was cancelled.
+
+      To complete the payment and reinstate your request, please follow these steps:
+      1. Log in to our system: https://cressential-5435c63fb5d8.herokuapp.com
+      2. Navigate to the "Record Request Table" or "Signature Request Table" section, depending on the type of your request.      3. Select your record request and click the "Pay now" Button.
+      4. Proceed with the payment process.
+    
+      If you have any queries or need further assistance, please feel free to contact our office.
+    
+      Thank you.
+
+      Sincerely,
+      Registrar's Office
+      `,
+    };
+
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+
+  };
+
   const paymentURL = `https://api.paymongo.com/v1/payment_methods`;
   if (selectedOption === 'gcash') {
     try {
@@ -497,7 +686,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -518,7 +707,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -553,7 +742,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                 headers: {
                   accept: 'application/json',
-                  authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                  authorization: process.env.AUTHORIZATION
                 },
               };
               const response = await axios.request(checkStatusOptions);
@@ -584,7 +773,8 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 
                   if (response.status === 200) {
                     console.log('Successfully updated the payment:', response.data);
-                    // Handle success here
+                    
+                    sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                   } else {
                     console.error('Error:', response.statusText);
                     // Handle error here
@@ -597,9 +787,13 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 console.log('Payment has succeeded!');
               } else if (paymentIntentStatus === 'canceled') {
                 // The payment was canceled
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has been canceled.');
               } else if (paymentIntentStatus === 'failed') {
                 // The payment has failed
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has failed.');
               } else {
                 // The payment is still in progress, you can set up a timer to poll again
@@ -636,7 +830,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -657,7 +851,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -692,7 +886,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                   url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                   headers: {
                     accept: 'application/json',
-                    authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                    authorization: process.env.AUTHORIZATION
                   },
                 };
                 const response = await axios.request(checkStatusOptions);
@@ -724,7 +918,8 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                   
                     if (response.status === 200) {
                       console.log('Successfully updated the payment:', response.data);
-                      // Handle success here
+                      
+                      sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                     } else {
                       console.error('Error:', response.statusText);
                       // Handle error here
@@ -737,9 +932,13 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                   console.log('Payment has succeeded!');
                 } else if (paymentIntentStatus === 'canceled') {
                   // The payment was canceled
+
+                  sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                   console.log('Payment has been canceled.');
                 } else if (paymentIntentStatus === 'failed') {
                   // The payment has failed
+
+                  sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                   console.log('Payment has failed.');
                 } else {
                   // The payment is still in progress, you can set up a timer to poll again
@@ -777,7 +976,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
         headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
-          authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+          authorization: process.env.AUTHORIZATION
         },
         data: {
           data: {
@@ -801,7 +1000,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
           headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+            authorization: process.env.AUTHORIZATION
           },
           data: {
             data: {
@@ -836,7 +1035,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 url: `https://api.paymongo.com/v1/payment_intents/${req.clientKey}`,
                 headers: {
                   accept: 'application/json',
-                  authorization: 'Basic c2tfdGVzdF9NQ0tLaEJjdnduWTVhWmR6aVRSaXFHdGY6'
+                  authorization: process.env.AUTHORIZATION
                 },
               };
               const response = await axios.request(checkStatusOptions);
@@ -868,7 +1067,8 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 
                   if (response.status === 200) {
                     console.log('Successfully updated the payment:', response.data);
-                    // Handle success here
+                    
+                    sendSuccessEmail(user_email, ctrl_number, paymentID, totalAmount, formattedDate, selectedOption);
                   } else {
                     console.error('Error:', response.statusText);
                     // Handle error here
@@ -881,9 +1081,13 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
                 console.log('Payment has succeeded!');
               } else if (paymentIntentStatus === 'canceled') {
                 // The payment was canceled
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has been canceled.');
               } else if (paymentIntentStatus === 'failed') {
                 // The payment has failed
+
+                sendFailedEmail(user_email, ctrl_number, totalAmount, formattedDate, selectedOption);
                 console.log('Payment has failed.');
               } else {
                 // The payment is still in progress, you can set up a timer to poll again

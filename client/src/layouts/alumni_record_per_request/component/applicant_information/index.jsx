@@ -77,7 +77,11 @@ const index = ({student_id,  setStudentEmail}) => {
   }
   
 
-  
+const walletAddress = applicantInfo.wallet_address || "N/A";
+const formattedWalletAddress =
+  walletAddress.length > 10
+    ? `${walletAddress.slice(0, 7)}...${walletAddress.slice(-6)}`
+    : walletAddress;
 
  
   const fullName = `${applicantInfo.first_name} ${applicantInfo.last_name}`;
@@ -113,11 +117,14 @@ const index = ({student_id,  setStudentEmail}) => {
                   <MDTypography variant="h6" fontWeight="medium">
                   Contact Information
                   </MDTypography>
-                  <MDTypography variant="caption" mt={2}>Mobile Number: </MDTypography>
-                  <MDTypography variant="body2" fontWeight="medium">{applicantInfo.mobile_number ? applicantInfo.mobile_number : "N/A"}</MDTypography>
+                  <MDTypography variant="caption" mt={2}>Wallet Address: </MDTypography>
+                  <MDTypography variant="body2" fontWeight="medium">{applicantInfo.wallet_address ? formattedWalletAddress : "N/A"}</MDTypography>
 
                   <MDTypography variant="caption" mt={2}>Email: </MDTypography>
                   <MDTypography variant="body2" fontWeight="medium">{applicantInfo.email ? applicantInfo.email : "N/A"}</MDTypography>
+                  
+                  <MDTypography variant="caption" mt={2}>Mobile Number: </MDTypography>
+                  <MDTypography variant="body2" fontWeight="medium">{applicantInfo.mobile_number ? applicantInfo.mobile_number : "N/A"}</MDTypography>
 
                   <MDTypography variant="caption" mt={2}>Permanent Address: </MDTypography>
                   <MDTypography variant="body2" fontWeight="medium">{applicantInfo.permanent_address ? applicantInfo.permanent_address : "N/A"}</MDTypography>

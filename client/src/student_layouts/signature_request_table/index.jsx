@@ -370,7 +370,7 @@ function Student_record_request() {
                               </Icon>
                             } />
                           </Tooltip>
-                          <Tooltip title="Declined" placement="top">
+                          <Tooltip title="Cancelled" placement="top">
                             <Tab label="" 
                                 icon={
                                 <Icon fontSize="small" sx={{ mt: -0.25 }}>
@@ -414,7 +414,7 @@ function Student_record_request() {
                               verified
                             </Icon>
                           } />
-                        <Tab label="Declined" 
+                        <Tab label="Cancelled" 
                             icon={
                             <Icon fontSize="small" sx={{ mt: -0.25 }}>
                               unpublished

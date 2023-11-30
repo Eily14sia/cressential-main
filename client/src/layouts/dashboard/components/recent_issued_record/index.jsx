@@ -48,7 +48,7 @@ function Issuance_table() {
     <Card sx={{ height: "100%" }}>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDTypography variant="h6" fontWeight="medium">
-          Recent Issued Record
+          Due Requests
         </MDTypography>
         <MDBox color="text" px={2}>
           <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>

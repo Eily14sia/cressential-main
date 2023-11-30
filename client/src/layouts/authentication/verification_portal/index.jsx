@@ -383,28 +383,28 @@ function Verifier_portal() {
                 
                 <MDBox mt={4} mb={1}>
                   
-                <Grid container spacing={2}>
-                  
-                  <Grid item xs={12} sm={6}>
-                    <MDButton variant="gradient" color="light" size="large" fullWidth onClick={() => {
-                      setPassword('');
-                      setHash('');
-                      setTransactionHash('');
-                      setUrl('');
-                      const fileInput = document.getElementById('fileUpload');
-                      if (fileInput) {
-                        fileInput.value = ''; // Reset the file input field
-                      }
-                    }}>
-                      Reset Input
-                    </MDButton>
+                  <Grid container spacing={2}>
+                    
+                    <Grid item xs={12} sm={6}>
+                      <MDButton variant="gradient" color="light" size="large" fullWidth onClick={() => {
+                        setPassword('');
+                        setHash('');
+                        setTransactionHash('');
+                        setUrl('');
+                        const fileInput = document.getElementById('fileUpload');
+                        if (fileInput) {
+                          fileInput.value = ''; // Reset the file input field
+                        }
+                      }}>
+                        Reset Input
+                      </MDButton>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <MDButton variant="gradient" color="info" size="large" fullWidth type="submit" onClick={() => sendTransactionHashToServer(transaction_hash)}>
+                        Verify Record
+                      </MDButton>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <MDButton variant="gradient" color="info" size="large" fullWidth type="submit" onClick={() => sendTransactionHashToServer(transaction_hash)}>
-                      Verify Record
-                    </MDButton>
-                  </Grid>
-                </Grid>
                   <MDBox display="flex" alignItems="center" mt={7} pt={2}>
                     <CustomSmallCircleIcon />
                     <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Important:</MDTypography>

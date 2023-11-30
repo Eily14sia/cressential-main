@@ -188,7 +188,7 @@ const routes = [
       },
       {
         type: "collapse",
-        name: "Alumni Record per Request",
+        name: "Record per Request",
         key: "registrar-alumni-record-per-request",
         icon: icon4,
         route: "/alumni/record-per-request/:ctrl_number",

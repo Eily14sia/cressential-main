@@ -91,6 +91,8 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
               onChange={(e) => setdate_releasing(e.target.value)}
               required
               sx={{ width: '100%' }}
+              min={(new Date()).toISOString().split('T')[0]} // Set the min attribute to today's date
+              inputProps={{ min: (new Date()).toISOString().split('T')[0] }} // Ensure min attribute for the input
             />
           </Grid>
           <Grid item textAlign="left" xs={11} mb={1} >
@@ -104,9 +106,8 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
             >
               <MenuItem value="Pending">Pending</MenuItem>
               <MenuItem value="Received">Received</MenuItem>
-              <MenuItem value="Declined">Declined</MenuItem>
               <MenuItem value="Cancelled">Cancelled</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
+              <MenuItem disabled value="Completed">Completed</MenuItem>
             </Select>
           </FormControl>
 
@@ -119,9 +120,6 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
         sx={{ opacity: 0.2 }}
       />
       <DialogActions>
-        <MDButton onClick={onClose} color="secondary">
-          Cancel
-        </MDButton>
         <MDButton
           variant="contained"
           color="info"

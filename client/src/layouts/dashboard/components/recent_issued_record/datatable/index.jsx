@@ -34,7 +34,7 @@ function Issuance_table() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-issuance", {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/due-request", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -80,8 +80,8 @@ function Issuance_table() {
   }, []);
 
   const columns = [
-    { Header: "Record", accessor: "record_type" },
-    { Header: "Date Issued", accessor: "date_issued" },
+    { Header: "Ctrl No.", accessor: "ctrl_number" },
+    { Header: "Date Releasing", accessor: "date_releasing" },
   ];
 
   function getStatusColor(status) {
@@ -102,27 +102,66 @@ function Issuance_table() {
     return <CircularProgress/>  ;
   }
   
+  function getColorForDate(date, ctrl_num, request_status) {
+    if (!date) {
+      return "dark"; // Default color
+    }
+  
+    if (request_status === 'Pending' || request_status === 'Received') {
+
+      function formatDate(date) {
+        const formatted = new Date(date)
+          .toISOString()
+          .slice(0, 10);
+        return formatted;
+      }
+      
+      const releasingDate = formatDate(date);
+      const today = formatDate(new Date());
+      
+      console.log("Releasing Date:", releasingDate);
+      console.log("Today's Date:", today);
+
+      if (releasingDate < today) {
+          return "error"; // Past due
+      } else if (releasingDate === today) {  
+        return "warning"; // Today
+      }
+    
+      return "dark"; // Not past due and not today
+    }
+    
+  }    
+
   return (
     <>
       <DataTable table={{ columns, 
         rows: issued_data.map((item) => ({          
-        record_type: (
-          <MDBox lineHeight={1}>
-              <MDTypography display="block" variant="button" fontWeight="medium">
-              {item.ipfs ? (
-                  <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
-                    {getTypeOfRecord(item.record_type_id)}
-                  </a>     
-              ) : (
-                <span>N/A</span>
-              )}
+        ctrl_number: (
+          <Link to={`/alumni/record-per-request/${item.ctrl_number}`} component={RouterLink}>
+            <MDTypography variant="button" fontWeight="medium"> CTRL-{item.ctrl_number} </MDTypography>
+          </Link>
+          ),   
+          date_releasing: (
+            <MDBox lineHeight={1}>
+              <MDTypography variant="caption" >
+                Requested: &nbsp;
               </MDTypography>
-            </MDBox>            
-        ),
-        date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "N/A", 
-       
-        
-        })), 
+              <MDTypography variant="button" fontWeight="medium">
+                {new Date(item.date_requested).toLocaleDateString()} <br/>
+              </MDTypography>
+              <MDTypography variant="caption">
+                Releasing: &nbsp;
+              </MDTypography>
+              <MDTypography
+                variant="button"
+                color={getColorForDate(item.date_releasing, item.ctrl_number, item.request_status)}
+                fontWeight="medium"
+              >
+                {item.date_releasing ? (new Date(item.date_releasing).toLocaleDateString()) : ""}
+              </MDTypography>
+            </MDBox>
+            ),        })), 
       }} canSearch={false} 
       showTotalEntries={false}
       entriesPerPage={false}/>

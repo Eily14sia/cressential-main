@@ -23,7 +23,7 @@ import MDTypography from '../../../components/MDTypography';
 function DefaultNavbarLink({ icon, name, route, light }) {
   return (
    
-      <MDTypography
+    <MDTypography
       variant="button"
       fontWeight="regular"
       color={light ? 'white' : 'dark'}
@@ -39,15 +39,18 @@ function DefaultNavbarLink({ icon, name, route, light }) {
         userSelect: 'none',
         textDecoration: 'underline', // Ensure no default text decoration
         '&.active': {        
-          fontWeight: 'bold', // Set the text to bold for the active link
+          color:'#49a3f1',
+          '& svg': {
+            color: '#1A73E8', // Change the color of the Icon component for active links
+          },
         },
       }}
-      activeClassName="active" // CSS class for the active link
+     
     >
       <Icon
         fontSize="small"
         sx={{
-          color: ({ palette: { white, secondary } }) => (light ? white.main : secondary.main),
+          color: light ? 'white' : 'dark',
           verticalAlign: 'middle',
         }}
       >

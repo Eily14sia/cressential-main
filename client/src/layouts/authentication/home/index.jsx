@@ -115,7 +115,7 @@ function Basic({userID, set_user_id} ) {
             </MDTypography>
           </Grid>
           <Divider sx={{ mt: 5 , mb: 10}} />
-          <Grid container spacing={3}>
+          <Grid container spacing={3} justifyContent="center">
             <Grid item xs={12} md={8} lg={4} mb={{ xs: 3, lg: 0 }}>
               <MDBox p={5} bgColor="white" style={{ borderRadius: '20px' }}> 
                 <DefaultProjectCard

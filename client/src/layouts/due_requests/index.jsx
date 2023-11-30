@@ -88,24 +88,6 @@ function Due_request() {
   }, []);
 
   useEffect(() => {
-    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management", {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to authenticate token");
-        }
-        return res.json();
-      })
-      .then((registrar_data) => {
-        setRegistrarData(registrar_data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
     fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
       headers: {
         Authorization: `Bearer ${jwtToken}`,

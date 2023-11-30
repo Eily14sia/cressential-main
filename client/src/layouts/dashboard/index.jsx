@@ -670,7 +670,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="primary"
                 icon="person_add"
-                title="Active Users"
+                title="Total Users"
                 count={active_users.length}
                 percentage={{
                   color: "success",

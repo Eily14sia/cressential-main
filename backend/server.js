@@ -184,6 +184,7 @@ function verifyToken(req, res, next) {
         SELECT *
         FROM notification as n
         WHERE n.user_id = $1
+        ORDER BY n.timestamp DESC
     `;
     
     db.query(sql, [user_id], (err, results) => {
@@ -281,7 +282,8 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     const sql = `
       SELECT *
       FROM record_request AS r
-      INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number      
+      INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number 
+      ORDER BY r.date_requested DESC     
     `;
   
     db.query(sql, (err, results) => {
@@ -366,6 +368,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
         FROM student_management
         WHERE is_alumni = 0
       )
+      ORDER BY r.ctrl_number DESC
     `;
   
     db.query(sql, (err, results) => {
@@ -380,6 +383,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
       SELECT *
       FROM signature_request AS sr
       INNER JOIN signature_payment AS sp ON sr.ctrl_number = sp.ctrl_number
+      ORDER BY sr.ctrl_number DESC
     `;
   
     db.query(sql, (err, results) => {
@@ -402,6 +406,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
       WHERE user_id = $1
       LIMIT 1
     )
+    ORDER BY sr.ctrl_number DESC
   `;
 
     db.query(sql, [user_id], (err, results) => {
@@ -424,6 +429,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
         WHERE is_alumni = 0
       )
       AND rpr.date_issued IS NOT NULL
+      ORDER BY r.ctrl_number DESC
     `;
   
     db.query(sql, (err, results) => {
@@ -446,6 +452,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
         FROM student_management
         WHERE is_alumni = 1
       )
+      ORDER BY r.ctrl_number DESC
     `;
   
     db.query(sql, (err, results) => {
@@ -506,6 +513,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
         WHERE is_alumni = 1
       )
       AND rpr.date_issued IS NOT NULL
+      ORDER BY r.ctrl_number DESC
     `;
 
     db.query(sql, (err, results) => {
@@ -624,14 +632,27 @@ function hashPassword(password) {
 
   router.get('/due-request', verifyToken, (req, res) => {
     const today = new Date();
+
+    const year = today.getFullYear(); // Get the year (YYYY)
+    let month = today.getMonth() + 1; // Get the month (MM)
+    let day = today.getDate(); // Get the day (DD)
+    
+    // Adjust month and day formatting to ensure they have leading zeros if necessary
+    month = month < 10 ? `0${month}` : month;
+    day = day < 10 ? `0${day}` : day;
+    
+    // Construct the formatted date string in "YYYY-MM-DD" format
+    const formattedDate = `${year}-${month}-${day}`;
+
     const sql = `
       SELECT *
       FROM record_request AS r
       INNER JOIN payment AS p ON p.ctrl_number = r.ctrl_number
-      WHERE r.date_releasing <= $1 AND r.request_status IN ('Pending', 'Received'); 
+      WHERE r.date_releasing <= $1 AND r.request_status IN ('Pending', 'Received')
+      ORDER BY r.ctrl_number DESC
     `;
 
-    db.query(sql, [today], (err, results) => {
+    db.query(sql, [formattedDate], (err, results) => {
       if (err) return res.json(err);
       const data = results.rows;
       return res.json(data);
@@ -905,6 +926,7 @@ router.get('/student-record-request/:user_id', verifyToken, (req, res) => {
       FROM student_management
       WHERE user_id = $1
     )
+    ORDER BY r.ctrl_number DESC
   `;
   
   db.query(sql, [user_id], (err, results) => {

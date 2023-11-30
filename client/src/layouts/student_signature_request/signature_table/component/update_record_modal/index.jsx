@@ -84,6 +84,9 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
               onChange={(e) => setdate_releasing(e.target.value)}
               required
               sx={{ width: '100%' }}
+              min={(new Date()).toISOString().split('T')[0]} // Set the min attribute to today's date
+              inputProps={{ min: (new Date()).toISOString().split('T')[0] }} // Ensure min attribute for the input
+
             />
           </Grid>
           <Grid item textAlign="left" xs={11} mb={1} >

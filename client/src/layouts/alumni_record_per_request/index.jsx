@@ -364,7 +364,7 @@ function Alumni_record_per_request() {
                   )}
                   </MDBox>
                   
-                  <MDBox >
+                  <MDBox mt={4} p={3}>
                     <DataTable 
                       table={{ columns, 
                         rows: data.map((item) => ({
@@ -372,25 +372,87 @@ function Alumni_record_per_request() {
                           record: (
                             <MDBox ml={1} lineHeight={1}>
                               <MDTypography display="block" variant="button" fontWeight="medium">
-                              <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
-                              {item.ipfs}
-                              </a>
+                              {item.ipfs ? (
+                                <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
+                                  {item.type}
+                                </a>
+                              ) : (
+                              item.type
+                              )}
                               </MDTypography>
-                              <MDTypography variant="caption">{item.type}</MDTypography>
+                              <MDTypography variant="caption">{item.transaction_hash}</MDTypography>
                             </MDBox>
                             ),
                           
+                          // status: (
+                          //   <>
+                          //   {item.ipfs ? (
+                          //     <MDBox ml={-1}>
+                          //       <MDBadge
+                          //         badgeContent={item.record_status}
+                          //         color={getStatusColor(item.record_status)} // Set the badge color dynamically
+                          //         variant="gradient"
+                          //         size="sm"
+                          //       />
+                          //     </MDBox>
+                          //   ) : ""}
+                          //   </>
+                          // ),
                           status: (
                             <>
                             {item.ipfs ? (
-                              <MDBox ml={-1}>
-                                <MDBadge
-                                  badgeContent={item.record_status}
-                                  color={getStatusColor(item.record_status)} // Set the badge color dynamically
-                                  variant="gradient"
-                                  size="sm"
-                                />
+                              <>
+                              <MDBox>
+                              
+                                <MDBox> 
+                                  {item.record_status === 'Valid' ? (
+                                    <>
+                                      <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                                      <MDBadge 
+                                        badgeContent="Valid"
+                                        color="success" // Set the badge color dynamically
+                                        variant="gradient"
+                                        size="sm"
+                                      />  
+                                    </>                              
+                                  ) : (
+                                    <>
+                                      <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                                      <MDBadge
+                                        badgeContent="Invalid"
+                                        color="error" // Set the badge color dynamically
+                                        variant="gradient"
+                                        size="sm"
+                                      />   
+                                    </> 
+                                  )}
+              
+                                </MDBox>
+                                <MDBox>
+                                    {(!item.is_expired) ? (
+                                     <>
+                                      <MDTypography variant="caption" fontWeight="medium" > Expiration: </MDTypography>
+                                        <MDBadge
+                                          badgeContent="Active"
+                                          color="success" // Set the badge color dynamically
+                                          variant="gradient"
+                                          size="sm"
+                                        />  
+                                      </>
+                                    ) : (
+                                      <>
+                                        <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                                        <MDBadge
+                                          badgeContent="Expired"
+                                          color="error" // Set the badge color dynamically
+                                          variant="gradient"
+                                          size="sm"
+                                        />  
+                                      </>  
+                                    )}
+                                </MDBox>
                               </MDBox>
+                              </>
                             ) : ""}
                             </>
                           ),
@@ -427,7 +489,9 @@ function Alumni_record_per_request() {
                           )
                         })), 
                       }}
-                      canSearch={true}
+                      canSearch={false}
+                      entriesPerPage={false}
+
                     />
                     <AddDialogBox
                       open={isAddDialogOpen}
@@ -448,6 +512,7 @@ function Alumni_record_per_request() {
                       setData={setData}
                       data={setData}
                       student_email={student_email}
+                      student_id={student_id}
                     />
                     <UploadDialogBox
                       open={isUploadDialogOpen}
@@ -468,6 +533,7 @@ function Alumni_record_per_request() {
                       setData={setData}
                       data={setData}
                       student_email={student_email}
+                      student_id={student_id}
                     />
                     <UpdateDialogBox
                       open={isUpdateDialogOpen}

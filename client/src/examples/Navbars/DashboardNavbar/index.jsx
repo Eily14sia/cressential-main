@@ -168,7 +168,8 @@ const renderMenu = () => (
           />
         ))
       : 
-        <NotificationItem         
+        <NotificationItem       
+          disabled="true"
           icon={<Icon>notifications_off</Icon>}
           title="No new notifications today."
         />
@@ -189,7 +190,8 @@ const renderMenu = () => (
         ))
      
     : 
-      <NotificationItem         
+      <NotificationItem   
+            
         icon={<Icon>notifications_off</Icon>}
         title="No notifications earlier."
       />
