@@ -265,7 +265,7 @@ function DataTable({
         ) : showNoDataMessage ? (
           <TableRow>
             <TableCell colSpan={columns.length} align="center">
-              <MDTypography variant="body2" color="textSecondary" fontWeight="bold">
+              <MDTypography variant="body2" color="dark" fontWeight="bold">
                 No data found
               </MDTypography>
             </TableCell>

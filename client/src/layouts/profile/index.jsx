@@ -12,6 +12,7 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -42,6 +43,55 @@ import PlatformSettings from "./components/PlatformSettings";
 import profilesListData from "./data/profilesListData";
 
 function Overview() {
+
+  const [registrar_data, setRegistrarData] = useState([]);
+  const [student_data, setStudentData] = useState([]);
+  const jwtToken = localStorage.getItem('token');
+  const user_id = localStorage.getItem('user_id');
+  const user_role = localStorage.getItem('user_role');
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.length > 0) {
+        const fetchedData = data.find((item) => item.user_id === parseInt(user_id));
+        setRegistrarData(fetchedData);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.length > 0) {
+        const fetchedData = data.find((item) => item.user_id === parseInt(user_id));
+        setStudentData(fetchedData);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -54,68 +104,67 @@ function Overview() {
             </Grid> */}
             <Grid item xs={12} xl={6} sx={{ display: "flex" }}>
               <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
-              <ProfileInfoCard
+              {parseInt(user_role) === 1 && user_role ? (
+
+                <ProfileInfoCard
                 title="profile information"
                 description="This section displays essential details about an individual, such as their name and other personal information. It serves as a concise overview of the user's identity and role."
                 info={{
-                  fullName: "Alec M. Thompson",
-                  mobile: "(44) 123 1234 123",
+                  fullName: registrar_data.first_name + " " + registrar_data.last_name,
+                  mobile: "registrar_data.contact_number",
                   email: "alecthompson@mail.com",
                   location: "USA",
                 }}
-                social={[
-                  {
-                    link: "https://www.facebook.com/CreativeTim/",
-                    icon: <FacebookIcon />,
-                    color: "facebook",
-                  },
-                  {
-                    link: "https://twitter.com/creativetim",
-                    icon: <TwitterIcon />,
-                    color: "twitter",
-                  },
-                  {
-                    link: "https://www.instagram.com/creativetimofficial/",
-                    icon: <InstagramIcon />,
-                    color: "instagram",
-                  },
-                ]}
                 action={{ route: "", tooltip: "Edit Profile" }}
                 shadow={false}
               />
+              ) : (
+                <ProfileInfoCard
+                title="profile information"
+                description="This section displays essential details about an individual, such as their name and other personal information. It serves as a concise overview of the user's identity and role."
+                info={{
+                  fullName: student_data.first_name + " " + student_data.middle_name + " " + student_data.last_name,
+                  studentNumber: student_data.student_number,
+                  college: student_data.college,
+                  course: student_data.course,
+                }}
+                action={{ route: "", tooltip: "Edit Profile" }}
+                shadow={false}
+              />
+              )}
+              
+              
               <Divider orientation="vertical" sx={{ mx: 0 }} />
             </Grid>
             <Grid item xs={12} xl={6} sx={{ display: "flex" }}>
               <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
-              <ProfileInfoCard
+              {parseInt(user_role) === 1 && user_role ? (
+
+                <ProfileInfoCard
                 title="Contact information"
                 description="This section presents means of communication allowing users to easily get in touch or connect with the person or entity. It facilitates efficient and direct communication"
                 info={{
-                  fullName: "Alec M. Thompson",
-                  mobile: "(44) 123 1234 123",
+                  fullName: registrar_data.first_name + " " + registrar_data.last_name,
+                  mobile: "registrar_data.contact_number",
                   email: "alecthompson@mail.com",
-                  location: "USA",
                 }}
-                social={[
-                  {
-                    link: "https://www.facebook.com/CreativeTim/",
-                    icon: <FacebookIcon />,
-                    color: "facebook",
-                  },
-                  {
-                    link: "https://twitter.com/creativetim",
-                    icon: <TwitterIcon />,
-                    color: "twitter",
-                  },
-                  {
-                    link: "https://www.instagram.com/creativetimofficial/",
-                    icon: <InstagramIcon />,
-                    color: "instagram",
-                  },
-                ]}
                 action={{ route: "", tooltip: "Edit Profile" }}
                 shadow={false}
-              />
+                />
+                ) : (
+                <ProfileInfoCard
+                title="contact information"
+                description="This section displays essential details about an individual, such as their name and other personal information. It serves as a concise overview of the user's identity and role."
+                info={{
+                  walletAddress: student_data.wallet_address,
+                  contactNumber: student_data.mobile_number,
+                  email: student_data.email,
+                  address: student_data.permanent_address,
+                }}
+                action={{ route: "", tooltip: "Edit Profile" }}
+                shadow={false}
+                />
+                )}
               <Divider orientation="vertical" sx={{ mx: 0 }} />
             </Grid>
             {/* <Grid item xs={12} xl={4}>

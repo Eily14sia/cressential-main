@@ -336,7 +336,7 @@ function Student_record_request() {
                 </Link> */}
               </MDBox>
                 <MDBox p={3}>                  
-                  <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
+                  <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                       {mobileView && (
                         <Tabs

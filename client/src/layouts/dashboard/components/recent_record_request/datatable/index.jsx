@@ -86,15 +86,16 @@ function Request_table() {
     idsArray.forEach((id) => {
       // Find the type record that matches the current ID
       const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
-  
-      // If a matching record is found, push its type value to the typeValues array
-      if (typeRecord) {
+      if (!typeRecord) {
+        typeValues.push("loading ..."); // or any other appropriate message
+      } else {
         typeValues.push(typeRecord.type);
       }
     });
   
-    return(typeValues.join(', '));
+    return typeValues;
   }
+
 
   const columns = [
     { Header: "Ctrl No.", accessor: "ctrl_num"},
@@ -147,12 +148,16 @@ function Request_table() {
         ctrl_num: "CTRL-"+item.ctrl_number,
         record_type: (
           <MDBox lineHeight={1}>
-              <MDTypography display="block" variant="button" fontWeight="medium">
-                {getTypeOfRecord(item.request_record_type_id)}
-              </MDTypography>
-              <MDTypography variant="caption">For: {item.purpose}</MDTypography>
-            </MDBox>
-            
+            {getTypeOfRecord(item.request_record_type_id).map((type, index) => (
+              <div key={index}>
+                <MDTypography display="block" variant="caption" fontWeight="medium">
+                  {type}
+                </MDTypography>
+                
+              </div>
+            ))}
+            <MDTypography variant="caption">For: {item.purpose}</MDTypography>
+          </MDBox>
         ),
         
         payment_status: (

@@ -148,7 +148,6 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   }, [table_data]);
 
   function getTypeOfRecord(type_ids) {
-    
     // Split the type_ids into an array of individual IDs
     const idsArray = type_ids.split(',');
   
@@ -157,20 +156,16 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   
     // Loop through each ID and fetch the corresponding type value
     idsArray.forEach((id) => {
-  
-      
       // Find the type record that matches the current ID
       const typeRecord = type_of_record.find((record) => record.id === parseInt(id));
       if (!typeRecord) {
-        return "loading ..."; // or any other appropriate message
-      }
-      // If a matching record is found, push its type value to the typeValues array
-      if (typeRecord) {
+        typeValues.push("loading ..."); // or any other appropriate message
+      } else {
         typeValues.push(typeRecord.type);
       }
     });
   
-    return(typeValues.join(', '));
+    return typeValues;
   }
 
   const columns = [
@@ -289,12 +284,16 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         // record_type: getTypeOfRecord(item.request_record_type_id),
         record_type: (
           <MDBox lineHeight={1}>
-              <MDTypography display="block" variant="button" fontWeight="medium">
-                {getTypeOfRecord(item.request_record_type_id)}
-              </MDTypography>
-              <MDTypography variant="caption">For: {item.purpose}</MDTypography>
-            </MDBox>
-            
+            {getTypeOfRecord(item.request_record_type_id).map((type, index) => (
+              <div key={index}>
+                <MDTypography display="block" variant="caption" fontWeight="medium">
+                  {type}
+                </MDTypography>
+                
+              </div>
+            ))}
+            <MDTypography variant="caption">For: {item.purpose}</MDTypography>
+          </MDBox>
         ),
         
         // date_requested: new Date(item.date_requested).toLocaleDateString(), // Format the date_requested

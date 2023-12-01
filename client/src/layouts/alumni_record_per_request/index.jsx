@@ -260,6 +260,43 @@ function Alumni_record_per_request() {
     setIsUpdateDialogOpen(false);
   };
 
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+
+        if (data.length > 1){
+
+          const wallet_address = data.find((user) => user.id == student_id).wallet_address;
+          const last_name = data.find((user) => user.id == student_id).last_name;
+          // Extract the last 5 characters from the wallet address
+          const last5Characters = wallet_address.slice(-5);
+  
+          // Concatenate the lowercase last name with the last 5 characters of the wallet address
+          const password = ctrl_number + last_name.toLowerCase() + last5Characters.toLowerCase();
+  
+          if(wallet_address && last_name){
+            setPassword(password);        
+          }
+        }
+
+      })
+      .catch((err) => console.log(err));
+  }, [data]);
+
+
+  console.log('password:',password); 
   
   return (
     <EthProvider>
@@ -502,8 +539,8 @@ function Alumni_record_per_request() {
                       recordIPFS={record_IPFS}
                       setrecordIPFS={setRecordIPFS}   
                       recordID={record_id}                               
-                      recordPassword={record_password}     
-                      setRecordPassword={setRecordPassword}   
+                      recordPassword={password}     
+                      setRecordPassword={setPassword}   
                       payment_status={payment_status}    
                       setAlertMessage={setAlertMessage}
                       setIsError={setIsError}
@@ -523,8 +560,8 @@ function Alumni_record_per_request() {
                       recordIPFS={record_IPFS}
                       setrecordIPFS={setRecordIPFS}   
                       recordID={record_id}                               
-                      recordPassword={record_password}     
-                      setRecordPassword={setRecordPassword}   
+                      recordPassword={password}     
+                      setRecordPassword={setPassword}   
                       payment_status={payment_status}    
                       setAlertMessage={setAlertMessage}
                       setIsError={setIsError}

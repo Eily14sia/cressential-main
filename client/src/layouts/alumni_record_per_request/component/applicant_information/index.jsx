@@ -80,7 +80,7 @@ const index = ({student_id,  setStudentEmail}) => {
 const walletAddress = applicantInfo.wallet_address || "N/A";
 const formattedWalletAddress =
   walletAddress.length > 10
-    ? `${walletAddress.slice(0, 7)}...${walletAddress.slice(-6)}`
+    ? `${walletAddress.slice(0, 7)}...${walletAddress.slice(-5)}`
     : walletAddress;
 
  
@@ -111,7 +111,9 @@ const formattedWalletAddress =
                   <MDTypography variant="body2" fontWeight="medium">{applicantInfo.entry_year_from + " - " + applicantInfo.entry_year_to}</MDTypography>
 
                   <MDTypography variant="caption" mt={2}>Date of Graduation: </MDTypography>
-                  <MDTypography variant="body2" fontWeight="medium">{new Date(applicantInfo.date_of_graduation).toLocaleDateString()}</MDTypography>
+                  <MDTypography variant="body2" fontWeight="medium">
+                    {applicantInfo.date_of_graduation ? new Date(applicantInfo.date_of_graduation).toLocaleDateString() : "----"}
+                  </MDTypography>
                   
                   <Divider />
                   <MDTypography variant="h6" fontWeight="medium">

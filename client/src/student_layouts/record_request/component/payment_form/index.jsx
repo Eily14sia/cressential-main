@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate} from "react-router-dom";
-import { Link } from "@mui/material";
+
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -238,9 +238,9 @@ const index = ( {totalAmount, cartItems, ctrl_number, setActiveStep, setAlertMes
               <Grid container spacing={5} my={2} px={3} justifyContent="center">
                   
                   <Grid item md={6} sm={12}>                      
-                    <MDButton onClick={goBack} variant="gradient" color="secondary" size="large" fullWidth >
+                    <MDButton component={RouterLink} to="/student-request-table" variant="gradient" color="secondary" size="large" fullWidth>
                         <Icon>arrow_back</Icon> &nbsp; Hold Payment
-                    </MDButton>                      
+                    </MDButton>                    
                   </Grid>
                   
                   <Grid item md={6} sm={12}>

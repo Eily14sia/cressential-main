@@ -1024,9 +1024,17 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
   const recordIds = record_id.split(',');
 
   // Calculate the date_releasing 15 days after the date_requested
-  const date_requested = new Date();
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  const date_requested = formatDate(new Date());
   const date_releasing = new Date(date_requested);
   date_releasing.setDate(date_releasing.getDate() + 15);
+  const formattedDate = formatDate(date_releasing);
 
   const recordRequestSQL = "INSERT INTO record_request (student_id, request_record_type_id, purpose, date_requested, date_releasing) VALUES ($1, $2, $3, $4, $5) RETURNING ctrl_number";
   const paymentSQL = "INSERT INTO payment (ctrl_number, total_amount) VALUES ($1, $2)";
@@ -1038,59 +1046,59 @@ router.post('/record-request/add-record', verifyToken, (req, res) => {
       return res.status(500).json({ message: 'Failed to add record' });
     }
 
-    // Insert into record_request table
-    db.query(recordRequestSQL, [student_id, record_id, purpose, date_requested, date_releasing], (err, result) => {
+    db.query(recordRequestSQL, [student_id, record_id, purpose, date_requested, formattedDate], (err, result) => {
       if (err) {
         db.query('ROLLBACK', () => {
           console.error(err);
           return res.status(500).json({ message: 'Failed to add record' });
         });
-      }
 
-      const ctrl_number = result.rows[0].ctrl_number; // Get the auto-generated ctrl_number from the record_request
-
-      // Insert into payment table using the ctrl_number
-      db.query(paymentSQL, [ctrl_number, total_amount], (err, paymentResult) => {
-        if (err) {
-          db.query('ROLLBACK', () => {
+      } else {
+        db.query('COMMIT', (err) => {
+          if (err) {
             console.error(err);
-            return res.status(500).json({ message: 'Failed to add record' });
-          });
-        }
-
-        // Iterate through recordIds and insert into record_per_request for each ID
-        recordIds.forEach((recordId, index) => {
-          // Replace 'recordTypeId' with the actual record type ID for each recordId
-          const recordTypeId = 'your_record_type_id'; // Replace with the actual value
-
-          db.query(
-            recordPerRequestSQL,
-            [ctrl_number, recordId],
-            (err, recordPerRequestResult) => {
-              if (err) {
-                db.query('ROLLBACK', () => {
-                  console.error(err);
-                  return res.status(500).json({ message: 'Failed to add record' });
+            return res.status(500).json({ message: 'Failed to commit transaction' });
+          }
+          const ctrl_number = result.rows[0].ctrl_number;
+          
+          db.query(paymentSQL, [ctrl_number, total_amount], (err, paymentResult) => {
+            if (err) {
+              db.query('ROLLBACK', () => {
+                console.error(err);
+                return res.status(500).json({ message: 'Failed to add payment' });
+              });
+            } else {
+              // Use Promise.all to handle multiple recordPerRequestSQL queries
+              Promise.all(recordIds.map(recordId => {
+                return new Promise((resolve, reject) => {
+                  db.query(recordPerRequestSQL, [ctrl_number, recordId], (err, recordPerRequestResult) => {
+                    if (err) {
+                      reject(err);
+                    } else {
+                      resolve(recordPerRequestResult);
+                    }
+                  });
                 });
-              }
-
-              // Check if all insertions into record_per_request are complete
-              if (index === recordIds.length - 1) {
+              })).then(() => {
                 db.query('COMMIT', (err) => {
                   if (err) {
-                    db.query('ROLLBACK', () => {
-                      console.error(err);
-                      return res.status(500).json({ message: 'Failed to add record' });
-                    });
+                    console.error(err);
+                    return res.status(500).json({ message: 'Failed to commit transaction' });
                   }
-
-                  return res.status(200).json({ message: 'Your request has been submitted.', ctrl_number:  ctrl_number});
+                  return res.status(200).json({ message: 'Your request has been submitted.', ctrl_number: ctrl_number });
                 });
-              }
+              }).catch((error) => {
+                db.query('ROLLBACK', () => {
+                  console.error(error);
+                  return res.status(500).json({ message: 'Failed to add record per request' });
+                });
+              });
             }
-          );
+          });
+
+          // return res.status(200).json({ message: 'Your request has been submitted.', ctrl_number: ctrl_number });
         });
-      });
+      }
     });
   });
 });

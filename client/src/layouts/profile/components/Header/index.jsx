@@ -65,6 +65,55 @@ function Header({ children }) {
 
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
 
+  const [registrar_data, setRegistrarData] = useState([]);
+  const [student_data, setStudentData] = useState([]);
+  const jwtToken = localStorage.getItem('token');
+  const user_id = localStorage.getItem('user_id');
+  const user_role = localStorage.getItem('user_role');
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.length > 0) {
+        const fetchedData = data.find((item) => item.user_id === parseInt(user_id));
+        setRegistrarData(fetchedData);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.length > 0) {
+        const fetchedData = data.find((item) => item.user_id === parseInt(user_id));
+        setStudentData(fetchedData);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+
   return (
     <MDBox position="relative" mb={5}>
       <MDBox
@@ -94,20 +143,22 @@ function Header({ children }) {
         }}
       >
         <Grid container spacing={3} alignItems="center">
-          <Grid item xs={3} md={2} lg={1}>
-            <MDAvatar src={burceMars} alt="profile-image" size="xl" shadow="sm" />
-          </Grid>
+          
           <Grid item xs={8 } md={4} lg={8}>
             <MDBox height="100%" mt={0.5} lineHeight={1}>
               <MDTypography variant="h5" fontWeight="medium">
-                Richard Davis
+                {parseInt(user_role) === 1 && (registrar_data || student_data) ? (
+                  registrar_data.first_name+" "+registrar_data.middle_name+" "+registrar_data.last_name
+                ) : (
+                  student_data.first_name+" "+student_data.middle_name+" "+student_data.last_name
+                )}
               </MDTypography>
               <MDTypography variant="button" color="text" fontWeight="regular">
-                Student
+                {parseInt(user_role) == 1 ? "Registrar" : "Student"}
               </MDTypography>
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox display="flex" justifyContent="flex-end">
               <MDButton color="dark" variant="gradient">
                 Update Information

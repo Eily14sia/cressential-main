@@ -67,8 +67,8 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
       text: `
       Good day!
   
-        • Payment Receipt
-        • Control Number: Ctrl-${ctrlNumber}
+      Payment Receipt
+        • Control Number: ${ctrlNumber}
         • Payment ID: ${paymentID}
         • Date: ${dateToday}
         • Payment method: ${paymentMethod}
@@ -105,8 +105,8 @@ router.post('/paymongoMethod', setClientKeyMiddleware, async (req, res) => {
       text: `
       Good day!
   
-        • Payment Receipt
-        • Control Number: Ctrl-${ctrlNumber}
+      Payment Receipt
+        • Control Number: CTRL-${ctrlNumber}
         • Date: ${dateToday}
         • Payment method: ${paymentMethod}
         • Amount to be paid: ${amountPaid}
@@ -603,7 +603,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
       text: `
       Good day!
   
-        • Payment Receipt
+      Payment Receipt
         • Control Number: Ctrl-${ctrlNumber}
         • Payment ID: ${paymentID}
         • Date: ${dateToday}
@@ -641,7 +641,7 @@ router.post('/signature/paymongoMethod', setClientKeyMiddleware, async (req, res
       text: `
       Good day!
   
-        • Payment Receipt
+      Payment Receipt
         • Control Number: Ctrl-${ctrlNumber}
         • Date: ${dateToday}
         • Payment method: ${paymentMethod}

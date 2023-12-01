@@ -10,12 +10,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from "@mui/material/Icon";
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
+import LoadingModal from "../loading_modal";
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -24,8 +27,12 @@ import axios from 'axios';
 function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, purposeCollege,
   setIsSuccess, setIsError, setAlertMessage, handleCloseDialog, setActiveStep, setData, ctrl_number, setCtrlNumber}) {
 
+  // State to track whether the loading dialog is open
+  const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
+
   // Extract the IDs and join them with commas
   const record_id = cartItems.map(item => item.id).join(',');
+  console.log('record_id', record_id);
 
   // Retrieve the user_id from localStorage
   const user_id = localStorage.getItem('user_id');
@@ -84,6 +91,8 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
   // Function to handle add record form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    setIsLoadingDialogOpen(true);
     // Create a new record object to send to the server
     const newRecord = {
       record_id: record_id,
@@ -111,31 +120,32 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         const ctrl_num = data_ctrl_number.ctrl_number; // Retrieve the ctrl_number from the response
         setCtrlNumber(ctrl_num);
 
+        console.log("response ctrl number:", ctrl_num);
         // Insert a notification into the database
-        registrar_data.map(async (item) => {
-          const registrar_update = {
-            title: "New Record Request added.",
-            description: ctrl_num,
-            user_id: item.user_id
-          }
+        // registrar_data.map(async (item) => {
+        //   const registrar_update = {
+        //     title: "New Record Request added.",
+        //     description: ctrl_num,
+        //     user_id: item.user_id
+        //   }
   
-          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${jwtToken}`,
-          },
-          body: JSON.stringify(registrar_update),
-        })
-          .then((notificationResponse) => {
-            if (notificationResponse.ok) {
-              console.log('Notification inserted successfully');
-            } else {
-              console.error('Failed to insert notification');
-            }
-          })
-          .catch((err) => console.error('Error inserting notification:', err));
-        });    
+        //   fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     Authorization: `Bearer ${jwtToken}`,
+        //   },
+        //   body: JSON.stringify(registrar_update),
+        // })
+        //   .then((notificationResponse) => {
+        //     if (notificationResponse.ok) {
+        //       console.log('Notification inserted successfully');
+        //     } else {
+        //       console.error('Failed to insert notification');
+        //     }
+        //   })
+        //   .catch((err) => console.error('Error inserting notification:', err));
+        // });    
 
         // Fetch updated data and update the state
         fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
@@ -153,7 +163,7 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           setData(data); // Set the fetched data into the state
         })
         .catch((err) => console.log(err));
-
+        setIsLoadingDialogOpen(false);
         setActiveStep((prevActiveStep) => prevActiveStep + 1)
       } else {
         setAlertMessage('Failed to update record');
@@ -163,21 +173,21 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       console.error('Error:', error);
     }
 
-    try {
-      const tAmount = parseInt(totalAmount, 10);
-      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
-        amount: tAmount * 100,
-      });
+    // try {
+    //   const tAmount = parseInt(totalAmount, 10);
+    //   const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
+    //     amount: tAmount * 100,
+    //   });
 
-      if (response.data && response.data.redirectUrl) {
-        setRedirectUrl(response.data.redirectUrl);
-        setPaymentResponse(response.data.paymentResponse);
-      } else {
-        console.error('Invalid response from the server');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    //   if (response.data && response.data.redirectUrl) {
+    //     setRedirectUrl(response.data.redirectUrl);
+    //     setPaymentResponse(response.data.paymentResponse);
+    //   } else {
+    //     console.error('Invalid response from the server');
+    //   }
+    // } catch (error) {
+    //   console.error('Error:', error);
+    // }
   };
 
   const CustomSmallCircleIcon  = () => (
@@ -185,8 +195,18 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       <circle cx="4" cy="4" r="3" fill="none" stroke="#1A73E8" strokeWidth="2" />
     </svg>
   );
+
+  const [checked, setChecked] = useState(false);
+
+  const handleCheckboxChange = (event) => {
+    setChecked(event.target.checked);
+  };
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <LoadingModal
+        open={isLoadingDialogOpen}
+        onClose={isLoadingDialogOpen}
+      />
       <DialogTitle>Confirmation
         <IconButton
           sx={{
@@ -211,10 +231,6 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           p={3}
           justifyContent="center"
           alignItems="center"
-          // borderRadius="md"
-          // shadow="md"
-          // color="light"
-          // bgColor="grey-300"
         > 
         <MDBox
           display="flex" alignItems="center"     
@@ -250,34 +266,24 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
           </MDBox>
           <MDTypography variant="body2"  ml={3}> {selectedPurpose + " " + purposeCollege} </MDTypography> 
 
-          <MDBox
-          display="flex" alignItems="center"  pt={2}
-          >
+          <MDBox display="flex" alignItems="center"  pt={2}>
             <CustomSmallCircleIcon />
             <MDTypography variant="h6" sx={{paddingLeft: "15px"}}>Disclaimer:</MDTypography>
           </MDBox>
-          <MDBox
-            display="flex"  
-          >
-          <MDTypography variant="button" ml={3} mt={1}>
-            Please note that the expected <b>record release time is typically 15 days</b>, but it may vary depending on various factors. <br/><br/>
-            We only accept <b>cashless payments</b> through e-wallets like GCash and Maya, as well as online banking via Union Bank and BPI. <br/><br/>
-            <b>Unpaid requests are valid for 3 days</b>. After this period, they will be automatically canceled if payment is not received. 
-          </MDTypography> 
+          <MDBox display="flex"   >
+            <MDTypography variant="button" ml={3} mt={1}>
+              Please note that the expected <b>record release time is typically 15 days</b>, but it may vary depending on various factors. <br/><br/>
+              We only accept <b>cashless payments</b> through e-wallets like GCash and Maya, as well as online banking via Union Bank and BPI. <br/><br/>
+              <b>Unpaid requests are valid for 3 days</b>. After this period, they will be automatically canceled if payment is not received. <br/><br/>
+              The requested record will be securely uploaded to the Interplanetary File System (IPFS) in an encrypted format. <b>You acknowledge that this allows for the record to be stored publicly on IPFS, ensuring accessibility while maintaining encryption for security purposes.</b>
+      
+            </MDTypography> 
          
-         </MDBox>
+          </MDBox>
           
-          {/* <MDTypography variant="body2" mt={2}> Total Amount: </MDTypography> 
-          <MDTypography variant="body2" fontWeight="medium" > Php {totalAmount}</MDTypography>  */}
-          
+        
           
         </MDBox>
-        {/* <MDBox mt={5} mb={2} px={1} textAlign="left" sx={{ lineHeight: '1' }} >
-          <MDTypography variant="caption" color="error" > 
-              <b>Note:</b> We only accept cashless payments through e-wallets like GCash and Paymaya, as well as online banking via Union Bank and BPI.
-          </MDTypography> 
-        </MDBox>
-        */}
         
       </DialogContent>
       <MDBox
@@ -285,15 +291,33 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
         sx={{ opacity: 0.2 }}
       />
       <DialogActions>
-        <MDButton variant="text" onClick={onClose} color="secondary">
-          Cancel
-        </MDButton>
-        <MDButton
-          variant="contained"
-          color="info"
-          onClick={handleSubmit}>        
-            <Icon>send</Icon> &nbsp; Submit
-        </MDButton>
+        <MDBox width="100%">
+            <MDBox pl={2} display="flex" justifyContent="space-between" width="100%">
+              <FormControlLabel 
+                control={
+                  <Checkbox
+                    checked={checked}
+                    onChange={handleCheckboxChange}
+                    color="primary"
+                  />
+                }
+                label={
+                  <MDTypography variant="button">
+                    I have read and agree to Cressential's Disclaimer.
+                  </MDTypography>
+                }
+              />
+
+              <MDButton
+                variant="contained"
+                color="info"
+                disabled={!checked}
+                onClick={handleSubmit}
+              >
+                <Icon>send</Icon> &nbsp; Submit
+              </MDButton>
+            </MDBox>
+          </MDBox>
       </DialogActions>
     </Dialog>
   );

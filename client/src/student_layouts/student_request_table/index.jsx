@@ -233,7 +233,7 @@ function Request_table() {
                     noEndBorder
                   /> */}
                   
-                  <Grid item xs={12} md={8} lg={12} sx={{ ml: "auto" }} >
+                  <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }} >
                     <AppBar style={{borderRadius: '0.75rem'}} position="static" color="default">
                     {mobileView && (
                         <Tabs

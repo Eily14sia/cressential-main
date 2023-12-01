@@ -118,9 +118,6 @@ function Issuance_table() {
       
       const releasingDate = formatDate(date);
       const today = formatDate(new Date());
-      
-      console.log("Releasing Date:", releasingDate);
-      console.log("Today's Date:", today);
 
       if (releasingDate < today) {
           return "error"; // Past due

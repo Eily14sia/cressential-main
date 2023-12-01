@@ -55,37 +55,6 @@ const { state: { contract, accounts } } = useEth();
 
 const jwtToken = localStorage.getItem('token');
 
-const [password, setPassword] = useState('');
-
-  useEffect(() => {
-    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to authenticate token");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        const wallet_address = data.find((user) => user.id == student_id).wallet_address;
-        const last_name = data.find((user) => user.id == student_id).last_name;
-        // Extract the last 5 characters from the wallet address
-        const last5Characters = wallet_address.slice(-5);
-
-        // Concatenate the lowercase last name with the last 5 characters of the wallet address
-        const password = last_name.toLowerCase() + last5Characters.toLowerCase();
-
-        if(wallet_address && last_name){
-          setPassword(password);        
-        }
-
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
 const handleFileChange = (e) => {
   // Set the URL of the file before it is selected
   e.target.files.length > 0 && setUrl(URL.createObjectURL(e.target.files[0]));
@@ -129,7 +98,7 @@ async function validatePasswordFromPDF(formData) {
 const handleFileUpload = async () => {
   const formData = new FormData();
   formData.append('file', selectedFile);
-  formData.append('password', password);
+  formData.append('password', recordPassword);
 
   if (selectedFile) {
     const password_match = await validatePasswordFromPDF(formData);
@@ -142,10 +111,10 @@ const handleFileUpload = async () => {
           },
         });
 
-        if (recordPassword === '' || recordPassword !== initialPassword  ) {
+        if (recordPassword === '') {
           handleCloseAddDialog();
           setIsError(true);
-          setAlertMessage( recordPassword === null ? "Password is required. Please type a correct password.": "Password didn't match. Ensure that initial password matches the retype password.");
+          setAlertMessage("Password is required.");
           setSelectedFile(null);
           setInitialPassword('');
           setUrl('');
@@ -244,26 +213,27 @@ function getRecordName(record_type_id) {
 
       We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
 
-        • Ctrl Number: ${ctrlNumber}
+        • Control Number: ${ctrlNumber}
         • Record Type: ${type}
         • Transaction Number: ${txHash}
         • IPFS Link: ${ipfsLink}
         • Password Format:
 
-          Concatenate your Last Name and the last 5 digits of your wallet address, all in lowercase.
+          Concatenate your Control Number: 123, Last Name and the last 5 digits of your wallet address, all in lowercase.
 
           Example:
-          Last Name: smith
+          Control Number: 123
+          Last Name: Smith
           Wallet Address: 0xAbCdEfGhIjKlMnOpQrStUvWxYz123456ab90
 
-          Sample Password: smith6ab90
+          Sample Password: 123smith6ab90
 
-      You can access your record by clicking on the IPFS Link. Use the provided password to securely access and download your record.
-
-      **Note: Please keep the password and Transaction Number secured, as they will also be used for verifying the validity of your record in the verifier portal. Your record's security relies on the confidentiality of these credentials.
-
+      You can access your record by clicking on the IPFS Link. Please use the provided password to securely access and download your record. Alternatively, you can access these credentials through the Cressential system for authentication purposes.
+  
+      ** Note: Please ensure the security of the Password and Transaction Number, as they are vital for authorized verification of your record within the verifier portal. Sharing these credentials implies granting permission for others to verify your record. The security of your record relies on the confidentiality of these credentials.
+      
       If you have any questions or need further assistance, please feel free to contact our office.
-
+    
       Best regards,
       Registrar's Office
       `,
