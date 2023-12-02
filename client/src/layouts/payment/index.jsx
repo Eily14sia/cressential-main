@@ -235,7 +235,7 @@ function Payment() {
                     ctrl_num: "CTRL-"+item.ctrl_number,
                     payment_id: item.payment_id,
                     student_id: getStudentName(item.student_id),
-                    payment_date: new Date(item.payment_date).toLocaleDateString(), // Format the date_requested
+                    payment_date: item.payment_date ? (new Date(item.payment_date).toLocaleDateString()) : "", // Format the date_requested
                     total_amount: item.total_amount,
                     payment_method: item.payment_method,
                     payment_status: (

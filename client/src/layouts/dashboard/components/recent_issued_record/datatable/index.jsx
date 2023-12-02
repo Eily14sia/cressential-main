@@ -23,6 +23,8 @@ import MDButton from "../../../../../components/MDButton";
 import MDBadge from "../../../../../components/MDBadge";
 import MDAlert from '../../../../../components/MDAlert';
 import CircularProgress from '../../../../../examples/CircularProgress';
+import MetamaskModal from "../../../../../examples/MetamaskModal";
+
 
 // Material Dashboard 2 React example components
 import DataTable from "../../../../../examples/Tables/DataTable";
@@ -32,6 +34,15 @@ function Issuance_table() {
   const [data, setData] = useState([]);
   const jwtToken = localStorage.getItem('token');
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   useEffect(() => {
     fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/due-request", {
@@ -132,12 +143,43 @@ function Issuance_table() {
 
   return (
     <>
+      <MetamaskModal open={isDialogOpen} onClose={handleCloseDialog} />
       <DataTable table={{ columns, 
         rows: issued_data.map((item) => ({          
         ctrl_number: (
-          <Link to={`/alumni/record-per-request/${item.ctrl_number}`} component={RouterLink}>
-            <MDTypography variant="button" fontWeight="medium"> CTRL-{item.ctrl_number} </MDTypography>
-          </Link>
+          <> 
+          {(window.ethereum) ? (
+            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
+              <MDTypography 
+                color="dark" 
+                variant="text" 
+                fontWeight="medium"
+                sx={{
+                  '&:hover': {
+                    color: 'info.main',
+                  },
+                }}
+              >
+                {"CTRL-"+item.ctrl_number}
+              </MDTypography>
+            </Link>
+          ) : (
+            <MDTypography 
+              color="dark" 
+              variant="text" 
+              fontWeight="medium"
+              onClick={handleOpenDialog}
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  color: 'info.main',
+                },
+              }}
+            >
+              {"CTRL-"+item.ctrl_number}
+            </MDTypography>
+          )}          
+          </>  
           ),   
           date_releasing: (
             <MDBox lineHeight={1}>

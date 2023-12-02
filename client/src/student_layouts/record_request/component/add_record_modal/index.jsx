@@ -122,30 +122,30 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
 
         console.log("response ctrl number:", ctrl_num);
         // Insert a notification into the database
-        // registrar_data.map(async (item) => {
-        //   const registrar_update = {
-        //     title: "New Record Request added.",
-        //     description: ctrl_num,
-        //     user_id: item.user_id
-        //   }
+        registrar_data.map(async (item) => {
+          const registrar_update = {
+            title: "New Record Request added.",
+            description: ctrl_num,
+            user_id: item.user_id
+          }
   
-        //   fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     Authorization: `Bearer ${jwtToken}`,
-        //   },
-        //   body: JSON.stringify(registrar_update),
-        // })
-        //   .then((notificationResponse) => {
-        //     if (notificationResponse.ok) {
-        //       console.log('Notification inserted successfully');
-        //     } else {
-        //       console.error('Failed to insert notification');
-        //     }
-        //   })
-        //   .catch((err) => console.error('Error inserting notification:', err));
-        // });    
+          fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/notif/add-record", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify(registrar_update),
+        })
+          .then((notificationResponse) => {
+            if (notificationResponse.ok) {
+              console.log('Notification inserted successfully');
+            } else {
+              console.error('Failed to insert notification');
+            }
+          })
+          .catch((err) => console.error('Error inserting notification:', err));
+        });    
 
         // Fetch updated data and update the state
         fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
@@ -173,21 +173,21 @@ function DialogBox({ open, onClose, cartItems, totalAmount, selectedPurpose, pur
       console.error('Error:', error);
     }
 
-    // try {
-    //   const tAmount = parseInt(totalAmount, 10);
-    //   const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
-    //     amount: tAmount * 100,
-    //   });
+    try {
+      const tAmount = parseInt(totalAmount, 10);
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/payments/paymongoIntent', {
+        amount: tAmount * 100,
+      });
 
-    //   if (response.data && response.data.redirectUrl) {
-    //     setRedirectUrl(response.data.redirectUrl);
-    //     setPaymentResponse(response.data.paymentResponse);
-    //   } else {
-    //     console.error('Invalid response from the server');
-    //   }
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
+      if (response.data && response.data.redirectUrl) {
+        setRedirectUrl(response.data.redirectUrl);
+        setPaymentResponse(response.data.paymentResponse);
+      } else {
+        console.error('Invalid response from the server');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const CustomSmallCircleIcon  = () => (

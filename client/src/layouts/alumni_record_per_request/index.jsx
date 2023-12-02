@@ -141,10 +141,10 @@ function Alumni_record_per_request() {
   const student_id = data.find((item) => item.ctrl_number == ctrl_number)?.student_id;
 
   const columns = [
-    { Header: "Record", accessor: "record", width: "30%" },
+    { Header: "Record", accessor: "record", },
     // { Header: "Processing Officer", accessor: "processing_officer", width: "30%" },
-    { Header: "Status", accessor: "status", width: "10%" },
-    { Header: "Date Issued", accessor: "date_issued", width: "10%" },
+    { Header: "Status", accessor: "status"},
+    { Header: "Date ", accessor: "date_issued", },
   ];
   
   if (parseInt(user_role) === 1) {
@@ -438,62 +438,94 @@ function Alumni_record_per_request() {
                           status: (
                             <>
                             {item.ipfs ? (
-                              <>
-                              <MDBox>
                               
-                                <MDBox> 
-                                  {item.record_status === 'Valid' ? (
-                                    <>
-                                      <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                                      <MDBadge 
-                                        badgeContent="Valid"
-                                        color="success" // Set the badge color dynamically
-                                        variant="gradient"
-                                        size="sm"
-                                      />  
-                                    </>                              
-                                  ) : (
-                                    <>
-                                      <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                                      <MDBadge
-                                        badgeContent="Invalid"
-                                        color="error" // Set the badge color dynamically
-                                        variant="gradient"
-                                        size="sm"
-                                      />   
-                                    </> 
-                                  )}
+                              <MDBadge 
+                                badgeContent="Valid"
+                                color="success" // Set the badge color dynamically
+                                variant="gradient"
+                                size="sm"
+                              />  
+                              // <MDBox>
+                              
+                              //   <MDBox> 
+                              //     {item.record_status === 'Valid' ? (
+                              //       <>
+                              //         <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                              //         <MDBadge 
+                              //           badgeContent="Valid"
+                              //           color="success" // Set the badge color dynamically
+                              //           variant="gradient"
+                              //           size="sm"
+                              //         />  
+                              //       </>                              
+                              //     ) : (
+                              //       <>
+                              //         <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                              //         <MDBadge
+                              //           badgeContent="Invalid"
+                              //           color="error" // Set the badge color dynamically
+                              //           variant="gradient"
+                              //           size="sm"
+                              //         />   
+                              //       </> 
+                              //     )}
               
-                                </MDBox>
-                                <MDBox>
-                                    {(!item.is_expired) ? (
-                                     <>
-                                      <MDTypography variant="caption" fontWeight="medium" > Expiration: </MDTypography>
-                                        <MDBadge
-                                          badgeContent="Active"
-                                          color="success" // Set the badge color dynamically
-                                          variant="gradient"
-                                          size="sm"
-                                        />  
-                                      </>
-                                    ) : (
-                                      <>
-                                        <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                                        <MDBadge
-                                          badgeContent="Expired"
-                                          color="error" // Set the badge color dynamically
-                                          variant="gradient"
-                                          size="sm"
-                                        />  
-                                      </>  
-                                    )}
-                                </MDBox>
-                              </MDBox>
-                              </>
+                              //   </MDBox>
+                              //   <MDBox>
+                              //       {(!item.is_expired) ? (
+                              //        <>
+                              //         <MDTypography variant="caption" fontWeight="medium" > Expiration: </MDTypography>
+                              //           <MDBadge
+                              //             badgeContent="Active"
+                              //             color="success" // Set the badge color dynamically
+                              //             variant="gradient"
+                              //             size="sm"
+                              //           />  
+                              //         </>
+                              //       ) : (
+                              //         <>
+                              //           <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
+                              //           <MDBadge
+                              //             badgeContent="Expired"
+                              //             color="error" // Set the badge color dynamically
+                              //             variant="gradient"
+                              //             size="sm"
+                              //           />  
+                              //         </>  
+                              //       )}
+                              //   </MDBox>
+                              // </MDBox>
+                              
                             ) : ""}
                             </>
                           ),
-                          date_issued: item.date_issued ? new Date(item.date_issued).toLocaleDateString() : "",
+                          date_issued: (
+                            (item.date_issued && (
+                            <MDBox lineHeight={1}>
+                              <MDTypography variant="caption" >
+                                Issued: &nbsp;
+                              </MDTypography>
+                              <MDTypography variant="button" fontWeight="medium">
+                                {new Date(item.date_issued).toLocaleDateString()} <br></br>
+                              </MDTypography>
+                              <MDTypography variant="caption">
+                                Expiration: &nbsp; 
+                              </MDTypography>
+                              <MDTypography
+                                variant="button"
+                                fontWeight="medium"
+                              >
+                                {
+                                  (() => {
+                                    const date = new Date(item.date_issued);
+                                    date.setFullYear(date.getFullYear() + 1);
+                                    return date.toLocaleDateString();
+                                  })()
+                                }
+                              </MDTypography>
+                            </MDBox>
+                            ))
+                          ),
                           action: (
                             <>
                             {parseInt(user_role) === 1 ? (
@@ -510,10 +542,15 @@ function Alumni_record_per_request() {
                               </span>
                             </Tooltip>
                             
-                            <Tooltip title="Update" >
-                                <IconButton color="success" onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
+                            <Tooltip title={`No record has been uploaded yet, cannot update.`} disableHoverListener={item.ipfs !== null }>
+                              <span>
+                                <IconButton 
+                                    color="success" 
+                                    disabled={item.ipfs === null }
+                                    onClick={() => handleOpenUpdateDialog(item.rpr_id, item.type, item.ipfs, item.record_status)} >
                                     <EditIcon />
                                   </IconButton>
+                                </span>
                             </Tooltip>
                             {/* <Tooltip title="Delete" >
                               <IconButton color="secondary" onClick={() => handleDelete(item.id)}>

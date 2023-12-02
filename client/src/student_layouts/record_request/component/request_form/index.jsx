@@ -83,11 +83,14 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
             if (filteredData.length > 0) {
               const isAlumniValue = filteredData[0].is_alumni; // Assuming is_alumni is a property of the record
               setIsAlumni(isAlumniValue);
+              console.log("is_alumni: ", isAlumniValue);
             }
           }
         })
         .catch((err) => console.log(err));
     }, []);
+
+    console.log("is_alumni: ", is_alumni);
 
     useEffect(() => {
       fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/type-of-record", {
@@ -102,10 +105,17 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
           return res.json();
         })
         .then((type_of_record) => {   
-          if (parseInt(is_alumni) == 1){
-            setData(type_of_record);    
+          if (parseInt(is_alumni) === 1){
+            const filteredData = type_of_record.filter((record) => record.is_for_alumni === true);
+            if (filteredData.length > 0) {
+              setData(filteredData);
+            } else {
+              // Handle case when no records match the condition
+              console.log("No records found for non-alumni");
+              // You might set some default value or handle this situation accordingly
+            }
           } else {
-            const filteredData = type_of_record.filter((record) => record.is_for_alumni === false);
+            const filteredData = type_of_record.filter((record) => record.is_for_student === true);
             if (filteredData.length > 0) {
               setData(filteredData);
             } else {
@@ -117,7 +127,7 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
           
         })
         .catch((err) => console.log(err));
-    }, []);
+    }, [is_alumni]);
 
     
 
@@ -306,7 +316,7 @@ const index = ( {totalAmount, setTotalAmount, setActiveStep, cartItems, setCartI
                         <Grid item xs={12} sx={{margin:"auto"}}>
                         <FormGroup sx={{ marginLeft: "30px" }}>
                         <RadioGroup value={selectedPurpose} 
-                        onChange={(e) => {setSelectedPurpose(e.target.value), setPurposeCollege("")}}>
+                         onChange={(e) => {setSelectedPurpose(e.target.value), setPurposeCollege("")}}>
                             <FormControlLabel
                             value="Evaluation"
                             control={<Radio />}

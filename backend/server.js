@@ -57,14 +57,14 @@ function verifyToken(req, res, next) {
 
   // login with metamask
   router.post('/login-metamask', (req, res) => {
-    const { wallet_address } = req.body;
-    const sql = "SELECT * FROM user_management WHERE wallet_address = $1";
-
-    db.query(sql, [wallet_address], (err, results) => {
-      if (err) {
-        console.error('Error fetching user data:', err);
-        return res.status(500).json({ message: 'Internal server error' });
-      }
+  const { wallet_address } = req.body;
+  const sql = "SELECT * FROM user_management WHERE wallet_address = $1";
+  
+  db.query(sql, [wallet_address], (err, results) => {
+    if (err) {
+      console.error('Error fetching user data:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
 
       if (results.rows.length === 0) {
         return res.status(404).json({ message: 'User not found' });
@@ -81,7 +81,7 @@ function verifyToken(req, res, next) {
       res.json({ user, token });
     });
   });
-
+  
   // default login
   router.post('/login', (req, res) => {
     const { email, password } = req.body.loginRecord;
@@ -109,17 +109,39 @@ function verifyToken(req, res, next) {
         role: user.role,
         status: user.status,
       };
-
+      
       // Generate a JWT token
       const token = jwt.sign(userData, secretKey, {
         expiresIn: '2h', // Token expires in 1 hour (adjust as needed)
       });
-
+      
       // Include the token in the response
       res.json({ user: userData, token });
     });
   });
+  
+// ========================= Profile  =========================
 
+  // Update Record
+  router.put('/change-password/:user_id', verifyToken, (req, res) => {
+    const user_id = req.params.user_id;
+    const { password } = req.body;
+
+    const hashedPassword = hashPassword(password);
+
+    const sql = "UPDATE user_management SET password = $1 WHERE user_id = $2";
+
+    db.query(sql, [hashedPassword, user_id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to update record' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        return res.status(200).json({ message: 'Record updated successfully' });
+    });
+  });
 // ========================= Verification  =========================
 
   // for verify, check if txHash is existing

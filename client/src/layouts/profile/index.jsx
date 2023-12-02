@@ -111,9 +111,6 @@ function Overview() {
                 description="This section displays essential details about an individual, such as their name and other personal information. It serves as a concise overview of the user's identity and role."
                 info={{
                   fullName: registrar_data.first_name + " " + registrar_data.last_name,
-                  mobile: "registrar_data.contact_number",
-                  email: "alecthompson@mail.com",
-                  location: "USA",
                 }}
                 action={{ route: "", tooltip: "Edit Profile" }}
                 shadow={false}
@@ -144,9 +141,9 @@ function Overview() {
                 title="Contact information"
                 description="This section presents means of communication allowing users to easily get in touch or connect with the person or entity. It facilitates efficient and direct communication"
                 info={{
-                  fullName: registrar_data.first_name + " " + registrar_data.last_name,
-                  mobile: "registrar_data.contact_number",
-                  email: "alecthompson@mail.com",
+                  walletAddress: registrar_data.wallet_address,
+                  mobile: registrar_data.mobile_number,
+                  email: registrar_data.email
                 }}
                 action={{ route: "", tooltip: "Edit Profile" }}
                 shadow={false}

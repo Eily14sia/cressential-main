@@ -59,7 +59,7 @@ function Verifier_portal() {
 
     const selectedFile = e.target.files[0];
 
-    if (selectedFile) {
+    if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile);
 
       try {
@@ -80,10 +80,10 @@ function Verifier_portal() {
         setHash(null);
       }
     } else {
-      setUrl(null);
-      setFile(null);
-      setHash(null);
+      // File is not a PDF, display an error or handle it as needed
+      alert('Please select a PDF file');
     }
+
   };
 
   // retrieve for verification
@@ -266,12 +266,39 @@ function Verifier_portal() {
     setIsLoadingDialogOpen(false);
     setIsLoading(false);
     setAlertMessage('');
+    setFile('');
+    setHash('');
+    setTransactionHash('');
+    setUrl('');
+    setPassword('');
   };
 
   const [showPassword, setShowPassword] = useState(false);
 
   const handlePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const styles = {
+    label: {
+      display: 'flex',
+      alignItems: 'center',
+      border: '1px solid #ced4da',
+      borderRadius: '5px',
+      padding: '6px 12px',
+      cursor: 'pointer',
+    },
+    input: {
+      display: 'none', // Make the input hidden
+    },
+    button: {
+      width: '25%',
+      height: 'auto',
+      margin: '7px 15px 7px 2px',
+    },
+    placeholder: {
+      color: '#495057',
+    },
   };
 
   return (
@@ -344,15 +371,17 @@ function Verifier_portal() {
 
             {/* right section */}
             <Grid item xs={12} lg={5} px={2}>
+              <form onSubmit={(e) => {sendTransactionHashToServer(transaction_hash); e.preventDefault();}}>
               <MDBox >
                 <MDBox mb={2}>
-                  <MDInput type="text" label="Transaction Number" value={transaction_hash} variant="outlined" onChange={(e) => setTransactionHash(e.target.value)} fullWidth />
+                  <MDInput required type="text" label="Transaction Number" value={transaction_hash} variant="outlined" onChange={(e) => setTransactionHash(e.target.value)} fullWidth />
                 </MDBox>
                 <MDBox mb={2}>
                   {/* <MDInput type="password" value={password} label="Password" variant="outlined" onChange={(e) => setPassword(e.target.value)} fullWidth /> */}
                   <MDInput
                   type={showPassword ? 'text' : 'password'}
                   label="Password"
+                  required
                   value={password}
                     onChange={(e) => setPassword(e.target.value)}                  
                     fullWidth               
@@ -373,12 +402,37 @@ function Verifier_portal() {
                   />
                 </MDBox>
                 <MDBox mb={2}>
-                  <MDInput fullWidth variant="outlined" 
+                  {/* <MDInput fullWidth variant="outlined" 
                     type="file"
                     id="fileUpload"
                     accept=".pdf"
                     onChange={handleFileChange}
-                  />           
+                  />     */}
+                  <label htmlFor="fileUpload" style={styles.label}>
+                  <button required
+                    style={styles.button}
+                    onClick={() => {
+                      const fileInput = document.getElementById("fileUpload");
+                      if (fileInput) {
+                        fileInput.click();
+                      }
+                    }}
+                  >
+                    Choose File
+                  </button>
+                  <span style={file ? {} : styles.placeholder}>
+                    <MDTypography variant="button">
+                      {file ? file.name : 'Select a PDF file'}
+                    </MDTypography>
+                  </span>
+                  <input
+                    accept=".pdf"
+                    id="fileUpload"
+                    type="file"
+                    style={styles.input}
+                    onChange={handleFileChange}
+                  />
+                </label>
                 </MDBox>
                 
                 <MDBox mt={4} mb={1}>
@@ -400,7 +454,7 @@ function Verifier_portal() {
                       </MDButton>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <MDButton variant="gradient" color="info" size="large" fullWidth type="submit" onClick={() => sendTransactionHashToServer(transaction_hash)}>
+                      <MDButton variant="gradient" color="info" size="large" fullWidth type="submit">
                         Verify Record
                       </MDButton>
                     </Grid>
@@ -425,6 +479,7 @@ function Verifier_portal() {
                   </MDBox>
                 </MDBox>
               </MDBox>
+              </form>
             </Grid>
           </Grid>
           

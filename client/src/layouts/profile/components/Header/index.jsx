@@ -30,10 +30,12 @@ import Icon from "@mui/material/Icon";
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 import MDButton from "../../../../components/MDButton";
-import MDAvatar from "../../../../components/MDAvatar";
+import MDAlert from "../../../../components/MDAlert";
 
 // Material Dashboard 2 React base styles
 import breakpoints from "../../../../assets/theme/base/breakpoints";
+import ChangePassword from "../add_record";
+import { useAuth } from '../../../../context2';
 
 // Images
 import burceMars from "../../../../assets/images/avatar_profile.png";
@@ -113,6 +115,72 @@ function Header({ children }) {
       .catch((err) => console.log(err));
   }, []);
 
+  // =========== For the MDAlert =================
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const alertContent = (name) => (
+    <MDTypography variant="body2" color="white">
+      {alertMessage}
+    </MDTypography>
+  );
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [initialPassword, setInitialPassword] = useState('');
+  const [password, setPassword] = useState('');  
+  const [passwordHash, setPasswordHash] = useState('');
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setPassword('');
+    setInitialPassword('');
+    setCurrentPassword('');
+    setPasswordHash('');
+  };
+
+  const { logout } = useAuth();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // Create a new record object to send to the server
+    const newRecord = {
+      password: password,
+    };
+
+    try {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/change-password/${user_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify(newRecord),
+      });
+
+      if (response.ok) {
+        handleCloseDialog();
+        setIsSuccess(true);
+        setAlertMessage('Password updated successfully.');
+
+        // Fetch updated data and update the state
+        logout();
+      } else {
+        setIsError(true);
+        setAlertMessage('Failed to change password.');
+      }
+    } catch (error) {
+      setIsError(true);
+      console.error('Error:', error);
+    }
+  };
+  
 
   return (
     <MDBox position="relative" mb={5}>
@@ -133,6 +201,23 @@ function Header({ children }) {
           overflow: "hidden",
         }}
       />
+      {isSuccess && (
+          <MDAlert color="success" dismissible 
+          sx={{marginBottom: '40px', position: "relative",  mt: -10, mb: 10,  mx: 3, py: 2, px: 2,}} 
+          onClose={() => setIsSuccess(false)}
+          >
+                {alertContent("success", alertMessage)}
+          </MDAlert>
+        )}
+        {isError && (
+          <MDAlert color="error" dismissible
+          sx={{marginBottom: '40px', position: "relative",  mt: -10, mb: 10,  mx: 3, py: 2, px: 2,}} 
+          onClose={() => {setIsError(false); setEmail('');}}
+          >
+            {alertContent("error", alertMessage)}
+          </MDAlert>
+        )}
+
       <Card
         sx={{
           position: "relative",
@@ -142,15 +227,16 @@ function Header({ children }) {
           px: 2,
         }}
       >
+        
         <Grid container spacing={3} alignItems="center">
           
           <Grid item xs={8 } md={4} lg={8}>
             <MDBox height="100%" mt={0.5} lineHeight={1}>
               <MDTypography variant="h5" fontWeight="medium">
                 {parseInt(user_role) === 1 && (registrar_data || student_data) ? (
-                  registrar_data.first_name+" "+registrar_data.middle_name+" "+registrar_data.last_name
+                  registrar_data.first_name+" "+registrar_data.last_name
                 ) : (
-                  student_data.first_name+" "+student_data.middle_name+" "+student_data.last_name
+                  student_data.first_name+" "+student_data.last_name
                 )}
               </MDTypography>
               <MDTypography variant="button" color="text" fontWeight="regular">
@@ -160,41 +246,22 @@ function Header({ children }) {
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
             <MDBox display="flex" justifyContent="flex-end">
-              <MDButton color="dark" variant="gradient">
-                Update Information
+              <MDButton color="dark" variant="gradient" onClick={handleOpenDialog}>
+                Change Password
               </MDButton>
             </MDBox>
           </Grid>
-          {/* <Grid item xs={12} md={6} lg={4} sx={{ ml: "auto" }}>
-            <AppBar position="static">
-              <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-                <Tab
-                  label="App"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      home
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Message"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      email
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Settings"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      settings
-                    </Icon>
-                  }
-                />
-              </Tabs>
-            </AppBar>
-          </Grid> */}
+          <ChangePassword open={isDialogOpen} onClose={handleCloseDialog} 
+          onSubmit={handleSubmit}
+          accountPassword={(user_role == 1) ? registrar_data.password : student_data.password}
+          currentPassword={currentPassword}
+          setCurrentPassword={setCurrentPassword}
+          initialPassword={initialPassword}
+          setInitialPassword={setInitialPassword}          
+          password={password}
+          setPassword={setPassword}
+          passwordHash={passwordHash}
+          setPasswordHash={setPasswordHash}/>
         </Grid>
         {children}
       </Card>

@@ -102,7 +102,6 @@ function Request_table() {
     { Header: "Record Type", accessor: "record_type" },
     { Header: "Payment Status", accessor: "payment_status"},
     { Header: "Request Status", accessor: "request_status"},
-    { Header: "action", accessor: "action"}
   ];
   const [tabValue, setTabValue] = useState(0);
 
@@ -145,7 +144,42 @@ function Request_table() {
       <DataTable 
         table={{ columns, 
         rows: data.map((item) => ({
-        ctrl_num: "CTRL-"+item.ctrl_number,
+       
+        ctrl_num: (
+          <> 
+          {(window.ethereum) ? (
+            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
+              <MDTypography 
+                color="dark" 
+                variant="text" 
+                fontWeight="medium"
+                sx={{
+                  '&:hover': {
+                    color: 'info.main',
+                  },
+                }}
+              >
+                {"CTRL-"+item.ctrl_number}
+              </MDTypography>
+            </Link>
+          ) : (
+            <MDTypography 
+              color="dark" 
+              variant="text" 
+              fontWeight="medium"
+              onClick={handleOpenDialog}
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  color: 'info.main',
+                },
+              }}
+            >
+              {"CTRL-"+item.ctrl_number}
+            </MDTypography>
+          )}          
+          </>                                 
+        ), 
         record_type: (
           <MDBox lineHeight={1}>
             {getTypeOfRecord(item.request_record_type_id).map((type, index) => (
@@ -184,25 +218,6 @@ function Request_table() {
             </MDBox>
           </>
         ),
-        action: (
-          <> 
-          {(window.ethereum) ? (
-            <Link to={`/record-per-request/${item.ctrl_number}`} component={RouterLink} >
-              <Tooltip title="View" >
-                <IconButton color="info" >
-                    <VisibilityIcon />
-                  </IconButton>
-              </Tooltip>
-            </Link>
-          ) : (
-            <Tooltip title="View">
-              <IconButton color="info" onClick={handleOpenDialog}>
-                <VisibilityIcon />
-              </IconButton>
-            </Tooltip>
-          )}          
-          </>                                 
-        ), 
         })), 
       }} canSearch={false} 
       showTotalEntries={false}
