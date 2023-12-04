@@ -9,8 +9,9 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import {
   FormControl,
+  FormControlLabel,
   InputLabel,
-  Select, MenuItem
+  Select, MenuItem, Checkbox
 } from "@mui/material";
 
 // Material Dashboard 2 React components
@@ -50,7 +51,7 @@ function Update_Record() {
   const [formData, setFormData] = useState({initialFormData});
   const [college, setCollege] = useState('');
   const [course, setCourse] = useState('');
-  const [is_alumni, setIsAllumni] = useState('');
+  // const [is_alumni, setIsAllumni] = useState('');
 
   const location = useLocation();
   const state_userID = location.state?.user_id;
@@ -87,7 +88,7 @@ function Update_Record() {
             const new_date = `${year}-${month}-${day}`;
             setCollege(item.college);
             setCourse(item.course);
-            setIsAllumni(parseInt(item.is_alumni));
+            // setIsAllumni(parseInt(item.is_alumni));
 
             setFormData((prevFormData) => ({
               ...prevFormData,
@@ -102,8 +103,9 @@ function Update_Record() {
               permanentAddress: item.permanent_address,
               mobileNumber: item.mobile_number,
               emailAddress: item.email,
-              
-              
+              is_alumni: parseInt(item.is_alumni),
+              is_locked: item.is_locked,
+              is_active: item.status === "active" ? true : false,
             }));
           }
         })
@@ -115,6 +117,7 @@ function Update_Record() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  console.log('is locked', formData.is_locked)
   const alertContent = (name) => (
     <MDTypography variant="body2" color="white">
       {alertMessage}
@@ -156,6 +159,8 @@ function Update_Record() {
   const goBack = () => {    
     navigate(-1);
   };
+
+  console.log(formData.is_locked);
 
   return (
     <DashboardLayout>
@@ -370,28 +375,53 @@ function Update_Record() {
                           <Grid item xs={12} sx={{margin:"auto"}}>
                             <MDTypography mt={"5"} fontWeight={"bold"}>User Information</MDTypography>                         
                           </Grid>
-                          <Grid item xs={3} sx={{margin:"auto"}}>
-                            <MDTypography variant="body2">Is Alumni?</MDTypography>
-                          </Grid>
-                          <Grid item xs={9}>
-                            <FormControl variant="outlined" fullWidth margin="normal">                                
-                                <Select
-                                style={{ height: "50px" }}
-                                required  displayEmpty
-                                value={is_alumni}
-                                onChange={(e) => setFormData({ ...formData, is_alumni: e.target.value})}                    
-                                >                            
-                                    <MenuItem value={1}> Yes</MenuItem>
-                                    <MenuItem value={0}> No</MenuItem>
-                                </Select>
+                          <Grid item xs={4}>
+                            <FormControl variant="outlined" fullWidth >
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={formData.is_alumni === 1}
+                                  onChange={(e) => setFormData({ ...formData, is_alumni: e.target.checked ? 1 : 0})}
+                                  color="primary"
+                                />
+                              }
+                              label="Is Alumni"
+                            />
                             </FormControl>
                           </Grid>
-                          <Grid item xs={3} sx={{margin:"auto"}}>
+                          <Grid item xs={4}>
+                          <FormControl variant="outlined" fullWidth>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={formData.is_locked === true}
+                                  onChange={(e) => setFormData({ ...formData, is_locked: e.target.checked})}
+                                  color="primary"
+                                />
+                              }
+                              label="Is Locked"
+                            />
+                          </FormControl>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <FormControl variant="outlined" fullWidth >
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={formData.is_active === true}
+                                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked})}
+                                    color="primary"
+                                  />
+                                }
+                                label="Is Active"
+                              />
+                            </FormControl>
+                          </Grid>
+                          {/* <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">Status:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
                             <FormControl variant="outlined" fullWidth margin="normal">  
-                            {/* <InputLabel>{formData.status}</InputLabel>                               */}
                                 <Select
                                 style={{ height: "50px" }}
                                 required  
@@ -403,12 +433,12 @@ function Update_Record() {
                                     <MenuItem value={"inactive"}> Inactive</MenuItem>
                                 </Select>
                             </FormControl>
-                          </Grid>
+                          </Grid> */}
                           
                           {/* END OF USER INFO */}
 
-                          <Grid item xs={6}></Grid>
-                          <Grid item xs={6} sx={{marginTop:"10px"}} >
+                          
+                          <Grid item xs={12} sx={{marginTop:"10px"}} >
                               <MDButton variant="gradient" color="info" fullWidth type="submit">
                                 <Icon>send</Icon> &nbsp; Update Record
                               </MDButton>

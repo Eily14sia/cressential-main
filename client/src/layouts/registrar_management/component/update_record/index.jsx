@@ -9,6 +9,8 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import {
   FormControl,
+  FormControlLabel,
+  Checkbox,
   InputLabel,
   Select, MenuItem
 } from "@mui/material";
@@ -81,7 +83,8 @@ function Update_Record() {
               walletAddress: item.wallet_address,   
               mobileNumber: item.mobile_number,
               emailAddress: item.email,             
-              
+              is_locked: item.is_locked,
+              is_active: item.status === "active" ? true : false,
             }));
           }
         })
@@ -250,8 +253,35 @@ function Update_Record() {
                           <Grid item xs={12} >
                             <MDTypography mt={"5"} fontWeight={"bold"}>User Information</MDTypography>                         
                           </Grid>
-                          
-                          <Grid item xs={3} sx={{margin:"auto"}}>
+                          <Grid item xs={4}>
+                          <FormControl variant="outlined" fullWidth>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={formData.is_locked === true}
+                                  onChange={(e) => setFormData({ ...formData, is_locked: e.target.checked})}
+                                  color="primary"
+                                />
+                              }
+                              label="Is Locked"
+                            />
+                          </FormControl>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <FormControl variant="outlined" fullWidth >
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={formData.is_active === true}
+                                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked})}
+                                    color="primary"
+                                  />
+                                }
+                                label="Is Active"
+                              />
+                            </FormControl>
+                          </Grid>
+                          {/* <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">Account Status:</MDTypography>
                           </Grid>
                           <Grid item xs={9} mt={-2}>
@@ -268,7 +298,7 @@ function Update_Record() {
                                 </Select>
                             </FormControl>
                           </Grid>
-                          
+                           */}
                           {/* END OF USER INFO */}
 
                           <Grid item xs={6}></Grid>
