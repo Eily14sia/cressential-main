@@ -82,41 +82,94 @@ function verifyToken(req, res, next) {
     });
   });
   
+
+
   // default login
   router.post('/login', (req, res) => {
     const { email, password } = req.body.loginRecord;
-    
+
+    function updateLoginAttempts(email) {
+      const incrementAttemptsSql = 'UPDATE user_management SET login_attempts = login_attempts + 1 WHERE email = $1';
+      const incrementAttemptsValues = [email];
+      db.query(incrementAttemptsSql, incrementAttemptsValues, (err) => {
+        if (err) {
+          console.error('MySQL query error:', err);
+        } else {
+          // Check if attempts reach five
+          const checkAttemptsSql = 'SELECT login_attempts FROM user_management WHERE email = $1';
+          const checkAttemptsValues = [email];
+          db.query(checkAttemptsSql, checkAttemptsValues, (err, attemptsResults) => {
+            if (err) {
+              console.error('MySQL query error:', err);
+            } else if (attemptsResults.rows[0].login_attempts === 4) {
+              // Lock the account
+              lockAccount(email);
+            }
+          });
+        }
+      });
+    }
+  
+    function lockAccount(email) {
+      const lockAccountSql = 'UPDATE user_management SET is_locked = true, login_attempts = 0 WHERE email = $1';
+      const lockAccountValues = [email];
+      db.query(lockAccountSql, lockAccountValues, (err) => {
+        if (err) {
+          console.error('MySQL query error:', err);
+        } else {
+          console.log('Account locked and login attempts reset for user:', email);
+        }
+      });
+    }
+  
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(password);
-    
-    // Query the database to retrieve user data
-    const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
-    const values = [email, hashedPassword];
-    db.query(sql, values, (err, results) => {
+  
+    // Check if the user is already locked
+    const checkLockSql = 'SELECT is_locked FROM user_management WHERE email = $1';
+    const checkLockValues = [email];
+    db.query(checkLockSql, checkLockValues, (err, lockResults) => {
       if (err) {
         console.error('MySQL query error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
         return;
       }
-
-      if (results.rows.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+  
+      if (lockResults.rows[0].is_locked) {
+        return res.status(403).json({ message: 'Account locked due to multiple failed attempts' });
       }
-
-      const user = results.rows[0];
-      const userData = {
-        user_id: user.user_id,
-        role: user.role,
-        status: user.status,
-      };
-      
-      // Generate a JWT token
-      const token = jwt.sign(userData, secretKey, {
-        expiresIn: '2h', // Token expires in 1 hour (adjust as needed)
+  
+      // Query the database to retrieve user data
+      const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
+      const values = [email, hashedPassword];
+      db.query(sql, values, (err, results) => {
+        if (err) {
+          console.error('MySQL query error:', err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+          return;
+        }
+  
+        if (results.rows.length === 0) {
+          // Increment login attempts
+          updateLoginAttempts(email);
+          return res.status(401).json({ message: 'Incorrect email or password' });
+        }
+  
+        const user = results.rows[0];
+        const userData = {
+          user_id: user.user_id,
+          role: user.role,
+          status: user.status,
+        };
+  
+        // Generate a JWT token
+        const token = jwt.sign(userData, secretKey, {
+          expiresIn: '2h', // Token expires in 2 hours (adjust as needed)
+        });
+  
+        // Include the token in the response
+        res.json({ user: userData, token });
       });
-      
-      // Include the token in the response
-      res.json({ user: userData, token });
     });
   });
   

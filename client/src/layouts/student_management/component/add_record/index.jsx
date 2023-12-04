@@ -25,7 +25,7 @@ import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayo
 import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import Footer from "../../../../examples/Footer";
 import regeneratorRuntime from "regenerator-runtime";
-
+import FormHelperText from '@mui/material/FormHelperText';
 
 function Add_Record() {
   const jwtToken = localStorage.getItem('token');
@@ -63,8 +63,30 @@ function Add_Record() {
 
     setIsSuccess(false);
     setIsError(false);
+
+    if (!studentNumberUnique) {
+      setAlertMessage('Student number already exist.');
+      setIsError(true);
+      return;
+    }
+    if (!walletAddressUnique) {
+      setAlertMessage('Wallet Address already exist.');
+      setIsError(true);
+      return;
+    }
+    if (!emailUnique) {
+      setAlertMessage('Email already exist.');
+      setIsError(true);
+      return;
+    }
+    if (!mobileNumberUnique) {
+      setAlertMessage('Mobile Number already exist.');
+      setIsError(true);
+      return;
+    }
+
     try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/add-record', {
+      const response = await fetch('http://localhost:8081/mysql/student-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,6 +109,124 @@ function Add_Record() {
    
   };
 
+  const [data, setData] = useState([]);
+  const [studentNumberUnique, setStudentNumberUnique] = useState(true);
+  const [walletAddressUnique, setWalletAddressUnique] = useState(true);
+  const [emailUnique, setEmailUnique] = useState(true);
+  const [mobileNumberUnique, setMobileNumberUnique] = useState(true);
+
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setData(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  
+
+  const isStudentNumberUnique = (studentNumber) => {
+    console.log('Checking uniqueness for student number:', studentNumber);
+  
+    for (const student of data) {
+      console.log('Comparing with existing student number:', student.student_number);
+  
+      if (student.student_number == studentNumber) {
+        console.log('Duplicate student number found:', studentNumber);
+        return false;
+      }
+    }
+  
+    console.log('No duplicate found for student number:', studentNumber);
+    return true;
+  };
+
+  const isWalletAddressUnique = (walletAddress) => {
+    console.log('Checking uniqueness for student number:', walletAddress);
+  
+    for (const student of data) {
+      console.log('Comparing with existing student number:', student.wallet_address);
+  
+      if (student.wallet_address.toLowerCase() === walletAddress.toLowerCase()) {
+        console.log('Duplicate student number found:', walletAddress);
+        return false;
+      }
+    }
+  
+    console.log('No duplicate found for student number:', walletAddress);
+    return true;
+  };
+  const isEmailUnique = (email) => {
+    console.log('Checking uniqueness for email:', email);
+  
+    for (const student of data) {
+      console.log('Comparing with existing email:', student.email);
+  
+      if (student.email.toLowerCase() === email.toLowerCase()) {
+        console.log('Duplicate email found:', email);
+        return false;
+      }
+    }
+  
+    console.log('No duplicate found for email:', email);
+    return true;
+  };
+
+  const isMobileNumberUnique = (number) => {
+    console.log('Checking uniqueness for mobile number:', number);
+  
+    for (const student of data) {
+      console.log('Comparing with existing mobile number:', student.mobile_number);
+  
+      if (parseInt(student.mobile_number) === parseInt(number)) {
+        console.log('Duplicate mobile number found:', number);
+        return false;
+      }
+    }
+  
+    console.log('No duplicate found for email:', number);
+    return true;
+  };
+
+  const handleChangeStudentNumber = async (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, studentNumber: value });
+    const unique = await isStudentNumberUnique(value);
+    setStudentNumberUnique(unique);
+    console.log("is unique:", unique);
+  };
+
+  const handleChangeWalletAddress = async (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, walletAddress: value });
+    const unique = await isWalletAddressUnique(value);
+    setWalletAddressUnique(unique);
+    console.log("is wallet address unique:", unique);
+  };
+  const handleChangeEmail = async (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, emailAddress: value });
+    const unique = await isEmailUnique(value);
+    setEmailUnique(unique);
+    console.log("is email unique:", unique);
+  };
+  const handleChangeMobileNumber = async (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, mobileNumber: value });
+    const unique = await isMobileNumberUnique(value);
+    setMobileNumberUnique(unique);
+    console.log("is email unique:", unique);
+  };
   
   const navigate = useNavigate();
   const goBack = () => {    
@@ -144,7 +284,7 @@ function Add_Record() {
                             <MDTypography variant="body2" >Last Name:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="text" value={formData.lastName}
+                            <MDInput type="text" maxLength="100" value={formData.lastName}
                             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                             required label="Enter Last Name" fullWidth/>
                           </Grid>
@@ -152,7 +292,7 @@ function Add_Record() {
                             <MDTypography variant="body2">First Name:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="text" value={formData.firstName} 
+                            <MDInput type="text" maxLength="100" value={formData.firstName} 
                             onChange={(e) => setFormData({ ...formData, firstName: e.target.value})} 
                             required label="Enter First Name" fullWidth/>
                           </Grid>
@@ -160,7 +300,7 @@ function Add_Record() {
                             <MDTypography variant="body2">Middle Name:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="text" value={formData.middleName} 
+                            <MDInput type="text" maxLength="100" value={formData.middleName} 
                             onChange={(e) => setFormData({ ...formData, middleName: e.target.value})}
                             label="Enter Middle Name" fullWidth/>
                           </Grid>
@@ -168,17 +308,36 @@ function Add_Record() {
                             <MDTypography variant="body2">Student No:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="number" value={formData.studentNumber} 
-                            onChange={(e) => setFormData({ ...formData, studentNumber: e.target.value})}
-                            required label="Enter Student Number" fullWidth/>
+                            <MDInput type="number" name="studentNumber" value={formData.studentNumber} 
+                            onChange={handleChangeStudentNumber}
+                            required label="Enter Student Number" 
+                            error={!studentNumberUnique}
+                            fullWidth/>
+                            <MDBox sx={{ textAlign: "left" }}>
+                              {!studentNumberUnique && (
+                              <FormHelperText error>
+                                * Entered student number already exist.
+                            </FormHelperText>
+                              )}
+                            </MDBox>
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">Wallet Address:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput type="text" value={formData.walletAddress} 
-                            onChange={(e) => setFormData({ ...formData, walletAddress: e.target.value})}
+                            <MDInput type="text" value={formData.walletAddress} name="walletAddress"
+                            onChange={handleChangeWalletAddress}
+                            error={!walletAddressUnique}
+                            minLength="42" 
                             required label="Enter wallet address" fullWidth/>
+                            <MDBox sx={{ textAlign: "left" }}>
+                              {!walletAddressUnique && (
+                              <FormHelperText error>
+                                * Entered wallet address already exist.
+                              </FormHelperText>
+                              )}
+                            </MDBox>
+
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">College:</MDTypography>
@@ -289,18 +448,34 @@ function Add_Record() {
                           </Grid>
                           <Grid item xs={9}>
                             <MDInput type="number" value={formData.mobileNumber} 
-                            onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value})}
+                            onChange={handleChangeMobileNumber}
+                            error={!mobileNumberUnique}
                             required label="Enter Mobile Number" fullWidth
                             />
+                            <MDBox sx={{ textAlign: "left" }}>
+                              {!mobileNumberUnique && (
+                              <FormHelperText error>
+                                * Entered mobile number already exist.
+                            </FormHelperText>
+                              )}
+                            </MDBox>
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">Email Address:</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
                             <MDInput type="email" value={formData.emailAddress} 
-                            onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value})}
+                            onChange={handleChangeEmail}
                             required label="Enter Email Address" 
+                            error={!emailUnique}
                             fullWidth/>
+                            <MDBox sx={{ textAlign: "left" }}>
+                              {!emailUnique && (
+                              <FormHelperText error>
+                                * Entered email already exist.
+                              </FormHelperText>
+                              )}
+                            </MDBox>
                           </Grid>
                           {/* END OF CONTACT DETAILS */}
                           <Grid item xs={7}></Grid>

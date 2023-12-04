@@ -153,7 +153,7 @@ function Log_in() {
                 />
               </MDBox>
               <MDBox display="flex" alignItems="center" ml={1}>
-                <MDTypography
+                {/* <MDTypography
                   component={Link}
                   to="/authentication/sign-up"
                   variant="button"
@@ -162,7 +162,7 @@ function Log_in() {
                   textGradient
                 >
                   Forgot Password?
-                </MDTypography>
+                </MDTypography> */}
               </MDBox>
               <MDBox mt={4} mb={1}>
                 <MDButton variant="gradient" color="info" size="medium" fullWidth type="submit">

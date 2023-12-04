@@ -71,9 +71,14 @@ export const AuthProvider = ({ children }) => {
           } else {
           // Authentication failed
           // You can display an error message to the user
-          console.error('Login failed');
-          setIsError(true);
-          setAlertMessage('Login failed. Incorrect credentials.');
+          if (response.status === 403) {
+            setIsError(true);
+            setAlertMessage('Too many login attempts. Your account is temporarily locked. Please contact support for assistance.');
+          } else if (response.status === 401) {
+            setIsError(true);
+            setAlertMessage('Login failed. Incorrect credentials.');
+          }
+          
           }
         } catch (error) {
             console.error('Error:', error);
