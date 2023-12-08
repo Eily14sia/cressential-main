@@ -32,9 +32,13 @@ async function encryptPDF(filePath, password) {
     };
 
     try {
-        const encryptedData = await Qpdf.encrypt(filePath, options);
-        console.log('Password added successfully');
-        return encryptedData;
+      const encryptedData = await Qpdf.encrypt(filePath, options);
+      if (encryptedData) {
+          console.log('Password added successfully');
+          return encryptedData;
+      } else {
+          throw new Error('Encryption failed');
+      }
     } catch (error) {
         console.error('Error:', error);
         throw error; // Propagate the error
