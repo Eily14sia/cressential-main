@@ -24,6 +24,7 @@ import MDButton from "../../../../components/MDButton";
 import MDInput from "../../../../components/MDInput";
 import MDTypography from '../../../../components/MDTypography';
 import DocumentSelection from "../document_selection";
+import pdfjsLib from 'pdfjs-dist';
 
 import LoadingModal from '../loading_modal';
 
@@ -62,13 +63,14 @@ const handleFileChange = (e) => {
   const file = e.target.files[0];
   setSelectedFile(file);
   setErrorMessage('');
-  setMultihash(null); // Clear the multihash
   if (file && file.type === 'application/pdf') {
     // File is a PDF, you can proceed
     setSelectedFile(file);
   } else {
     // File is not a PDF, display an error or handle it as needed
     alert('Please select a PDF file');
+    setSelectedFile(null);
+    setUrl(null);
   }
   
 };
@@ -101,9 +103,6 @@ const handleFileUpload = async () => {
   formData.append('password', recordPassword);
 
   if (selectedFile) {
-    const password_match = await validatePasswordFromPDF(formData);
-
-    if (password_match) {
       try {
         const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {
           headers: {
@@ -120,46 +119,26 @@ const handleFileUpload = async () => {
           setUrl('');
         } else {
 
-          if (response.data.encrypted) {
+          if (response.status === 200) {
             // File is encrypted, proceed with the upload
             setIsLoadingDialogOpen(true);
-            handleUpdateSubmit(response.data.cid, response.data.multihash);
+            const responseData = response.data;
+            handleUpdateSubmit(responseData.ipfsCID, responseData.multihash);
             // Reset the selectedFile state to clear the file input
             setSelectedFile(null);
-          } else {
-            // File is not encrypted, display an error message
-            handleCloseAddDialog();
-            setIsError(true);
-            setAlertMessage('Only encrypted files are allowed.');
-            setRecordType('');
-            setRecordPassword('');
-            setInitialPassword('');
-            setUrl('');
-            setSelectedFile(null);
-          }
+          } 
         }
 
       } catch (error) {
         console.error('Error uploading file:', error);
         handleCloseAddDialog();
         setIsError(true);
-        setAlertMessage('Error uploading file. Please try again.');
+        setAlertMessage('Error uploading file. Encrypted PDF is not allowed.');
         setRecordType('');
-        setRecordPassword('');
         setInitialPassword('');
         setSelectedFile(null);
         setUrl('');
       }
-    } else {
-      handleCloseAddDialog();
-      setIsError(true);
-      setAlertMessage('The password of the encrypted file did not match the password convention. Please check your uploaded file.');
-      setRecordType('');
-      setSelectedFile(null);
-      setRecordPassword('');
-      setInitialPassword('');
-      setUrl('');
-    }
   } else {
     // If no file is selected, display an error message
     handleCloseAddDialog();
@@ -167,7 +146,6 @@ const handleFileUpload = async () => {
     setAlertMessage('Please choose an encrypted PDF file first.');
     setRecordType('');
     setSelectedFile(null);
-    setRecordPassword('');
     setInitialPassword('');
     setUrl('');
   }
@@ -283,7 +261,6 @@ function getRecordName(record_type_id) {
           setIsSuccess(true);        
           sendEmail(student_email, CID, recordPassword, recordType, transactionHash, ctrl_number);
           setInitialPassword('');
-          setRecordPassword('');
           setUrl('');
 
           // Fetch updated data and update the state
@@ -307,7 +284,6 @@ function getRecordName(record_type_id) {
         } else {
           setAlertMessage('Failed to update record');
           setRecordType('');
-          setRecordPassword('');
         }
       } catch (error) {
         setIsError(true);
@@ -315,7 +291,6 @@ function getRecordName(record_type_id) {
         console.error('Error:', error);
       }
 
-      setRecordPassword('');
       setInitialPassword('');
       setUrl('');
       setIsLoadingDialogOpen(false);
@@ -327,7 +302,6 @@ function getRecordName(record_type_id) {
       setAlertMessage('Failed to upload record.');
       console.error('Error:', error);
 
-      setRecordPassword('');
       setInitialPassword('');
       setUrl('');
       setRecordType('');

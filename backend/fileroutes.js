@@ -1,73 +1,91 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const crypto = require('crypto');
-const PDFParser = require('pdf-parse');
-const multihashes = require('multihashes'); // Import the multihashes library
-const upload = multer(); // No destination specified for multer
+const Qpdf = require('node-qpdf');
+const fs = require('fs').promises;
 const ipfsClient = require('ipfs-http-client');
-const fs = require('fs');
+const crypto = require('crypto');
+const multihashes = require('multihashes'); // Import the multihashes library
 const pdfjsLib = require('pdfjs-dist');
 require('dotenv').config();
 
-// Use your Infura API key and API key secret here
+// Set up multer for handling file uploads
+const upload = multer({ dest: 'uploads/' }); // Specify the upload directory
+
 const projectId = process.env.API_KEY;
 const projectSecret = process.env.PROJECT_SECRET;
 
-//infura config
-
-const auth = 'Basic ' + Buffer.from(projectId+':'+projectSecret).toString('base64');
+// infura config
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
 const client = ipfsClient({
     host: 'ipfs.infura.io',
     port: 5001,
     path: '/api/v0/add',
     protocol: 'https',
-    headers: { authorization: auth,},
+    headers: { authorization: auth, },
 });
 
-router.post('/api/maindec', upload.single('file'), async (req, res) => {
-  const { file } = req;
-
-  try {
-    const pdfBuffer = file.buffer;
-    let pdfData;
+async function encryptPDF(filePath, password) {
+    const options = {
+        keyLength: 256,
+        password: password
+    };
 
     try {
-      pdfData = await PDFParser(pdfBuffer);
+        const encryptedData = await Qpdf.encrypt(filePath, options);
+        console.log('Password added successfully');
+        return encryptedData;
     } catch (error) {
-      const result = await client.add(pdfBuffer);
+        console.error('Error:', error);
+        throw error; // Propagate the error
+    }
+}
 
-      if (result && result.cid) {
-        const uploadedFileCID = result.cid.toString();
+async function uploadToIPFS(dataBuffer) {
+    try {
+        const result = await client.add(dataBuffer);
+        return result.cid.toString();
+    } catch (error) {
+        console.error('Error uploading to IPFS:', error);
+        throw error; // Propagate the error
+    }
+}
 
-        // Calculate the hash of the file using SHA-2-256
-        const hash = crypto.createHash('sha256').update(pdfBuffer).digest();
+router.post('/api/maindec', upload.single('file'), async (req, res) => {
+    const { file } = req;
+    const { password } = req.body;
 
-        // Encode the hash using the multihash format
-        const encodedMultihash = multihashes.encode(hash, 'sha2-256');
+    // Input parameters
+    const filePath = file.path;
 
-        // Convert the encoded multihash to a hexadecimal string
-        const multihashHex = multihashes.toHexString(encodedMultihash);
+    try {
+        // Encrypt the file on disk using node-qpdf
+        const encryptedPdfBuffer = await encryptPDF(filePath, password);
 
-        return res.json({
-          message: 'File uploaded successfully to IPFS.',
-          encrypted: true,
-          cid: uploadedFileCID,
-          multihash: `0x${multihashHex}`,
+        // Upload the encrypted PDF to IPFS
+        const uploadedFileCID = await uploadToIPFS(encryptedPdfBuffer);
+
+         // Calculate the hash of the CID using SHA-2-256
+         const hash = crypto.createHash('sha256').update(uploadedFileCID).digest();
+
+         // Encode the hash using the multihash format
+         const encodedMultihash = multihashes.encode(hash, 'sha2-256');
+ 
+         // Convert the encoded multihash to a hexadecimal string
+         const multihashHex = multihashes.toHexString(encodedMultihash);
+ 
+         // Delete the uploaded file from the local directory
+         await fs.unlink(filePath);
+
+        res.json({
+            message: 'File encrypted, uploaded to IPFS, and local file deleted successfully.',
+            ipfsCID: uploadedFileCID,
+            multihash: `0x${multihashHex}`
         });
-      } else {
-        return res.status(500).json({ error: 'Error uploading file to IPFS. No hash in the response.' });
-      }
+    } catch (error) {
+        console.error('Error handling file:', error);
+        res.status(500).json({ error: 'Error handling file.' });
     }
-    return res.json({ message: 'File is not encrypted and will not be uploaded to IPFS.', encrypted: false });
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    if (error.response) {
-      // Log the actual response from IPFS
-      console.error('IPFS Response:', error.response.data);
-    }
-    res.status(500).json({ error: 'Error uploading file.' });
-  }
 });
 
 async function validatePasswordForPDF(pdfData, password) {
@@ -111,6 +129,5 @@ router.post('/api/validatePasswordForPDF', upload.single('file'), async (req, re
     res.status(500).json({ error: error.message }); // Send an error response
   }
 });
-
 
 module.exports = router;

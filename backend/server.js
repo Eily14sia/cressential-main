@@ -328,7 +328,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
   router.get('/record-request', verifyToken, (req, res)=> {
     const sql = `SELECT * FROM record_request as r 
     INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number
-    ORDER BY r.date_requested DESC    
+    ORDER BY r.ctrl_number DESC  
     `;
     db.query(sql, (err, results)=> {
         if(err) return res.json(err);
@@ -340,7 +340,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
   router.get('/record-issuance', verifyToken, (req, res)=> {
     const sql = `SELECT * FROM record_per_request as r 
     WHERE r.ipfs IS NOT NULL
-    ORDER BY r.date_issued DESC
+    ORDER BY r.ctrl_number DESC
     LIMIT 7
     `;
     db.query(sql, (err, results)=> {
@@ -358,7 +358,7 @@ router.get('/email/record-request', verifyToken, (req, res) => {
       SELECT *
       FROM record_request AS r
       INNER JOIN payment AS p ON r.ctrl_number = p.ctrl_number 
-      ORDER BY r.date_requested DESC     
+      ORDER BY r.ctrl_number DESC    
     `;
   
     db.query(sql, (err, results) => {
