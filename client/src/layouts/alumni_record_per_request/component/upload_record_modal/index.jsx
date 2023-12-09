@@ -62,7 +62,6 @@ const handleFileChange = (e) => {
   e.target.files.length > 0 && setUrl(URL.createObjectURL(e.target.files[0]));
 
   const file = e.target.files[0];
-  setSelectedFile(file);
   setErrorMessage('');
   if (file && file.type === 'application/pdf') {
     // File is a PDF, you can proceed
@@ -70,6 +69,8 @@ const handleFileChange = (e) => {
   } else {
     // File is not a PDF, display an error or handle it as needed
     alert('Please select a PDF file');
+    setSelectedFile(null);
+    setUrl(null);
   }
   
 };
@@ -102,9 +103,6 @@ const handleFileUpload = async () => {
   formData.append('password', recordPassword);
   
   if (selectedFile) {
-    const password_match = await validatePasswordFromPDF(formData);
- 
-    if (password_match) {
 
       try {
         const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/files/api/maindec', formData, {
@@ -122,54 +120,34 @@ const handleFileUpload = async () => {
           setUrl('');
         } else {
 
-          if (response.data.encrypted) {
+          if (response.status === 200) {
             // File is encrypted, proceed with the upload
             setIsLoadingDialogOpen(true);
-            handleUpdateSubmit(response.data.cid, response.data.multihash);
+            const responseData = response.data;
+            handleUpdateSubmit(responseData.ipfsCID, responseData.multihash);
             // Reset the selectedFile state to clear the file input
             setSelectedFile(null);
-          } else {
-            // File is not encrypted, display an error message
-            handleCloseUploadDialog();
-            setIsError(true);
-            setAlertMessage('Only encrypted files are allowed.');
-            setRecordType('');
-            setRecordPassword('');
-            setInitialPassword('');
-            setUrl('');
-            setSelectedFile(null);
-          }
+          } 
         }
 
       } catch (error) {
         console.error('Error uploading file:', error);
         handleCloseUploadDialog();
         setIsError(true);
-        setAlertMessage('Error uploading file. Please try again.');
-        setRecordType('');
-        setRecordPassword('');
+        setAlertMessage('Error uploading file. Encrypted PDF is not allowed.');
+        setRecordType('');        
         setInitialPassword('');
         setSelectedFile(null);
         setUrl('');
       }
-    } else {
-      handleCloseUploadDialog();
-      setIsError(true);
-      setAlertMessage('The password of the encrypted file did not match the generated password. Please check your uploaded file.');
-      setRecordType('');
-      setSelectedFile(null);
-      setRecordPassword('');
-      setInitialPassword('');
-      setUrl('');
-    }
+    
   } else {
     // If no file is selected, display an error message
     handleCloseUploadDialog();
     setIsError(true);
     setAlertMessage('Please choose an encrypted PDF file first.');
     setRecordType('');
-    setSelectedFile(null);
-    setRecordPassword('');
+    setSelectedFile(null);    
     setInitialPassword('');
     setUrl('');
   }
@@ -279,14 +257,14 @@ const handleFileUpload = async () => {
               .catch((err) => console.log(err));
               
               setRecordType('');
-              setRecordPassword('');
+              
               setInitialPassword('');
               setUrl('');            
               
           } else {
             setAlertMessage('Failed to update record');
             setRecordType('');
-            setRecordPassword('');
+            
           }
 
           
@@ -295,10 +273,10 @@ const handleFileUpload = async () => {
           setAlertMessage('Failed to upload record.');
           console.error('Error:', error);
           setRecordType('');
-          setRecordPassword('');
+          
         }
         
-        setRecordPassword('');
+        
         setInitialPassword('');
         setUrl('');
         setIsLoadingDialogOpen(false);

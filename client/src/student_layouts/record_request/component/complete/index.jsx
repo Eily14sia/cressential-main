@@ -48,34 +48,29 @@ const index = () => {
                   mb={1}
                  
                   >
-                  <Grid container spacing={2} justifyContent="center" alignItems="center">                    
+                    <Grid container spacing={2} justifyContent="center" alignItems="center">                    
                       <Grid item xs={12} sx={{marginBottom:"10px", textAlign: "center"}}>
-                        <img src={illustration} alt="illustration" style={{
-                          width: "250px",
-                          height: "auto", 
-                        }}/>
-                        </Grid>
-                        <Grid item xs={12} sx={{marginBottom:"10px", textAlign: "center"}}>
-                          <MDTypography variant="h2" color="info" textGradient >Request Submitted!</MDTypography>     
-                          <MDTypography variant="body2" mt={3}>
-                          Your request is being processed. You'll receive an email confirming your payment status shortly. Payment status will also be automatically reflected in the request table.                                  
-                          </MDTypography>           
-                        </Grid>   
-                        <Grid item xs={6} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
-                          <Link to="/student-request-table" component={RouterLink} >
-                            <MDButton variant="gradient" color="info" size="large" fullWidth >
-                                <Icon>done</Icon> &nbsp; Done 
-                            </MDButton>
-                          </Link>
-
+                      <img src={illustration} alt="illustration" style={{
+                        width: "250px",
+                        height: "auto", 
+                      }}/>
+                      </Grid>
+                      <Grid item xs={12} sx={{marginBottom:"10px", textAlign: "center"}}>
+                        <MDTypography variant="h2" color="info" textGradient >Request Submitted!</MDTypography>     
+                        <MDTypography variant="body2" mt={3}>
+                        Your request is being processed. You'll receive an email confirming your payment status shortly. Payment status will also be automatically reflected in the request table.                                  
+                        </MDTypography>           
+                      </Grid>   
+                      <Grid item xs={6} sx={{marginTop:"20px", marginBottom:"20px", textAlign: "center"}} >
+                        <Link to="/student-request-table" component={RouterLink} >
+                          <MDButton variant="gradient" color="info" size="large" fullWidth >
+                              <Icon>done</Icon> &nbsp; Done 
+                          </MDButton>
+                        </Link>
                       </Grid>        
-                                      
-                     
-                  </Grid>
+                    </Grid>
                   </MDBox>
               
-      
-                      
               </Grid>
             </Grid>
         </MDBox>

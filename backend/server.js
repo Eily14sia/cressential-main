@@ -55,6 +55,48 @@ function verifyToken(req, res, next) {
 
 // ========================= Login  =========================
 
+  // forgot password
+  router.post('/check-email', (req, res) => {
+    const { email } = req.body.record;
+
+    const sql = "SELECT email, user_id FROM user_management WHERE email = $1";
+    
+    db.query(sql, [email], (err, results) => {
+      if (err) {
+        console.error('Error fetching user data:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (results.rows.length === 0) {
+        return res.status(404).json({ message: 'Email not found' });
+      }
+
+      const user = results.rows[0];
+      // Generate a JWT token
+      const token = jwt.sign({ email: user.email, user_id: user.user_id }, secretKey, {
+        expiresIn: '1h', // Token expires in 10 minutes
+      });
+
+      // Include the token in the response
+      res.json({ user, token });
+    });
+  });
+
+  router.post('/reset-password', (req, res) => {
+    const { token } = req.body.record;
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        console.error('Token verification failed:', err.message);
+        return res.status(500).json({ message: 'Token expired.' });
+      } else {
+        const user_id = decoded.user_id;
+        return res.status(200).json({ message: 'Token verified.', user_id: user_id });
+      }
+    });
+
+  });
+
   // login with metamask
   router.post('/login-metamask', (req, res) => {
   const { wallet_address } = req.body;

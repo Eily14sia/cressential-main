@@ -317,7 +317,7 @@ function Add_Record() {
                               {!studentNumberUnique && (
                               <FormHelperText error>
                                 * Entered student number already exist.
-                            </FormHelperText>
+                              </FormHelperText>
                               )}
                             </MDBox>
                           </Grid>

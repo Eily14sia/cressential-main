@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Initialize with null for logged out state
   const [walletAddress, setWalletAddress] = useState('');
   const [email, setEmail] = useState('');
+  const [initialPassword, setInitialPassword] = useState('');
   const [password, setPassword] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -609,6 +610,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     email, setEmail,
     password, setPassword,
+    initialPassword, setInitialPassword,
     alertMessage, setAlertMessage,
     isSuccess, setIsSuccess,
     isError, setIsError

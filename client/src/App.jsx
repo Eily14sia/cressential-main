@@ -35,6 +35,8 @@ import brandWhite from "./assets/images/cressential-logo-light.png";
 import brandDark from "./assets/images/cressential-logo-dark.png";
 import RouteGuard  from "./route_guard";
 import LogIn from "./layouts/authentication/log_in";
+import ForgotPassword from "./layouts/authentication/forgot_password";
+import ResetPassword from "./layouts/authentication/forgot_password/reset_password";
 import Verifier_Portal from "./layouts/authentication/verification_portal";
 import AboutUs from "./layouts/authentication/about_us";
 import ContactUs from "./layouts/authentication/contact_us";
@@ -42,7 +44,6 @@ import ContactUs from "./layouts/authentication/contact_us";
 export default function App() {
   const isAuthenticated = !!localStorage.getItem("token");
   const user_role = parseInt(localStorage.getItem('user_role'));
-
 
   let inactivityTimeout;
   const navigate = useNavigate();
@@ -172,6 +173,8 @@ export default function App() {
           {console.log("isAuthenticated:"+isAuthenticated)}
           <Route path="/" element={<Home userID={userID} set_user_id={set_user_id}/>} />   
           <Route path="/authentication/log-in" element={<LogIn/>} />   
+          <Route path="/authentication/forgot-password" element={<ForgotPassword/>} />   
+          <Route path="/authentication/reset-password/:password_token" element={<ResetPassword/>} />   
           <Route path="/verifier-portal" element={<Verifier_Portal/>} key="verifier-portal"/>   
           <Route path="/about-us" element={<AboutUs/>} key="about-us"/>   
           <Route path="/contact-us" element={<ContactUs/>} key="contact-us"/>   
