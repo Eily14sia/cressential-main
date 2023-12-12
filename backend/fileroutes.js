@@ -56,40 +56,58 @@ async function uploadToIPFS(dataBuffer) {
 }
 
 router.post('/api/maindec', upload.single('file'), async (req, res) => {
-    const { file } = req;
-    const { password } = req.body;
+  const { file } = req;
+  const { password } = req.body;
 
-    // Input parameters
-    const filePath = file.path;
+  // Input parameters
+  const filePath = file.path;
 
-    try {
-        // Encrypt the file on disk using node-qpdf
-        const encryptedPdfBuffer = await encryptPDF(filePath, password);
+  try {
+      // Encrypt the file on disk using node-qpdf
+      const encryptedPdfBuffer = await encryptPDF(filePath, password);
 
-        // Upload the encrypted PDF to IPFS
-        const uploadedFileCID = await uploadToIPFS(encryptedPdfBuffer);
+      // Initialize an empty buffer to accumulate data
+      let accumulatedBuffer = Buffer.from([]);
 
-         // Calculate the hash of the CID using SHA-2-256
-         const hash = crypto.createHash('sha256').update(uploadedFileCID).digest();
+      // Listen for the 'data' event to accumulate data
+      encryptedPdfBuffer.on('data', (chunk) => {
+          accumulatedBuffer = Buffer.concat([accumulatedBuffer, chunk]);
+      });
 
-         // Encode the hash using the multihash format
-         const encodedMultihash = multihashes.encode(hash, 'sha2-256');
- 
-         // Convert the encoded multihash to a hexadecimal string
-         const multihashHex = multihashes.toHexString(encodedMultihash);
- 
-         // Delete the uploaded file from the local directory
-         await fs.unlink(filePath);
+      // Promisify the 'end' event to wait for the stream to complete
+      const endPromise = new Promise((resolve) => {
+          encryptedPdfBuffer.on('end', () => {
+              resolve();
+          });
+      });
 
-        res.json({
-            message: 'File encrypted, uploaded to IPFS, and local file deleted successfully.',
-            ipfsCID: uploadedFileCID,
-            multihash: `0x${multihashHex}`
-        });
-    } catch (error) {
-        console.error('Error handling file:', error);
-        res.status(500).json({ error: 'Error handling file.' });
-    }
+      // Wait for the 'end' event to complete before proceeding
+      await endPromise;
+
+      // Calculate the hash of the CID using SHA-2-256
+      const hash = crypto.createHash('sha256').update(accumulatedBuffer).digest();
+
+      // Encode the hash using the multihash format
+      const encodedMultihash = multihashes.encode(hash, 'sha2-256');
+
+      // Convert the encoded multihash to a hexadecimal string
+      const multihashHex = multihashes.toHexString(encodedMultihash);
+
+      // Upload the encrypted PDF to IPFS
+      const uploadedFileCID = await uploadToIPFS(accumulatedBuffer);
+
+      // Delete the uploaded file from the local directory
+      await fs.unlink(filePath);
+
+      res.json({
+          message: 'File encrypted, uploaded to IPFS, and local file deleted successfully.',
+          ipfsCID: uploadedFileCID,
+          multihash: `0x${multihashHex}`
+      });
+  } catch (error) {
+      console.error('Error handling file:', error);
+      res.status(500).json({ error: 'Error handling file.' });
+  }
 });
 
 async function validatePasswordForPDF(pdfData, password) {

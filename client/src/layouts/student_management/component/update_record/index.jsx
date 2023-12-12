@@ -30,87 +30,83 @@ import regeneratorRuntime from "regenerator-runtime";
 
 function Update_Record() {
   const jwtToken = localStorage.getItem('token');
-
+ 
   const initialFormData = {
-    lastName: '',
-    firstName: '',
-    middleName: '',
-    studentNumber: '',
-    walletAddress: '',
-    college: 'CET',
-    course: 'BSIT',
-    entryYearFrom: '',
-    entryYearTo: '',
-    graduationDate: '',
-    permanentAddress: '',
-    mobileNumber: '',
-    emailAddress: '',
-    is_alumni: 0,
-    status: ''
+     lastName: '',
+     firstName: '',
+     middleName: '',
+     studentNumber: '',
+     walletAddress: '',
+     college: 'CET',
+     course: 'BSIT',
+     entryYearFrom: '',
+     entryYearTo: '',
+     graduationDate: '',
+     permanentAddress: '',
+     mobileNumber: '',
+     emailAddress: '',
+     is_alumni: 0,
+     status: ''
   };
-  const [formData, setFormData] = useState({initialFormData});
+  const [formData, setFormData] = useState('');
   const [college, setCollege] = useState('');
   const [course, setCourse] = useState('');
-  // const [is_alumni, setIsAllumni] = useState('');
-
+ 
   const location = useLocation();
   const state_userID = location.state?.user_id;
   const state_status = location.state?.status;
   const [data, setData] = useState([]);
-  
-    if (state_userID) {
-      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/${state_userID}`,{
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to authenticate token");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setData(data); // Set the fetched data into the state
-          if (data.length > 0) {
-            // Assuming you expect an array of data
-            const item = data[0]; // Take the first item in the array
-            
-            // Create a new Date object from the date string
-            const parsedDate = new Date(item.date_of_graduation);
-
-            // Extract date components (month, day, and year)
-            const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-            const day = String(parsedDate.getDate()).padStart(2, '0');
-            const year = parsedDate.getFullYear();
-          
-            // Format the date to the desired format (MM/dd/yyyy)
-            const new_date = `${year}-${month}-${day}`;
-            setCollege(item.college);
-            setCourse(item.course);
-            // setIsAllumni(parseInt(item.is_alumni));
-
-            setFormData((prevFormData) => ({
-              ...prevFormData,
-              lastName: item.last_name,
-              firstName: item.first_name,
-              middleName: item.middle_name,
-              studentNumber: item.student_number,
-              walletAddress: item.wallet_address,              
-              entryYearFrom: item.entry_year_from,
-              entryYearTo: item.entry_year_to,
-              graduationDate: new_date,
-              permanentAddress: item.permanent_address,
-              mobileNumber: item.mobile_number,
-              emailAddress: item.email,
-              is_alumni: parseInt(item.is_alumni),
-              is_locked: item.is_locked,
-              is_active: item.status === "active" ? true : false,
-            }));
-          }
-        })
-        .catch((err) => console.log(err));
-    }
+ 
+  useEffect(() => {
+  if (state_userID) {
+     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/${state_userID}`,{
+       headers: {
+         Authorization: `Bearer ${jwtToken}`,
+       },
+     })
+       .then((res) => {
+         if (!res.ok) {
+           throw new Error("Failed to authenticate token");
+         }
+         return res.json();
+       })
+       .then((data) => {
+         setData(data);
+         if (data.length > 0) {
+           const item = data[0];
+ 
+           const parsedDate = new Date(item.date_of_graduation);
+           const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+           const day = String(parsedDate.getDate()).padStart(2, '0');
+           const year = parsedDate.getFullYear();
+ 
+           const new_date = `${year}-${month}-${day}`;
+           setCollege(item.college);
+           setCourse(item.course);
+ 
+           setFormData((prevFormData) => ({
+             ...prevFormData,
+             lastName: item.last_name,
+             firstName: item.first_name,
+             middleName: item.middle_name,
+             studentNumber: item.student_number,
+             walletAddress: item.wallet_address,              
+             entryYearFrom: item.entry_year_from,
+             entryYearTo: item.entry_year_to,
+             graduationDate: new_date,
+             permanentAddress: item.permanent_address,
+             mobileNumber: item.mobile_number,
+             emailAddress: item.email,
+             is_alumni: parseInt(item.is_alumni),
+             is_locked: item.is_locked,
+             is_active: item.status === "active" ? true : false,
+           }));
+         }
+       })
+       .catch((err) => console.log(err));
+  }
+  }, []);
+ 
 
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -239,7 +235,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="number" value={formData.studentNumber} 
                             onChange={(e) => setFormData({ ...formData, studentNumber: e.target.value})}
-                            required fullWidth/>
+                            disabled fullWidth/>
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">Wallet Address:</MDTypography>
@@ -247,7 +243,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="text" value={formData.walletAddress} 
                             onChange={(e) => setFormData({ ...formData, walletAddress: e.target.value})}
-                            required fullWidth/>
+                            disabled fullWidth/>
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
                             <MDTypography variant="body2">College:</MDTypography>
@@ -326,8 +322,12 @@ function Update_Record() {
                             <MDTypography variant="caption">(If applicable)</MDTypography>
                           </Grid>
                           <Grid item xs={9}>
-                            <MDInput value={formData.graduationDate} 
-                            onChange={(e) => setFormData({ ...formData, graduationDate: e.target.value})}type="date" fullWidth/>
+                          <MDInput
+                            value={formData.graduationDate === '1970-01-01' ? '' : formData.graduationDate}
+                            onChange={(e) => setFormData({ ...formData, graduationDate: e.target.value })}
+                            type="date"
+                            fullWidth
+                          />
                           </Grid>     
                         </Grid>
                     
@@ -357,7 +357,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="number" value={formData.mobileNumber} 
                             onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value})}
-                            required fullWidth
+                            disabled fullWidth
                             />
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
@@ -366,7 +366,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="email" value={formData.emailAddress} 
                             onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value})}
-                            required 
+                            disabled 
                             fullWidth/>
                           </Grid>
                           {/* END OF CONTACT DETAILS */}

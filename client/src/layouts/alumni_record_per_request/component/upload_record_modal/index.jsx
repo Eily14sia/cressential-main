@@ -471,12 +471,7 @@ const handleFileUpload = async () => {
                   </MDBox>
                   <MDBox display="flex"   >
                     <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
-                      Please ensure that the correct file is uploaded. Preview the encrypted file using the React PDF Viewer before clicking the 'Add Record' button.
-                    </MDTypography>                  
-                  </MDBox>
-                  <MDBox display="flex"   >
-                    <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
-                      Password is required to verify the authenticity of the record. Please ensure that the password of the encrypted PDF matches the password convention.
+                    Please ensure that the correct file is uploaded. Only PDF files are allowed. Preview the file using the React PDF Viewer before clicking the 'Add Record' button.
                     </MDTypography>                  
                   </MDBox>
                   <MDBox display="flex" alignItems="center" mt={1} pt={2}>
