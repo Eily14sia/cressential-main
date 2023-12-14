@@ -34,17 +34,8 @@ function Update_Record() {
     lastName: '',
     firstName: '',
     middleName: '',
-    studentNumber: '',
-    walletAddress: '',
-    college: 'CET',
-    course: 'BSIT',
-    entryYearFrom: '',
-    entryYearTo: '',
-    graduationDate: '',
-    permanentAddress: '',
     mobileNumber: '',
     emailAddress: '',
-    is_alumni: 0,
     status: ''
   };
   const [formData, setFormData] = useState({initialFormData});
@@ -56,6 +47,7 @@ function Update_Record() {
   const [data, setData] = useState([]);
   const jwtToken = localStorage.getItem('token');
 
+  useEffect(() => {
     if (state_userID) {
       fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/registrar-management/${state_userID}`,{
         headers: {
@@ -90,6 +82,7 @@ function Update_Record() {
         })
         .catch((err) => console.log(err));
     }
+  }, []);
 
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -109,10 +102,11 @@ function Update_Record() {
     setIsSuccess(false);
     setIsError(false);
     try {
-      const response = await fetch('http://localhost:8081/mysql/registrar-management/add-record', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:8081/mysql/registrar-management/update-record/${state_userID}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(formData),
       });
@@ -120,7 +114,6 @@ function Update_Record() {
       if (response.ok) {
         setIsSuccess(true);
         setAlertMessage('Record added successfully.');
-        setFormData(initialFormData);
       } else {
         setAlertMessage('Failed to update record');
       }
@@ -130,6 +123,7 @@ function Update_Record() {
     }
    
   };
+
   const navigate = useNavigate();
   const goBack = () => {    
     navigate(-1);
@@ -212,7 +206,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="text" value={formData.walletAddress} 
                             onChange={(e) => setFormData({ ...formData, walletAddress: e.target.value})}
-                            required fullWidth/>
+                            disabled fullWidth/>
                           </Grid>
                           
                         </Grid>
@@ -244,7 +238,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="email" value={formData.emailAddress} 
                             onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value})}
-                            required 
+                            disabled 
                             fullWidth/>
                           </Grid>
                           {/* END OF CONTACT DETAILS */}

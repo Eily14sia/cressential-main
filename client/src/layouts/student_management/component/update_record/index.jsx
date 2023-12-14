@@ -97,6 +97,8 @@ function Update_Record() {
              permanentAddress: item.permanent_address,
              mobileNumber: item.mobile_number,
              emailAddress: item.email,
+             college: item.college,
+             course: item.course,
              is_alumni: parseInt(item.is_alumni),
              is_locked: item.is_locked,
              is_active: item.status === "active" ? true : false,
@@ -127,8 +129,8 @@ function Update_Record() {
     setIsSuccess(false);
     setIsError(false);
     try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/add-record', {
-        method: 'POST',
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/update-record/${state_userID}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${jwtToken}`,
@@ -139,7 +141,6 @@ function Update_Record() {
       if (response.ok) {
         setIsSuccess(true);
         setAlertMessage('Record added successfully.');
-        setFormData(initialFormData);
       } else {
         setAlertMessage('Failed to update record');
       }
@@ -155,8 +156,6 @@ function Update_Record() {
   const goBack = () => {    
     navigate(-1);
   };
-
-  console.log(formData.is_locked);
 
   return (
     <DashboardLayout>
@@ -357,7 +356,7 @@ function Update_Record() {
                           <Grid item xs={9}>
                             <MDInput type="number" value={formData.mobileNumber} 
                             onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value})}
-                            disabled fullWidth
+                            fullWidth
                             />
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>

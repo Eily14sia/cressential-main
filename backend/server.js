@@ -949,6 +949,82 @@ function hashPassword(password) {
   });
 });
 
+// Update Student Record
+router.put('/student-management/update-record/:user_id', verifyToken, (req, res) => {
+  const user_id = req.params.user_id;
+  const formData = req.body;
+
+  const values = [
+    formData.lastName,
+    formData.firstName,
+    formData.middleName,
+    formData.college,
+    formData.course,
+    formData.entryYearFrom,
+    formData.entryYearTo,
+    formData.graduationDate,
+    formData.permanentAddress,
+    formData.is_alumni,  // is_alumni
+    user_id,  // user_id for WHERE clause
+  ];
+  
+  const student_management_update_sql = `
+    UPDATE student_management
+    SET
+      last_name = $1,
+      first_name = $2,
+      middle_name = $3,
+      college = $4,
+      course = $5,
+      entry_year_from = $6,
+      entry_year_to = $7,
+      date_of_graduation = $8,
+      permanent_address = $9,
+      is_alumni = $10
+    WHERE
+      user_id = $11
+  `;
+  
+  db.query(student_management_update_sql, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to update student record' });
+    }
+  
+    if (result.rowCount === 0) {
+      // No rows were affected, meaning the record with the given user_id doesn't exist
+      return res.status(404).json({ message: 'Student record not found' });
+    }
+  
+    // Now, update user_management
+    const status = formData.is_active == 1 ? 'active' : 'inactive';  // Convert is_active to 1 or 0
+    const user_management_values = [formData.is_locked, status, user_id];
+  
+    const user_management_update_sql = `
+      UPDATE user_management
+      SET
+        is_locked = $1,
+        status = $2
+      WHERE
+        user_id = $3
+    `;
+  
+    db.query(user_management_update_sql, user_management_values, (err, userManagementResult) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update user record' });
+      }
+  
+      if (userManagementResult.rowCount === 0) {
+        // No rows were affected, meaning the user record with the given user_id doesn't exist
+        return res.status(404).json({ message: 'User record not found' });
+      }
+  
+      return res.status(200).json({ message: 'Record updated successfully' });
+    });
+  });
+});
+
 // ================ Registrar Management =======================
 
   // Registrar Management Tab
@@ -1023,6 +1099,68 @@ function hashPassword(password) {
       }      
 
       return res.status(200).json({ message: 'Record added successfully' });
+    });
+  });
+});
+
+// Update Student Record
+router.put('/registrar-management/update-record/:user_id', verifyToken, (req, res) => {
+  const user_id = req.params.user_id;
+  const formData = req.body;
+
+  const values = [
+    formData.lastName,
+    formData.firstName,
+    formData.middleName,
+    user_id,  // user_id for WHERE clause
+  ];
+  
+  const student_management_update_sql = `
+    UPDATE registrar_management
+    SET
+      last_name = $1,
+      first_name = $2,
+      middle_name = $3a       
+    WHERE
+      user_id = $4
+  `;
+  
+  db.query(student_management_update_sql, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Failed to update student record' });
+    }
+  
+    if (result.rowCount === 0) {
+      // No rows were affected, meaning the record with the given user_id doesn't exist
+      return res.status(404).json({ message: 'Student record not found' });
+    }
+  
+    // Now, update user_management
+    const status = formData.is_active == 1 ? 'active' : 'inactive';  // Convert is_active to 1 or 0
+    const user_management_values = [formData.is_locked, status, user_id];
+  
+    const user_management_update_sql = `
+      UPDATE user_management
+      SET
+        is_locked = $1,
+        status = $2
+      WHERE
+        user_id = $3
+    `;
+  
+    db.query(user_management_update_sql, user_management_values, (err, userManagementResult) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update user record' });
+      }
+  
+      if (userManagementResult.rowCount === 0) {
+        // No rows were affected, meaning the user record with the given user_id doesn't exist
+        return res.status(404).json({ message: 'User record not found' });
+      }
+  
+      return res.status(200).json({ message: 'Record updated successfully' });
     });
   });
 });

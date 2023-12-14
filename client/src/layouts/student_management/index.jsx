@@ -175,8 +175,7 @@ function Student_Management() {
                           </MDBox>
                         ),
                         entry_year: item.entry_year_from + " - " + item.entry_year_to,
-                        date_of_graduation: item.date_of_graduation ? new Date(item.date_of_graduation).toLocaleDateString() : "",
-                        permanent_address: (item.permanent_address == null ? "N/A" : item.permanent_address),
+                        date_of_graduation: (!item.date_of_graduation || new Date(item.date_of_graduation).toISOString().slice(0,10) === "1970-01-01") ? "" : new Date(item.date_of_graduation).toLocaleDateString(),                        permanent_address: (item.permanent_address == null ? "N/A" : item.permanent_address),
                         status: (
                           <>
                             <MDBox ml={-1}>
