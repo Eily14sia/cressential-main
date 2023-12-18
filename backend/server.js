@@ -647,9 +647,9 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(recordPassword);
 
-    const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, hash, date_issued, transaction_hash) VALUES ($1, $2, $3, $4, $5, $6, $7)";
+    const sql = "INSERT INTO record_per_request (ctrl_number, password, record_type_id, ipfs, date_issued, transaction_hash) VALUES ($1, $2, $3, $4, $5, $6)";
 
-    db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, hash, dateIssued, transactionHash], (err, result) => {
+    db.query(sql, [ctrl_number, hashedPassword, recordType, uploadedCID, dateIssued, transactionHash], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Failed to update record' });
@@ -669,9 +669,9 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(recordPassword);
 
-    const sql = "UPDATE record_per_request SET password = $1, ipfs = $2, hash = $3 , date_issued = $4, transaction_hash = $5 WHERE rpr_id = $6";
+    const sql = "UPDATE record_per_request SET password = $1, ipfs = $2, date_issued = $3, transaction_hash = $4 WHERE rpr_id = $5";
 
-    db.query(sql, [hashedPassword, uploadedCID, hash, dateIssued, transactionHash, recordID], (err, result) => {
+    db.query(sql, [hashedPassword, uploadedCID, dateIssued, transactionHash, recordID], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Failed to update record' });
@@ -935,8 +935,8 @@ function hashPassword(password) {
 
     const student_management_sql = `INSERT INTO student_management (user_id, student_number, last_name, 
       first_name, middle_name, college, course, entry_year_from,  entry_year_to, 
-      date_of_graduation, permanent_address, mobile_number, email, is_alumni) VALUES 
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`;
+      date_of_graduation, permanent_address, mobile_number, is_alumni) VALUES 
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`;
 
     db.query(student_management_sql, values, (err, result2) => {
       if (err) {
