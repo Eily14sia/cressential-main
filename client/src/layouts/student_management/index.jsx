@@ -153,7 +153,9 @@ function Student_Management() {
                         name: (
                         <MDBox lineHeight={1}>
                           <MDTypography display="block" variant="button" fontWeight="medium">
-                           {item.first_name + " " + item.middle_name + " " + item.last_name}
+                            {item.first_name.charAt(0).toUpperCase() + item.first_name.slice(1).toLowerCase() + " " + 
+                            (item.middle_name ? item.middle_name.charAt(0).toUpperCase() + item.middle_name.slice(1).toLowerCase() : '') + " " + 
+                            item.last_name.charAt(0).toUpperCase() + item.last_name.slice(1).toLowerCase()}                          
                           </MDTypography>
                           <MDTypography variant="caption">{item.student_number}</MDTypography>
                         </MDBox>

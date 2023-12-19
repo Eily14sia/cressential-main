@@ -871,7 +871,8 @@ function hashPassword(password) {
         const sql = `
             SELECT *
             FROM student_management 
-            JOIN user_management ON student_management.user_id = user_management.user_id;              
+            JOIN user_management ON student_management.user_id = user_management.user_id
+            ORDER BY student_management.user_id DESC;             
         `;
 
         db.query(sql, (err, results)=> {
@@ -929,7 +930,6 @@ function hashPassword(password) {
       formData.graduationDate,
       formData.permanentAddress,
       formData.mobileNumber,
-      formData.emailAddress,
       0
     ];
 
@@ -1033,7 +1033,8 @@ router.put('/student-management/update-record/:user_id', verifyToken, (req, res)
       const sql = `
           SELECT *
           FROM registrar_management 
-          JOIN user_management ON registrar_management.user_id = user_management.user_id;              
+          JOIN user_management ON registrar_management.user_id = user_management.user_id
+          ORDER BY registrar_management.user_id DESC;              
       `;
 
       db.query(sql, (err, results)=> {
@@ -1082,15 +1083,13 @@ router.put('/student-management/update-record/:user_id', verifyToken, (req, res)
       user_id,
       formData.lastName,
       formData.firstName,
-      formData.middleName,      
-      formData.emailAddress,
-      formData.mobileNumber,
-      0
+      formData.middleName,     
+      formData.mobileNumber
     ];
 
     const registrar_management_sql = `INSERT INTO registrar_management (user_id, last_name, 
-      first_name, middle_name, email, mobile_number) VALUES 
-      ($1, $2, $3, $4, $5, $6)`;
+      first_name, middle_name, mobile_number) VALUES 
+      ($1, $2, $3, $4, $5)`;
 
     db.query(registrar_management_sql, values, (err, result2) => {
       if (err) {

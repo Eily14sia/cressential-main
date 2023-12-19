@@ -437,64 +437,25 @@ function Alumni_record_per_request() {
                           // ),
                           status: (
                             <>
-                            {item.ipfs ? (
-                              
-                              <MDBadge 
-                                badgeContent="Valid"
-                                color="success" // Set the badge color dynamically
-                                variant="gradient"
-                                size="sm"
-                              />  
-                              // <MDBox>
-                              
-                              //   <MDBox> 
-                              //     {item.record_status === 'Valid' ? (
-                              //       <>
-                              //         <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                              //         <MDBadge 
-                              //           badgeContent="Valid"
-                              //           color="success" // Set the badge color dynamically
-                              //           variant="gradient"
-                              //           size="sm"
-                              //         />  
-                              //       </>                              
-                              //     ) : (
-                              //       <>
-                              //         <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                              //         <MDBadge
-                              //           badgeContent="Invalid"
-                              //           color="error" // Set the badge color dynamically
-                              //           variant="gradient"
-                              //           size="sm"
-                              //         />   
-                              //       </> 
-                              //     )}
-              
-                              //   </MDBox>
-                              //   <MDBox>
-                              //       {(!item.is_expired) ? (
-                              //        <>
-                              //         <MDTypography variant="caption" fontWeight="medium" > Expiration: </MDTypography>
-                              //           <MDBadge
-                              //             badgeContent="Active"
-                              //             color="success" // Set the badge color dynamically
-                              //             variant="gradient"
-                              //             size="sm"
-                              //           />  
-                              //         </>
-                              //       ) : (
-                              //         <>
-                              //           <MDTypography variant="caption" fontWeight="medium" mr={2}> Validity: </MDTypography>
-                              //           <MDBadge
-                              //             badgeContent="Expired"
-                              //             color="error" // Set the badge color dynamically
-                              //             variant="gradient"
-                              //             size="sm"
-                              //           />  
-                              //         </>  
-                              //       )}
-                              //   </MDBox>
-                              // </MDBox>
+                            {item.ipfs ? (         
+                              <MDBox> 
+                                {item.record_status === 'Valid' ? (                                   
+                                    <MDBadge 
+                                      badgeContent="Valid"
+                                      color="success" // Set the badge color dynamically
+                                      variant="gradient"
+                                      size="sm"
+                                    />                                                                   
+                                ) : (                                    
+                                    <MDBadge
+                                      badgeContent="Invalid"
+                                      color="error" // Set the badge color dynamically
+                                      variant="gradient"
+                                      size="sm"
+                                    />   
+                                  
+                                )}
+                              </MDBox>
                               
                             ) : ""}
                             </>

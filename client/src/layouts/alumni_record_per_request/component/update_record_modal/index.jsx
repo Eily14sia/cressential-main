@@ -115,9 +115,6 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
                 <MDTypography variant="h5" fontWeight="medium">
                   {recordType}
                 </MDTypography>
-                <MDTypography variant="button" color="text" fontWeight="regular" >
-                  {recordIPFS}
-                </MDTypography>
               </MDBox>
             </Grid>
           </Grid>
@@ -143,9 +140,6 @@ setAlertMessage, setIsError, setIsSuccess, handleCloseUpdateDialog, setData}) {
         sx={{ opacity: 0.2 }}
       />
       <DialogActions>
-        <MDButton onClick={onClose} color="secondary">
-          Cancel
-        </MDButton>
         <MDButton
           variant="contained"
           color="info"

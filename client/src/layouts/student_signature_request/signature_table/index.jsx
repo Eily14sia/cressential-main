@@ -41,6 +41,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
   const user_role = localStorage.getItem('user_role');
 
   const [student_data, setStudentData] = useState([]);
+  const [payment_status, setPaymentStatus] = useState([]);
 
   useEffect(() => {
     fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management", {
@@ -172,7 +173,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
 
 
   // Function to open the dialog
-  const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status, student_id) => {
+  const handleOpenUpdateDialog = (ctrl_number, processing_officer, date_releasing, request_status, student_id, payment_status) => {
     setIsSuccess(false);
     setIsError(false);
     updateProcessingOfficer(processing_officer); // Reset other form fields 
@@ -180,7 +181,8 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
     updateDateReleasing(date_releasing);
     set_ctrl_number(ctrl_number); // Set the _ctrl_number state
     setStudentID(student_id);
-    setIsUpdateDialogOpen(true);       
+    setIsUpdateDialogOpen(true);  
+    setPaymentStatus(payment_status);     
   };
 
   // Function to close the dialog
@@ -289,7 +291,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
             <Tooltip title={`Update CTRL-${item.ctrl_number}`} >
               <IconButton color="success" onClick={() => 
                 handleOpenUpdateDialog( 
-                  item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id
+                  item.ctrl_number, item.processing_officer, item.date_releasing, item.request_status, item.student_id, item.payment_status
                 )}>
                 <EditIcon /> 
               </IconButton>
@@ -344,6 +346,7 @@ function Request_table({table_data, setData, setAlertMessage, setIsError, setIsS
         setAlertMessage={setAlertMessage}
         handleCloseUpdateDialog={handleCloseUpdateDialog}
         handleUpdateSubmit={handleUpdateSubmit}
+        payment_status={payment_status}
       />   
       <CancelDialogBox
         setData={setData}

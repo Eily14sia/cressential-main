@@ -26,11 +26,10 @@ import ProcessingOfficer from '../processing_officer';
 
 
 function DialogBox({ data, setData, open, onClose, processing_officer, setProcessingOfficer, request_status, setRequest_status, ctrl_number, date_releasing, setdate_releasing
-                     , setIsSuccess, setIsError, setAlertMessage, handleCloseUpdateDialog, handleUpdateSubmit}) {
+                     , setIsSuccess, setIsError, setAlertMessage, handleCloseUpdateDialog, handleUpdateSubmit, payment_status}) {
 
   // Create a new Date object from the date string
   const parsedDate = new Date(date_releasing);
-
   // Extract date components (month, day, and year)
   const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
   const day = String(parsedDate.getDate()).padStart(2, '0');
@@ -101,7 +100,7 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
               <MenuItem value="Pending">Pending</MenuItem>
               <MenuItem value="Received">Received</MenuItem>
               <MenuItem value="Cancelled">Cancelled</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
+              <MenuItem disabled={payment_status != 'Paid'} value="Completed">Completed</MenuItem>
             </Select>
           </FormControl>
 
@@ -114,9 +113,6 @@ function DialogBox({ data, setData, open, onClose, processing_officer, setProces
         sx={{ opacity: 0.2 }}
       />
       <DialogActions>
-        <MDButton onClick={onClose} color="secondary">
-          Cancel
-        </MDButton>
         <MDButton
           variant="contained"
           color="info"

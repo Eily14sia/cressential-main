@@ -113,7 +113,7 @@ function Update_Record() {
 
       if (response.ok) {
         setIsSuccess(true);
-        setAlertMessage('Record added successfully.');
+        setAlertMessage('Record updated successfully.');
       } else {
         setAlertMessage('Failed to update record');
       }

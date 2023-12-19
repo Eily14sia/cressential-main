@@ -86,7 +86,7 @@ function Add_Record() {
     }
 
     try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/add-record', {
+      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/student-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
