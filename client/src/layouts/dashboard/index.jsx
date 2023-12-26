@@ -278,7 +278,7 @@ function Dashboard() {
         console.log('Email sent successfully.');
 
         try {
-          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-record/notify/${ctrlNumber}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-signature/notify/${ctrlNumber}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -529,6 +529,7 @@ function Dashboard() {
         item.payment_status === 'Unpaid' &&
         item.request_status !== 'Cancelled'
       ) {
+        console.log('signature1', item.ctrl_number)
         try {
           const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-signature-request/${item.ctrl_number}`, {
             method: 'PUT',

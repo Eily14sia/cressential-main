@@ -464,6 +464,23 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
         return res.status(200).json({ message: 'Record updated successfully' });
     });
   });
+  // Update Record Notified
+  router.put('/payment/update-signature/notify/:ctrl_number', verifyToken, (req, res) => {
+    const ctrl_number = req.params.ctrl_number;
+
+    const sql = "UPDATE signature_payment SET is_payment_notified = 1 WHERE ctrl_number = ?";
+
+    db.query(sql, [ctrl_number], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Failed to update record' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Record not found' });
+        }
+        return res.status(200).json({ message: 'Record updated successfully' });
+    });
+  });
 
 // ================== Alumni Record Issuance  ==================
 
