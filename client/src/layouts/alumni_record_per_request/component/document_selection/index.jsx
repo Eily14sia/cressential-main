@@ -45,23 +45,23 @@ function DocumentSelection({ recordType, setRecordType }) {
     <>
         
         <Grid item xs={12} sx={{ textAlign: "left" }}>
-  <FormControl variant="outlined" fullWidth margin="normal">
-    <InputLabel>Type of Record</InputLabel>
+          <FormControl variant="outlined" fullWidth margin="normal">
+            <InputLabel>Type of Record</InputLabel>
 
-    <Select
-      style={{ height: "50px" }}
-      label="Select an option"
-      value={recordType}
-      onChange={(e) => setRecordType(e.target.value)}
-    >
-      {data.map((item) => (
-        <MenuItem key={item.id} value={item.id}>
-          {item.type}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Grid>
+            <Select
+              style={{ height: "50px" }}
+              label="Select an option"
+              value={recordType}
+              onChange={(e) => setRecordType(e.target.value)}
+            >
+              {data.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
         
     </>
   );

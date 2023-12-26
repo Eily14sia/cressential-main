@@ -38,7 +38,7 @@ import useEth from "../../../../contexts/EthContext/useEth";
 
 function DialogBox({ open, onClose, recordType, setRecordType, student_email, student_id,
 recordID, recordPassword, setRecordPassword, ctrl_number,
-setAlertMessage, setIsError, setIsSuccess, handleCloseAddDialog, setData}) {
+setAlertMessage, setIsError, setIsSuccess, handleCloseAddDialog, setData, record_type_id}) {
 
 
 // =========== For the datatable =================
@@ -110,24 +110,15 @@ const handleFileUpload = async () => {
           },
         });
 
-        if (recordPassword === '') {
-          handleCloseAddDialog();
-          setIsError(true);
-          setAlertMessage("Password is required.");
+        if (response.status === 200) {
+          // File is encrypted, proceed with the upload
+          setIsLoadingDialogOpen(true);
+          const responseData = response.data;
+          handleUpdateSubmit(responseData.ipfsCID, responseData.multihash);
+          // Reset the selectedFile state to clear the file input
           setSelectedFile(null);
-          setInitialPassword('');
-          setUrl('');
-        } else {
-
-          if (response.status === 200) {
-            // File is encrypted, proceed with the upload
-            setIsLoadingDialogOpen(true);
-            const responseData = response.data;
-            handleUpdateSubmit(responseData.ipfsCID, responseData.multihash);
-            // Reset the selectedFile state to clear the file input
-            setSelectedFile(null);
-          } 
-        }
+        } 
+        
 
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -185,37 +176,47 @@ function getRecordName(record_type_id) {
 
     const emailData = {
       to: toEmail,
-      subject: 'Your Requested Record Information',
+      subject: 'Update: Your Requested Record Information',
       text: `
       Good day! 
-
-      We are pleased to inform you that your academic record has been issued by the Registrar's office. Below, you will find the details of your record:
-
+    
+      We would like to inform you that an updated version of your academic record has been re-uploaded by the Registrar's office. Below, you will find the details of the new record:
+    
         • Control Number: ${ctrlNumber}
         • Record Type: ${type}
         • Transaction Number: ${txHash}
         • IPFS Link: ${ipfsLink}
         • Password Format:
-
-          Concatenate your Control Number: 123, Last Name and the last 5 digits of your wallet address, all in lowercase.
-
+    
+          Concatenate your Control Number: 123, Last Name, and the last 5 digits of your wallet address, all in lowercase.
+    
           Example:
           Control Number: 123
           Last Name: Smith
           Wallet Address: 0xAbCdEfGhIjKlMnOpQrStUvWxYz123456ab90
-
+    
           Sample Password: 123smith6ab90
+    
+          ** Important: 
+            • If your last name is hyphenated, please remove the hyphen.
+              Last Name: Smith-Jones 
+              Sample Password: 123smithjones6ab90     
 
-      You can access your record by clicking on the IPFS Link. Please use the provided password to securely access and download your record. Alternatively, you can access these credentials through the Cressential system for authentication purposes.
-  
+            • If your last name has a space, please remove the space.
+              Last Name: De Guzman 
+              Sample Password: 123deguzman6ab90    
+
+      The previous record request for the ${type} with Control Number ${ctrlNumber} is now invalidated. Please use the details provided above to securely access and download the updated record. You can access your record by clicking on the IPFS Link. Alternatively, you can also access these credentials through the Cressential system for authentication purposes.
+    
       ** Note: Please ensure the security of the Password and Transaction Number, as they are vital for authorized verification of your record within the verifier portal. Sharing these credentials implies granting permission for others to verify your record. The security of your record relies on the confidentiality of these credentials.
-      
+    
       If you have any questions or need further assistance, please feel free to contact our office.
     
       Best regards,
       Registrar's Office
       `,
     };
+    
   
     try {
       const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
@@ -229,6 +230,34 @@ function getRecordName(record_type_id) {
     }
   };
 
+  const handleInvalidateRecord = async () => {
+    // Create an updated record object to send to the server
+
+    const updatedRecord = {
+      recordStatus: 'Invalid',
+    };
+
+    try {
+      const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/update-record-per-request/${recordID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify(updatedRecord),
+      });
+
+      if (response.ok) {
+        return true;
+      } else {
+        setAlertMessage('Failed to invalidate record');
+      }
+    } catch (error) {
+      setIsError(true);
+      console.error('Error:', error);
+    }
+  };
+
   const handleUpdateSubmit = async (CID, hash) => {
     // Create an updated record object to send to the server
     try {
@@ -238,7 +267,7 @@ function getRecordName(record_type_id) {
       //if blockchain is successful 
       const updatedRecord = {
         ctrl_number: ctrl_number,
-        recordType: recordType,
+        recordType: record_type_id,
         recordPassword: recordPassword,
         uploadedCID: CID,
         hash: hash,
@@ -257,37 +286,44 @@ function getRecordName(record_type_id) {
         });
 
         if (response.ok) {
-          handleCloseAddDialog();
-          setIsSuccess(true);        
-          sendEmail(student_email, CID, recordPassword, recordType, transactionHash, ctrl_number);
-          setInitialPassword('');
-          setUrl('');
+          const invalidate_record = await handleInvalidateRecord();
 
-          // Fetch updated data and update the state
-          fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-            },
-          })
-            .then((res) => {
-              if (!res.ok) {
-                throw new Error("Failed to authenticate token");
-              }
-              return res.json();
+          if (invalidate_record) {
+            setIsSuccess(true);        
+            sendEmail(student_email, CID, recordPassword, recordType, transactionHash, ctrl_number);
+            setInitialPassword('');
+            setUrl('');
+            setRecordType('');          
+  
+            // Fetch updated data and update the state
+            fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-per-request/${ctrl_number}`, {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
             })
-            .then((fetchedData) => {
-              setData(fetchedData);
-            })
-            .catch((err) => console.log(err));
-
-            setAlertMessage('Record updated successfully.');
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Failed to authenticate token");
+                }
+                return res.json();
+              })
+              .then((fetchedData) => {
+                setData(fetchedData);
+              })
+              .catch((err) => console.log(err));
+              
+              handleCloseAddDialog();
+              setAlertMessage('Record re-uploaded successfully.');
+          }
         } else {
-          setAlertMessage('Failed to update record');
+          handleCloseAddDialog();
+          setAlertMessage('Failed to re-upload record');
           setRecordType('');
         }
       } catch (error) {
+        handleCloseAddDialog();
         setIsError(true);
-        setAlertMessage('Failed to upload record.');
+        setAlertMessage('Failed to re-upload record.');
         console.error('Error:', error);
       }
 
@@ -299,14 +335,15 @@ function getRecordName(record_type_id) {
       onClose();
       setIsLoadingDialogOpen(false);
       setIsError(true);
-      setAlertMessage('Failed to upload record.');
+      setAlertMessage('Failed to re-upload record.');
       console.error('Error:', error);
-
+      handleCloseAddDialog();
       setInitialPassword('');
       setUrl('');
       setRecordType('');
 
     }
+    
   };
 
   const styles = {
@@ -369,7 +406,7 @@ function getRecordName(record_type_id) {
         open={isLoadingDialogOpen}
         onClose={isLoadingDialogOpen}
       />
-      <DialogTitle>Add Record
+      <DialogTitle>Re-upload Record
         <IconButton
           sx={{
             position: 'absolute',
@@ -432,7 +469,7 @@ function getRecordName(record_type_id) {
                   
                   <MDBox height="100%" mt={0.5}>
                     <MDTypography variant="h5" fontWeight="medium">
-                    CTRL-{ctrl_number}
+                    {recordType}
                     </MDTypography>
                     <MDTypography variant="caption" color="text"  >
                     Please review the information carefully. Changes cannot be undone.
@@ -441,10 +478,9 @@ function getRecordName(record_type_id) {
                   <Divider sx={{marginBottom: "30px", marginTop: "20px"}}/>
                 </Grid>
               </Grid>
-              <Grid item textAlign="center" xs={11}>
-              
-              <DocumentSelection recordType={recordType} setRecordType={setRecordType}/>
-            </Grid>
+              {/* <Grid item textAlign="center" xs={11}>              
+                <DocumentSelection recordType={recordType} setRecordType={setRecordType}/>
+              </Grid> */}
               <Grid item textAlign="center" xs={11} mt={1}>
                 {/* <MDInput fullWidth
                   type="file"
@@ -489,7 +525,7 @@ function getRecordName(record_type_id) {
                   size="large"
                   fullWidth
                 >
-                    Add Record
+                    Re-upload Record
                 </MDButton>
               </Grid>
               
@@ -563,7 +599,7 @@ function getRecordName(record_type_id) {
                   </MDBox>
                   <MDBox display="flex"   >
                     <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
-                      Please ensure that the correct file is uploaded. Only PDF files are allowed. Preview the file using the React PDF Viewer before clicking the 'Add Record' button.
+                      Please ensure that the correct file is uploaded. Only PDF files are allowed. Preview the file using the React PDF Viewer before clicking the 'Re-upload Record' button.
                     </MDTypography>                  
                   </MDBox>
                   <MDBox display="flex" alignItems="center" mt={1} pt={2}>

@@ -185,6 +185,15 @@ const handleFileUpload = async () => {
 
           Sample Password: 123smith6ab90
 
+          ** Important: 
+            • If your last name is hyphenated, please remove the hyphen.
+              Last Name: Smith-Jones 
+              Sample Password: 123smithjones6ab90     
+
+            • If your last name has a space, please remove the space.
+              Last Name: De Guzman 
+              Sample Password: 123deguzman6ab90  
+
       You can access your record by clicking on the IPFS Link. Please use the provided password to securely access and download your record. Alternatively, you can access these credentials through the Cressential system for authentication purposes.
       
       ** Note: Please ensure the security of the Password and Transaction Number, as they are vital for authorized verification of your record within the verifier portal. Sharing these credentials implies granting permission for others to verify your record. The security of your record relies on the confidentiality of these credentials.
@@ -471,7 +480,7 @@ const handleFileUpload = async () => {
                   </MDBox>
                   <MDBox display="flex"   >
                     <MDTypography variant="caption" ml={3} mt={1} sx={{ lineHeight: '1.5' }}>
-                    Please ensure that the correct file is uploaded. Only PDF files are allowed. Preview the file using the React PDF Viewer before clicking the 'Add Record' button.
+                    Please ensure that the correct file is uploaded. Only PDF files are allowed. Preview the file using the React PDF Viewer before clicking the 'Upload Record' button.
                     </MDTypography>                  
                   </MDBox>
                   <MDBox display="flex" alignItems="center" mt={1} pt={2}>

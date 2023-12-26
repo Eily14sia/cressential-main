@@ -361,6 +361,20 @@ router.get('/email/record-request', verifyToken, (req, res) => {
   });
 });
 
+router.get('/email/signature-request', verifyToken, (req, res) => {
+  const sql = `
+    SELECT *
+    FROM signature_request AS r
+    INNER JOIN signature_payment AS p ON p.ctrl_number = r.ctrl_number
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.json(err);
+    const data = results.rows;
+    return res.json(data);
+  });
+});
+
 /* ===========================================================
                             REGISTRAR
    =========================================================== */
@@ -457,12 +471,14 @@ router.get('/email/record-request', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
     const sql = `
-        SELECT *
+        SELECT *,
+        type_of_record.id AS type_of_record_id
         FROM record_per_request
         INNER JOIN record_request ON record_per_request.ctrl_number = record_request.ctrl_number
         INNER JOIN payment ON record_per_request.ctrl_number = payment.ctrl_number
         INNER JOIN type_of_record ON record_per_request.record_type_id = type_of_record.id
         WHERE record_per_request.ctrl_number = $1
+        ORDER BY record_per_request.rpr_id DESC
     `;
     
     db.query(sql, [ctrl_number], (err, results) => {

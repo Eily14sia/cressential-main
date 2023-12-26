@@ -14,6 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Tooltip from '@mui/material/Tooltip';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -211,6 +212,7 @@ function Alumni_record_per_request() {
   const [record_password, setRecordPassword] = useState('');
 
   const [record_id, setRecordId] = useState('');
+  const [record_type_id, setRecordTypeId] = useState('');
 
   // State to track whether the dialog is open
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -219,10 +221,14 @@ function Alumni_record_per_request() {
 
 
   // Function to open the dialog
-  const handleOpenAddDialog = () => {
+  const handleOpenAddDialog = (record_id, record_type, record_type_id, record_IPFS, record_password) => {
     setIsSuccess(false);
     setIsError(false);    
     setIsAddDialogOpen(true);
+    setRecordType(record_type); // Reset other form fields 
+    setRecordIPFS(record_IPFS);
+    setRecordId(record_id); // Set the record_id state
+    setRecordTypeId(record_type_id);
   };
   // Function to open the dialog
   const handleOpenUploadDialog = (record_id, record_type, record_IPFS, record_password) => {
@@ -279,7 +285,7 @@ function Alumni_record_per_request() {
         if (data.length > 1){
 
           const wallet_address = data.find((user) => user.id == student_id).wallet_address;
-          const last_name = data.find((user) => user.id == student_id).last_name;
+          const last_name = data.find((user) => user.id == student_id).last_name.replace(/\s/g, '');
           // Extract the last 5 characters from the wallet address
           const last5Characters = wallet_address.slice(-5);
   
@@ -297,7 +303,19 @@ function Alumni_record_per_request() {
 
 
   console.log('password:',password); 
+
+  const shouldDisableUpload = (paymentStatus, requestStatus) => {
+    return (
+      paymentStatus !== "Unpaid" &&
+      (requestStatus !== "Pending" || requestStatus !== "Cancelled")
+    );
+  };
+
+  const shouldDisableAddRecord = (paymentStatus, requestStatus) => {
+    return paymentStatus === "Unpaid" && (requestStatus === "Pending" || requestStatus === "Cancelled");
+  };
   
+
   return (
     <EthProvider>
       <DashboardLayout>
@@ -374,31 +392,38 @@ function Alumni_record_per_request() {
                 <Card sx={{marginTop: "20px"}}>
                   <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
                     
-                  {parseInt(user_role) === 1 ? (
+                  {/* {parseInt(user_role) === 1 ? (
                     <>
                       <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                         <Icon>arrow_back</Icon>&nbsp; Record Request
                       </MDButton>
-                      <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={payment_status !== "Unpaid" && (request_status !== "Pending" || request_status !== "Cancelled")}>
+                      <Tooltip
+                        title={`Request is ${payment_status} and ${request_status}, cannot upload.`}
+                        disableHoverListener={shouldDisableUpload(payment_status, request_status)}
+                      >
                         <span>
-                          <MDButton onClick={() => handleOpenAddDialog()} 
-                            disabled={payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled")}
-                            variant="gradient" color="dark" size="small">
+                          <MDButton
+                            onClick={handleOpenAddDialog}
+                            disabled={shouldDisableAddRecord(payment_status, request_status)}
+                            variant="gradient"
+                            color="dark"
+                            size="small"
+                          >
                             <Icon>add</Icon>&nbsp; Add Record
                           </MDButton>
                         </span>
                       </Tooltip>
                     </>
                   ) : (
-                    <>
+                    <> */}
                       <MDTypography variant="h6" fontWeight="medium">
                         Record per Request 
                       </MDTypography>
                       <MDButton onClick={goBack} variant="outlined" color="info" size="small">
                         <Icon>arrow_back</Icon>&nbsp; Record Request
                       </MDButton>
-                    </>
-                  )}
+                    {/* </>
+                  )} */}
                   </MDBox>
                   
                   <MDBox mt={4} p={3}>
@@ -491,19 +516,37 @@ function Alumni_record_per_request() {
                             <>
                             {parseInt(user_role) === 1 ? (
                               <>
-                            <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={item.ipfs !== null || (payment_status !== "Unpaid" && (request_status !== "Pending" || request_status !== "Cancelled"))}>
-                              <span>
-                                <IconButton
-                                  color="info"
-                                  disabled={item.ipfs !== null || (payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}
-                                  onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
-                                >
-                                  <UploadFileIcon />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
+                              {item.ipfs == null || (payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled")) ?
+                              (
+
+                              <Tooltip title={`Request is ${payment_status} and ${request_status}, cannot upload.`} disableHoverListener={item.ipfs !== null || (payment_status !== "Unpaid" && (request_status !== "Pending" || request_status !== "Cancelled"))}>
+                                <span>
+                                  <IconButton
+                                    color="info"
+                                    disabled={item.ipfs !== null || (payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}
+                                    onClick={() => handleOpenUploadDialog(item.rpr_id, item.type, item.ipfs, item.password)}
+                                  >
+                                    <UploadFileIcon />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              ) : (
+                              
+                                
+                              <Tooltip title="Re-upload">
+                                <span>
+                                  <IconButton
+                                    color="info"
+                                    disabled={item.record_status === 'Invalid' || item.ipfs == null || (payment_status === "Unpaid" && (request_status === "Pending" || request_status === "Cancelled"))}
+                                    onClick={() => handleOpenAddDialog(item.rpr_id, item.type, item.record_type_id, item.ipfs, item.password)}
+                                  >
+                                    <CloudSyncIcon />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              )}
                             
-                            <Tooltip title={`No record has been uploaded yet, cannot update.`} disableHoverListener={item.ipfs !== null }>
+                            {/* <Tooltip title={`No record has been uploaded yet, cannot update.`} disableHoverListener={item.ipfs !== null }>
                               <span>
                                 <IconButton 
                                     color="success" 
@@ -512,7 +555,7 @@ function Alumni_record_per_request() {
                                     <EditIcon />
                                   </IconButton>
                                 </span>
-                            </Tooltip>
+                            </Tooltip> */}
                             {/* <Tooltip title="Delete" >
                               <IconButton color="secondary" onClick={() => handleDelete(item.id)}>
                                 <DeleteIcon />
@@ -545,9 +588,10 @@ function Alumni_record_per_request() {
                       setIsSuccess={setIsSuccess} 
                       handleCloseAddDialog={handleCloseAddDialog}
                       setData={setData}
-                      data={setData}
+                      data={data}
                       student_email={student_email}
                       student_id={student_id}
+                      record_type_id={record_type_id}
                     />
                     <UploadDialogBox
                       open={isUploadDialogOpen}

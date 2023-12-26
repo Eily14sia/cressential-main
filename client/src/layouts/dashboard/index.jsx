@@ -48,6 +48,7 @@ function Dashboard() {
 
   // ================ For the Data =======================
   const [request_data, setRequestData] = useState([]);
+  const [signature_data, setSignatureData] = useState([]);
   const [issuance_data, setIssuanceData] = useState([]);
   const [student_data, setStudentData] = useState([]);
   const [type_of_record, setTypeOfRecord] = useState([]);
@@ -66,6 +67,24 @@ function Dashboard() {
       })
       .then((data) => {
         setRequestData(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/signature-request", {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setSignatureData(data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -163,7 +182,84 @@ function Dashboard() {
       To complete your payment, please follow these steps:
 
         1. Log in to our system: https://cressential-5435c63fb5d8.herokuapp.com
-        2. Navigate to the "Request Table" section.
+        2. Navigate to the "Record Request Table" section.
+        3. Select your record request and click the "Pay now" Button.
+        4. Proceed with the payment process.
+  
+      If you have already made the payment, please disregard this message. For any questions or assistance with your payment, please contact our office.
+  
+      Thank you for your prompt attention to this matter.
+  
+      Sincerely,
+      Registrar's Office
+      `,
+    };
+  
+    try {
+      const response = await axios.post('https://cressential-5435c63fb5d8.herokuapp.com/emails/send-email', emailData);
+      if (response.status === 200) {
+        console.log('Email sent successfully.');
+
+        try {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-record/notify/${ctrlNumber}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwtToken}`,
+            },   
+          });
+         
+        
+          if (response.status === 200) {
+            console.log('Successfully updated the payment:', response.data);
+            // Handle success here
+          } else {
+            console.error('Error:', response.statusText);
+            // Handle error here
+          }
+        } catch (error) {
+          console.error('An error occurred:', error);
+          // Handle the error
+        }
+
+      } else {
+        console.error('Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+
+  const signatureSendReminderEmail = async (toEmail, ctrlNumber, totalAmount) => {
+
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const formattedDate = tomorrow.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const emailData = {
+      to: toEmail,
+      subject: 'Urgent: Payment Deadline Tomorrow for Your Signature Request',
+      text: `
+      Good day!
+  
+      This is to remind you that your pending request payment is due by tomorrow at 12:00 AM.
+  
+      Failure to make the payment by the specified deadline will result in the automatic cancellation of your request.
+  
+        • Signature Request: Ctrl-${ctrlNumber}
+        • Payment Deadline: ${formattedDate}, 12:00 AM
+        • Payment Amount: Php ${totalAmount}.00
+        • Payment Method: GCash/Maya/Online Banking
+  
+      To complete your payment, please follow these steps:
+
+        1. Log in to our system: https://cressential-5435c63fb5d8.herokuapp.com
+        2. Navigate to the "Signature Request Table" section.
         3. Select your record request and click the "Pay now" Button.
         4. Proceed with the payment process.
   
@@ -219,7 +315,7 @@ function Dashboard() {
       text: `
       Good day!
   
-      This is to inform you that your pending record request with control number Ctrl-${ctrlNumber} has been canceled due to the failure to make the required payment within the specified deadline.
+      This is to inform you that your pending request with control number Ctrl-${ctrlNumber} has been canceled due to the failure to make the required payment within the specified deadline.
   
       Failure to make the payment by the specified deadline will result in the automatic cancellation of your request.
   
@@ -420,6 +516,73 @@ function Dashboard() {
     });
   };
 
+  const signatureUnpaidDecline = async () => {
+    console.log('signature')
+    const currentDate = new Date();
+    // Use map to iterate through the data array
+    signature_data.map(async (item) => {
+      const requestedDate = new Date(item.date_requested);
+      // Check if the request is more than or equal to 3 days old and the status is "Unpaid", 
+      // if true, then automatically cancel its request
+      if (
+        currentDate.getTime() - requestedDate.getTime() >= 3 * 24 * 60 * 60 * 1000 && // 3 days in milliseconds
+        item.payment_status === 'Unpaid' &&
+        item.request_status !== 'Cancelled'
+      ) {
+        try {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/cancel-signature-request/${item.ctrl_number}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+               Authorization: `Bearer ${jwtToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const to_email = getStudentEmail(item.student_id);
+            if (to_email && item.ctrl_number) {
+              await sendCancelationEmail(to_email, item.ctrl_number);
+            }
+            // Fetch updated data and update the state
+            fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/email/signature-request', {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
+            })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to authenticate token");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              setRequestData(data); // Set the fetched data into the state
+            })
+            .catch((err) => console.log(err));
+          } else {
+            // Handle the case where the update request is not successful
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      // Check if the request is more than or equal to 2 days old and the status is "Unpaid", 
+      // if true, then inonotify sya na due na tomo yung payment
+      if (
+        currentDate.getTime() - requestedDate.getTime() >= 2 * 24 * 60 * 60 * 1000 && // 2 days in milliseconds
+        item.payment_status === 'Unpaid' &&
+        item.request_status !== 'Cancelled' &&
+        !item.is_payment_notified
+      ) {
+        const to_email = getStudentEmail(item.student_id);
+        if (to_email && item.ctrl_number && item.total_amount) {
+          await signatureSendReminderEmail(to_email, item.ctrl_number, item.total_amount);
+        }
+      }
+    });
+  };
+
   const recordValidity = async () => {
     const currentDate = new Date();
       // Use map to iterate through the data array
@@ -497,6 +660,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       await unpaidDecline();
+      await signatureUnpaidDecline();
       await recordValidity();
     };
     fetchData();

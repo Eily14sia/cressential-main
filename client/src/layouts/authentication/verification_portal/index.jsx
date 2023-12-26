@@ -203,13 +203,21 @@ function Verifier_portal() {
       if (verify.ok) {
         const nodes = await verify.json();
         const record_status = nodes.record_status;
-        const is_expired = nodes.record_expiration;
+        // const is_expired = nodes.record_expiration;
+
+        const currentDate = new Date();
+        // Use map to iterate through the data array
+        
+        const date_issued = new Date(nodes.date_issued);    
+        const oneYearInMilliseconds = 365 * 24 * 60 * 60 * 1000;
+        const date_difference = currentDate - date_issued;  
 
         console.log("uploaded hash", uploaded_hash);
         console.log("blockchain multihash", bchain_multihash);
 
         if(record_status === 'Valid'){
-          if (!is_expired) {
+          // Check if the record is not more than a year from the date_issued, 
+          if (!(date_difference >= oneYearInMilliseconds)) {
 
             // if valid & not expired & hashes match
             if (uploaded_hash === bchain_multihash){      
