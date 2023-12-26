@@ -451,7 +451,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
   router.put('/payment/update-record/notify/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
-    const sql = "UPDATE payment SET is_payment_notified = 1 WHERE ctrl_number = ?";
+    const sql = "UPDATE payment SET is_payment_notified = TRUE WHERE ctrl_number = ?";
 
     db.query(sql, [ctrl_number], (err, result) => {
         if (err) {
@@ -468,7 +468,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
   router.put('/payment/update-signature/notify/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
-    const sql = "UPDATE signature_payment SET is_payment_notified = 1 WHERE ctrl_number = ?";
+    const sql = "UPDATE signature_payment SET is_payment_notified = TRUE WHERE ctrl_number = ?";
 
     db.query(sql, [ctrl_number], (err, result) => {
         if (err) {

@@ -521,6 +521,7 @@ function Dashboard() {
     const currentDate = new Date();
     // Use map to iterate through the data array
     signature_data.map(async (item) => {
+      console.log('signature1', item.ctrl_number)
       const requestedDate = new Date(item.date_requested);
       // Check if the request is more than or equal to 3 days old and the status is "Unpaid", 
       // if true, then automatically cancel its request
