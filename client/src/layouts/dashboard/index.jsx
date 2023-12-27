@@ -278,17 +278,16 @@ function Dashboard() {
         console.log('Email sent successfully.');
 
         try {
-          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-signature/notify/${ctrlNumber}`, {
+          const response = await fetch(`http://localhost:8081/mysql/payment/update-signature/notify/${ctrlNumber}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${jwtToken}`,
             },   
-          });
-         
+          });          
         
           if (response.status === 200) {
-            console.log('Successfully updated the payment:', response.data);
+            console.log('Successfully notified.');
             // Handle success here
           } else {
             console.error('Error:', response.statusText);
@@ -517,11 +516,10 @@ function Dashboard() {
   };
 
   const signatureUnpaidDecline = async () => {
-    console.log('signature')
     const currentDate = new Date();
     // Use map to iterate through the data array
     signature_data.map(async (item) => {
-      console.log('signature1', item.ctrl_number)
+      
       const requestedDate = new Date(item.date_requested);
       // Check if the request is more than or equal to 3 days old and the status is "Unpaid", 
       // if true, then automatically cancel its request

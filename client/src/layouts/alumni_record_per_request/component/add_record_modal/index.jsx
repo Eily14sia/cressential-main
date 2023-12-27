@@ -290,7 +290,7 @@ function getRecordName(record_type_id) {
 
           if (invalidate_record) {
             setIsSuccess(true);        
-            sendEmail(student_email, CID, recordPassword, recordType, transactionHash, ctrl_number);
+            sendEmail(student_email, CID, recordPassword, record_type_id, transactionHash, ctrl_number);
             setInitialPassword('');
             setUrl('');
             setRecordType('');          

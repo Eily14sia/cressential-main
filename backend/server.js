@@ -272,7 +272,15 @@ function verifyToken(req, res, next) {
       const hashedPassword = hashPassword(password);
 
       // Query the database to retrieve user data
-      const sql = 'SELECT * FROM record_per_request WHERE transaction_hash = $1 AND password = $2';
+      const sql = `
+      SELECT *
+      FROM record_per_request as rpr
+      INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+      INNER JOIN type_of_record as tor ON rpr.record_type_id = tor.id
+      INNER JOIN student_management as sm ON r.student_id = sm.id
+      WHERE rpr.transaction_hash = $1 AND rpr.password = $2;
+      `;     
+
       db.query(sql, [transaction_hash, hashedPassword], (err, results) => {
         if (err) {
           console.error('MySQL query error:', err);
@@ -283,7 +291,15 @@ function verifyToken(req, res, next) {
         if (results.rows.length > 0) {
           // Record found in the database
           const data = results.rows[0];
-          res.json({ success: true, record_status: data.record_status, record_expiration: data.is_expired, date_issued: data.date_issued });
+
+          res.json({ 
+            success: true, 
+            record_status: data.record_status, 
+            record_expiration: data.is_expired, 
+            date_issued: data.date_issued,
+            student_name: data.first_name + ' ' + data.middle_name + ' ' + data.last_name,
+            record_type: data.type,
+          });
         } else {
           // Record not found in the database or invalid password
           res.status(401).json({ success: false }); // Return a 401 status code
@@ -451,7 +467,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
   router.put('/payment/update-record/notify/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
-    const sql = "UPDATE payment SET is_payment_notified = TRUE WHERE ctrl_number = ?";
+    const sql = "UPDATE payment SET is_payment_notified = TRUE WHERE ctrl_number = $1";
 
     db.query(sql, [ctrl_number], (err, result) => {
         if (err) {
@@ -468,7 +484,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
   router.put('/payment/update-signature/notify/:ctrl_number', verifyToken, (req, res) => {
     const ctrl_number = req.params.ctrl_number;
 
-    const sql = "UPDATE signature_payment SET is_payment_notified = TRUE WHERE ctrl_number = ?";
+    const sql = "UPDATE signature_payment SET is_payment_notified = TRUE WHERE ctrl_number = $1";
 
     db.query(sql, [ctrl_number], (err, result) => {
         if (err) {

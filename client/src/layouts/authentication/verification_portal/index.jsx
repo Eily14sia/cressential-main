@@ -12,7 +12,7 @@ import MDInput from "../../../components/MDInput";
 import MDButton from "../../../components/MDButton";
 import MDAlert from "../../../components/MDAlert";
 import PDFViewer2 from '../../../layouts/render_pdf';
-import { InputAdornment, IconButton } from '@mui/material';
+import { InputAdornment, IconButton, Icon } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import axios from 'axios';
@@ -22,13 +22,14 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import CoverLayout from "../components/VerificationCoverLayout";
 
 import LoadingModal from './components/loading_modal';
-
+import GeneratePDF from './components/generate_pdf';
 
 // Images
 import bgImage from "../../../assets/images/university.jpg";
 // Authentication pages components
 import Footer from "../components/Footer";
 import { isSchema } from "yup";
+import FormHelperText from '@mui/material/FormHelperText';
 
 function Verifier_portal() {
 
@@ -50,6 +51,9 @@ function Verifier_portal() {
   const [transaction_hash, setTransactionHash] = useState('');
   const [bchain_multihash, setBchainMultihash] = useState('');
   const [password, setPassword] = useState('');
+  const [student_name, setStudentName] = useState('');
+  const [record_type, setRecordType] = useState('');
+  const [verification_result, setVerificationResult] = useState('');
 
   // State to track whether the loading dialog is open
   const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
@@ -81,6 +85,8 @@ function Verifier_portal() {
       }
     } else {
       // File is not a PDF, display an error or handle it as needed
+      setUrl(null);
+      setFile(null);
       alert('Please select a PDF file');
     }
 
@@ -154,7 +160,7 @@ function Verifier_portal() {
           console.log('Transaction Details:', getTransaction.data.transactionDetails);
           setBchainMultihash(getTransaction.data.multihash);
           console.log('Multihash', getTransaction.data.multihash);
-          handleSubmit(hash, getTransaction.data.multihash, verifyRecord)
+          await handleSubmit(hash, getTransaction.data.multihash, verifyRecord)
 
         } else {
           // Handle the error, e.g., display an error message
@@ -167,14 +173,15 @@ function Verifier_portal() {
         setIsSuccess(false); // Reset both success and error states
         setIsError(true);
         setAlertMessage('Transaction Number not found. Please ensure correct credentials are entered. ');        
+        setVerificationResult(1);
       }
 
-      setUrl('');
-      setFile('');
-      setHash('');
-      setTransactionHash('');
-      setBchainMultihash('');
-      setPassword('');
+      // setUrl('');
+      // setFile('');
+      // setHash('');
+      // setTransactionHash('');
+      // setBchainMultihash('');
+      // setPassword('');
       const fileInput = document.getElementById('fileUpload');
       if (fileInput) {
         fileInput.value = ''; // Reset the file input field
@@ -203,6 +210,10 @@ function Verifier_portal() {
       if (verify.ok) {
         const nodes = await verify.json();
         const record_status = nodes.record_status;
+        const student_name = nodes.student_name;
+        const record_type = nodes.record_type;
+        setStudentName(student_name);
+        setRecordType(record_type);
         // const is_expired = nodes.record_expiration;
 
         const currentDate = new Date();
@@ -224,12 +235,14 @@ function Verifier_portal() {
               setIsSuccess(true);
               setIsError(false); // Reset the error state
               setAlertMessage('Data is Authentic and Unaltered.');
+              setVerificationResult(2);
             } 
 
             //Hash mismatch
             else { 
             setIsSuccess(false);
             setIsError(true); // Reset the error state
+            setVerificationResult(3);
             setAlertMessage("Hash mismatch detected after successful verification. Possible data tampering.");
             }  
           } 
@@ -238,7 +251,8 @@ function Verifier_portal() {
           else {  
             setIsSuccess(false);
             setIsError(true); // Reset the error state
-            setAlertMessage("Cannot verify this record. The Record's validity has expired.");
+            setVerificationResult(4);
+            setAlertMessage("Verification unsuccessful. The validity of the record you are trying to verify has already expired.");                 
           }            
         } 
 
@@ -246,14 +260,15 @@ function Verifier_portal() {
         else { 
           setIsSuccess(false); // Reset the success state
           setIsError(true);
-          setAlertMessage("Cannot verify this record. This record may have been invalidated");
-        }
+          setVerificationResult(5);
+          setAlertMessage("Verification unsuccessful. The record you are trying to verify is no longer valid.");        }
       }
 
       // if incorrect credentials are entered
       else {
         setIsSuccess(false); // Reset both success and error states
         setIsError(true);
+        setVerificationResult(6);
         setAlertMessage('Incorrect Transaction number or Password. Please ensure correct credentials are entered. ');
       } 
     } catch (error) {
@@ -309,6 +324,30 @@ function Verifier_portal() {
     },
   };
 
+  const [isTxNumberValid, setIsTxNumberValid] = useState(true);
+  const [txNumberValidationMessage, setTxNumberValidationMessage] = useState('');
+
+  const handleTxNumberChange = (newValue) => {
+    const maxLength = 66; // Define a maximum allowed transaction number length
+    const specialCharacterRegex = /^[a-zA-Z0-9]+$/; // Regex to allow only alphanumeric characters
+  
+    if (newValue.length > maxLength) {
+      // If it exceeds the maximum length, mark it as invalid
+      setIsTxNumberValid(false);
+      setTxNumberValidationMessage('Transaction Number should not exceed 66 characters.');
+    } else if (!specialCharacterRegex.test(newValue) && newValue.length > 1) {
+      // If it contains special characters, mark it as invalid
+      setIsTxNumberValid(false);
+      setTxNumberValidationMessage('Transaction Number should only contain alphanumeric characters.');
+    } else {
+      // If it passes all validations, set the transaction number and mark it as valid
+      setTransactionHash(newValue);
+      setIsTxNumberValid(true);
+      setTxNumberValidationMessage(''); // Clear validation message when valid
+    }
+  };
+  
+
   return (
     <CoverLayout image={bgImage}>
       <Card>
@@ -323,6 +362,12 @@ function Verifier_portal() {
           alertContent={alertContent}
           isLoading={isLoading}
           setIsLoadingDialogOpen={setIsLoadingDialogOpen}
+          transaction_hash={transaction_hash}
+          password={password}
+          filename={file.name}
+          studentName={student_name}
+          recordType={record_type}
+          verificationResult={verification_result}
         />
         <MDBox
           variant="gradient"
@@ -382,7 +427,17 @@ function Verifier_portal() {
               <form onSubmit={(e) => {sendTransactionHashToServer(transaction_hash); e.preventDefault();}}>
               <MDBox >
                 <MDBox mb={2}>
-                  <MDInput required type="text" label="Transaction Number" value={transaction_hash} variant="outlined" onChange={(e) => setTransactionHash(e.target.value)} fullWidth />
+                  <MDInput required type="text" label="Transaction Number" value={transaction_hash} variant="outlined" 
+                  onChange={(e) => handleTxNumberChange(e.target.value)} fullWidth 
+                  error={!isTxNumberValid}
+                  />
+                  <MDBox sx={{ textAlign: "left" }}>
+                    {!isTxNumberValid && (
+                    <FormHelperText error>
+                      {txNumberValidationMessage}
+                    </FormHelperText>
+                    )}
+                  </MDBox>
                 </MDBox>
                 <MDBox mb={2}>
                   {/* <MDInput type="password" value={password} label="Password" variant="outlined" onChange={(e) => setPassword(e.target.value)} fullWidth /> */}
@@ -408,6 +463,7 @@ function Verifier_portal() {
                       ),
                     }}
                   />
+                 
                 </MDBox>
                 <MDBox mb={2}>
                   {/* <MDInput fullWidth variant="outlined" 
@@ -417,30 +473,31 @@ function Verifier_portal() {
                     onChange={handleFileChange}
                   />     */}
                   <label htmlFor="fileUpload" style={styles.label}>
-                  <button required
-                    style={styles.button}
-                    onClick={() => {
-                      const fileInput = document.getElementById("fileUpload");
-                      if (fileInput) {
-                        fileInput.click();
-                      }
-                    }}
-                  >
-                    Choose File
-                  </button>
-                  <span style={file ? {} : styles.placeholder}>
-                    <MDTypography variant="button">
-                      {file ? file.name : 'Select a PDF file'}
-                    </MDTypography>
-                  </span>
-                  <input
-                    accept=".pdf"
-                    id="fileUpload"
-                    type="file"
-                    style={styles.input}
-                    onChange={handleFileChange}
-                  />
-                </label>
+                    <button
+                      required
+                      style={{ ...styles.button, display: 'none' }}
+                      onClick={() => {
+                        const fileInput = document.getElementById("fileUpload");
+                        if (fileInput) {
+                          fileInput.click();
+                        }
+                      }}
+                    />
+                    <Icon color="secondary">upload_file</Icon> &nbsp;
+                    <span style={{ ...styles.placeholder, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <MDTypography variant="button" title={file ? file.name : 'Select a PDF file'}>
+                        {file ? file.name : 'Select a PDF file'}
+                      </MDTypography>
+                    </span>
+                    <input
+                      accept=".pdf"
+                      id="fileUpload"
+                      type="file"
+                      style={styles.input}
+                      onChange={handleFileChange}
+                    />
+                  </label>
+
                 </MDBox>
                 
                 <MDBox mt={4} mb={1}>
@@ -453,6 +510,7 @@ function Verifier_portal() {
                         setHash('');
                         setTransactionHash('');
                         setUrl('');
+                        setFile('');
                         const fileInput = document.getElementById('fileUpload');
                         if (fileInput) {
                           fileInput.value = ''; // Reset the file input field
