@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
 
 // Create Document Component
 function BasicDocument({
-  transaction_number, password, studentName, recordType, status, isSuccess, description
+  transaction_number, password, studentName, recordType, status, isSuccess, description, verifier, institution, verificationID
 }) {
 
 // Split the transaction number into segments (e.g., every 16 characters)
@@ -118,9 +118,9 @@ const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/M
       <Document>
         {/* Render a single page */}
         <Page size="A4" style={styles.page}>
-            <View style={styles.backgroundImage}>
-                <Image src={logo} style={styles.backgroundImage} />
-            </View>
+          <View style={styles.backgroundImage}>
+              <Image src={logo} style={styles.backgroundImage} />
+          </View>
           <View style={styles.section}>
             <Text style={styles.header}>
               <Image src={logoDark} style={styles.logo} />
@@ -132,6 +132,40 @@ const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/M
                 This serves as formal acknowledgment that the record, bearing the particulars provided below, has undergone meticulous validation within our advanced blockchain-based issuance and verification system tailored for academic records.            
             </Text>
             
+            <Text style={styles.content}>
+                Verifier Information:
+            </Text>
+            <View style={styles.table}> 
+              {/* TableHeader */} 
+                <View style={styles.tableRowHeader}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>ATTRIBUTES</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>DETAILS</Text> 
+                    </View> 
+                    
+                </View> 
+              {/* TableContent */} 
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Verifier Name</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{verifier ? verifier : ''} </Text> 
+                    </View>                     
+                </View> 
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Institution/Company Name</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{institution ? institution : ''} </Text> 
+                    </View>                     
+                </View>                
+                
+            </View>
+
             <Text style={styles.content}>
                 Verification Summary:
             </Text>
@@ -147,6 +181,14 @@ const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/M
                     
                 </View> 
               {/* TableContent */} 
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Verification ID</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{verificationID ? verificationID : ''} </Text> 
+                    </View>                     
+                </View> 
                 <View style={styles.tableRow}> 
                     <View style={styles.tableCol}> 
                         <Text style={styles.tableCell}>Student Name</Text> 
@@ -176,20 +218,13 @@ const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/M
                       ))}
                     </View>                     
                 </View> 
-                <View style={styles.tableRow}> 
-                    <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>Date and Time of Verification</Text> 
-                    </View> 
-                    <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>{verification_date} </Text> 
-                    </View>                     
-                </View> 
+                
                 <View style={styles.tableRow}> 
                     <View style={styles.tableCol}> 
                         <Text style={styles.tableCell}>Verification Status</Text> 
                     </View> 
                     <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>{isSuccess ? 'Successful' : 'Unsuccessful'} </Text> 
+                        <Text style={styles.tableCell}>Successful</Text> 
                     </View>                     
                 </View> 
                 <View style={styles.tableRow}> 
@@ -206,10 +241,16 @@ const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/M
                     </View> 
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>{description ? description : ''}</Text>
-                    </View>
-           
+                    </View>           
                 </View> 
-                
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Date and Time of Verification</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{verification_date} </Text> 
+                    </View>                     
+                </View> 
             </View>
             
            

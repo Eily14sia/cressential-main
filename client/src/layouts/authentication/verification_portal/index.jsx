@@ -53,7 +53,9 @@ function Verifier_portal() {
   const [password, setPassword] = useState('');
   const [student_name, setStudentName] = useState('');
   const [record_type, setRecordType] = useState('');
+  const [rpr_id, setRprID] = useState('');
   const [verification_result, setVerificationResult] = useState('');
+  const [generateReport, setGenerateReport] = useState(false);
 
   // State to track whether the loading dialog is open
   const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
@@ -171,7 +173,7 @@ function Verifier_portal() {
       // if transaction hash is not existing in the db 
       else {        
         setIsSuccess(false); // Reset both success and error states
-        setIsError(true);
+        // setIsError(true);
         setAlertMessage('Transaction Number not found. Please ensure correct credentials are entered. ');        
         setVerificationResult(1);
       }
@@ -212,8 +214,10 @@ function Verifier_portal() {
         const record_status = nodes.record_status;
         const student_name = nodes.student_name;
         const record_type = nodes.record_type;
+        const rpr_id = nodes.rpr_id;
         setStudentName(student_name);
         setRecordType(record_type);
+        setRprID(rpr_id);
         // const is_expired = nodes.record_expiration;
 
         const currentDate = new Date();
@@ -232,16 +236,16 @@ function Verifier_portal() {
 
             // if valid & not expired & hashes match
             if (uploaded_hash === bchain_multihash){      
-              setIsSuccess(true);
-              setIsError(false); // Reset the error state
+              // setIsSuccess(true);
+              // setIsError(false); // Reset the error state
               setAlertMessage('Data is Authentic and Unaltered.');
               setVerificationResult(2);
             } 
 
             //Hash mismatch
             else { 
-            setIsSuccess(false);
-            setIsError(true); // Reset the error state
+            // setIsSuccess(false);
+            // setIsError(true); // Reset the error state
             setVerificationResult(3);
             setAlertMessage("Hash mismatch detected after successful verification. Possible data tampering.");
             }  
@@ -249,8 +253,8 @@ function Verifier_portal() {
 
           // If Record is expired    
           else {  
-            setIsSuccess(false);
-            setIsError(true); // Reset the error state
+            // setIsSuccess(false);
+            // setIsError(true); // Reset the error state
             setVerificationResult(4);
             setAlertMessage("Verification unsuccessful. The validity of the record you are trying to verify has already expired.");                 
           }            
@@ -258,22 +262,22 @@ function Verifier_portal() {
 
         // If Record Status is invalid
         else { 
-          setIsSuccess(false); // Reset the success state
-          setIsError(true);
+          // setIsSuccess(false); // Reset the success state
+          // setIsError(true);
           setVerificationResult(5);
           setAlertMessage("Verification unsuccessful. The record you are trying to verify is no longer valid.");        }
       }
 
       // if incorrect credentials are entered
       else {
-        setIsSuccess(false); // Reset both success and error states
-        setIsError(true);
+        // setIsSuccess(false); // Reset both success and error states
+        // setIsError(true);
         setVerificationResult(6);
         setAlertMessage('Incorrect Transaction number or Password. Please ensure correct credentials are entered. ');
       } 
     } catch (error) {
-      setIsSuccess(false); // Reset both success and error states
-      setIsError(true);
+      // setIsSuccess(false); // Reset both success and error states
+      // setIsError(true);
       setAlertMessage('Failed to verify record. Please input the correct information.');
       console.error('Error:', error);
     }
@@ -294,6 +298,8 @@ function Verifier_portal() {
     setTransactionHash('');
     setUrl('');
     setPassword('');
+    setGenerateReport(false);
+    setVerificationResult('');
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -359,6 +365,7 @@ function Verifier_portal() {
           setIsError={setIsError}
           isError={isError}
           alertMessage={alertMessage}
+          setAlertMessage={setAlertMessage}
           alertContent={alertContent}
           isLoading={isLoading}
           setIsLoadingDialogOpen={setIsLoadingDialogOpen}
@@ -368,6 +375,9 @@ function Verifier_portal() {
           studentName={student_name}
           recordType={record_type}
           verificationResult={verification_result}
+          generateReport={generateReport}
+          setGenerateReport={setGenerateReport}
+          rpr_id={rpr_id}
         />
         <MDBox
           variant="gradient"

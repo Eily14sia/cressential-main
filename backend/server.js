@@ -299,6 +299,7 @@ function verifyToken(req, res, next) {
             date_issued: data.date_issued,
             student_name: data.first_name + ' ' + data.middle_name + ' ' + data.last_name,
             record_type: data.type,
+            rpr_id: data.rpr_id,
           });
         } else {
           // Record not found in the database or invalid password
@@ -306,7 +307,55 @@ function verifyToken(req, res, next) {
         }
       });
     
-  });
+  }); 
+
+  router.post('/verify/add-record', (req, res) => {
+    const formData = req.body;
+
+    const currentTimestamp = new Date();
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'Asia/Manila', // Set the time zone to Philippines
+    };
+    
+    const formattedTimestamp = currentTimestamp.toLocaleString('en-US', options);
+    const timestamp = currentTimestamp.toISOString(); // Format compatible with PostgreSQL
+    
+
+    const values = [
+      formData.rpr_id,
+      formData.lastName,
+      formData.firstName,
+      formData.middleName,
+      formData.institution,
+      formData.isSuccess,
+      formData.verificationResult,
+      timestamp
+    ];
+
+    const verification_sql = `INSERT INTO verification (record_per_request_id, last_name, 
+      first_name, middle_name, institution, is_success, verification_result, timestamp) VALUES 
+      ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`;
+
+    db.query(verification_sql, values, (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to add record' });
+      }      
+
+      const verificationID = result.rows[0].id;
+      res.status(200).json({ 
+        verificationID: verificationID,
+        message: 'Record added successfully',
+      });
+    });
+  
+});
 
 // ========================= Notification  =========================
 

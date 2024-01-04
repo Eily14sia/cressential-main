@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
 
 // Create Document Component
 function BasicDocument({
-  transaction_number, password, studentName, recordType, status, isSuccess, description
+  transaction_number, password, studentName, recordType, status, isSuccess, description, verifier, institution, verificationID
 }) {
 
 // Split the transaction number into segments (e.g., every 16 characters)
@@ -111,16 +111,16 @@ const segments_tx_number = transaction_number ? transaction_number.match(/.{1,38
 
 const date_today = new Date();
 const verification_date = date_today.toLocaleString('en-US', { timeZone: 'Asia/Manila' });
-console.log('description', description);
+
   return (
     <PDFViewer style={styles.viewer}>
       {/* Start of the document*/}
       <Document>
         {/* Render a single page */}
         <Page size="A4" style={styles.page}>
-            <View style={styles.backgroundImage}>
-                <Image src={logo} style={styles.backgroundImage} />
-            </View>
+          <View style={styles.backgroundImage}>
+              <Image src={logo} style={styles.backgroundImage} />
+          </View>
           <View style={styles.section}>
             <Text style={styles.header}>
               <Image src={logoDark} style={styles.logo} />
@@ -129,8 +129,43 @@ console.log('description', description);
               <Image src={title} style={styles.title} />
             </Text>
             <Text style={styles.content}>
-             Despite meticulous validation attempts within our advanced blockchain-based issuance and verification system tailored for academic records, the verification process encountered issues, leading to unsuccessful validation. Below is a detailed report of the encountered conditions:            </Text>
+             Despite meticulous validation attempts within our advanced blockchain-based issuance and verification system tailored for academic records, the verification process encountered issues, leading to unsuccessful validation. Below is a detailed report of the encountered conditions:            
+            </Text>
             
+            <Text style={styles.content}>
+                Verifier Information:
+            </Text>
+            <View style={styles.table}> 
+              {/* TableHeader */} 
+                <View style={styles.tableRowHeader}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>ATTRIBUTES</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>DETAILS</Text> 
+                    </View> 
+                    
+                </View> 
+              {/* TableContent */} 
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Verifier Name</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{verifier ? verifier : ''} </Text> 
+                    </View>                     
+                </View> 
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Institution/Company Name</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{institution ? institution : ''} </Text> 
+                    </View>                     
+                </View>                
+                
+            </View>
+
             <Text style={styles.content}>
                 Verification Summary:
             </Text>
@@ -146,21 +181,21 @@ console.log('description', description);
                     
                 </View> 
               {/* TableContent */} 
-                
                 <View style={styles.tableRow}> 
                     <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>Date and Time of Verification</Text> 
+                        <Text style={styles.tableCell}>Verification ID</Text> 
                     </View> 
                     <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>{verification_date} </Text> 
+                        <Text style={styles.tableCell}>{verificationID ? verificationID : ''} </Text> 
                     </View>                     
                 </View> 
+                
                 <View style={styles.tableRow}> 
                     <View style={styles.tableCol}> 
                         <Text style={styles.tableCell}>Verification Status</Text> 
                     </View> 
                     <View style={styles.tableCol}> 
-                        <Text style={styles.tableCell}>{isSuccess ? 'Successful' : 'Unsuccessful'} </Text> 
+                        <Text style={styles.tableCell}>Unsuccessful </Text> 
                     </View>                     
                 </View> 
                 <View style={styles.tableRow}> 
@@ -177,10 +212,16 @@ console.log('description', description);
                     </View> 
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>{description ? description : ''}</Text>
-                    </View>
-           
+                    </View>           
                 </View> 
-                
+                <View style={styles.tableRow}> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>Date and Time of Verification</Text> 
+                    </View> 
+                    <View style={styles.tableCol}> 
+                        <Text style={styles.tableCell}>{verification_date} </Text> 
+                    </View>                     
+                </View> 
             </View>
             
            

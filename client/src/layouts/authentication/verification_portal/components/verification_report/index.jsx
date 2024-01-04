@@ -16,7 +16,7 @@ import PDFViewer2 from '../../../../../layouts/render_pdf';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
 // Authentication layout components
-import CoverLayout from "../../../components/VerificationCoverLayout";
+import CoverLayout from "../../../components/ReportCoverLayout";
 
 import GeneratePDF from '../generate_pdf';
 import GeneratePDFIncorrect from '../generate_pdf_incorrect';
@@ -29,15 +29,19 @@ function Verifier_portal() {
 
   const location = useLocation();
 
+  const verificationID = location.state?.verificationID;
+  const verifier = location.state?.verifier;
+  const institution = location.state?.institution;
   const transaction_number = location.state?.transaction_hash;
   const password = location.state?.password;
   const filename = location.state?.filename;
   const studentName = location.state?.studentName;
   const recordType = location.state?.recordType;
   const isSuccess = location.state?.isSuccess;
-  const status = location.state?.verificationResult;
+  const status = location.state?.verifResult;
   const description = location.state?.description;
-
+  const result_num = location.state?.result_num;
+  console.log("result_num: ", result_num);
   return (
     <CoverLayout image={bgImage}>
       <Card>
@@ -62,7 +66,7 @@ function Verifier_portal() {
         <MDBox pt={4} pb={3} px={3} display="flex" justifyContent="center" alignItems="center">
       <Grid container justifyContent="center" alignItems="center">
         <Grid item xs={12}>
-        {isSuccess ? (
+        {(result_num == 2 || result_num == 3 ) ? (
           <GeneratePDF 
             transaction_number={transaction_number}
             password={password}
@@ -72,6 +76,9 @@ function Verifier_portal() {
             isSuccess={isSuccess}
             status={status}
             description={description}
+            verifier={verifier}
+            institution={institution}
+            verificationID={verificationID}
           />
         ) : (
           <GeneratePDFIncorrect
@@ -83,6 +90,9 @@ function Verifier_portal() {
             isSuccess={isSuccess}
             status={status}
             description={description}
+            verifier={verifier}
+            institution={institution}
+            verificationID={verificationID}
           />
         )}
 
