@@ -59,6 +59,7 @@ import Student_signature_request from "./student_layouts/signature_request_table
 import Student_record_issuance from "./layouts/student_record_issuance";
 
 import Alumni_record_request from "./layouts/alumni_record_request";
+import Verification_table from "./layouts/verification_table";
 import Alumni_record_per_request from "./layouts/alumni_record_per_request";
 import Alumni_record_issuance from "./layouts/alumni_record_issuance";
 
@@ -385,13 +386,20 @@ const routes = [
     component: <Request_table />,
   },
   {
-    type: "collapse",
     name: "Record per Request",
     key: "record-per-request",
     icon: icon4,
     route: "/record-per-request/:ctrl_number",
     role: [1, 2],
     component: <Alumni_record_per_request />,
+  }, 
+  {
+    name: "Verification Table",
+    key: "verification-table",
+    icon: icon4,
+    route: "/verification-table",
+    role: [1, 2],
+    component: <Verification_table />,
   }, 
   // {
   //   type: "collapse",

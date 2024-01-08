@@ -142,6 +142,7 @@ function Alumni_record_per_request() {
   const student_id = data.find((item) => item.ctrl_number == ctrl_number)?.student_id;
 
   const columns = [
+    { Header: "ID", accessor: "rpr_id"},
     { Header: "Record", accessor: "record", },
     // { Header: "Processing Officer", accessor: "processing_officer", width: "30%" },
     { Header: "Status", accessor: "status"},
@@ -430,9 +431,9 @@ function Alumni_record_per_request() {
                     <DataTable 
                       table={{ columns, 
                         rows: data.map((item) => ({
-                        
+                          rpr_id: item.rpr_id,
                           record: (
-                            <MDBox ml={1} lineHeight={1}>
+                            <MDBox lineHeight={1}>
                               <MDTypography display="block" variant="button" fontWeight="medium">
                               {item.ipfs ? (
                                 <a target="_blank" rel="noopener noreferrer" href={`https://cressential.infura-ipfs.io/ipfs/${item.ipfs}`}>
@@ -504,7 +505,7 @@ function Alumni_record_per_request() {
                                 {
                                   (() => {
                                     const date = new Date(item.date_issued);
-                                    date.setFullYear(date.getFullYear() + 1);
+                                    date.setFullYear(date.getFullYear() + 5);
                                     return date.toLocaleDateString();
                                   })()
                                 }

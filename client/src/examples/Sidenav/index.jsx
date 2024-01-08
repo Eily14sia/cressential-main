@@ -185,9 +185,15 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
     <NavLink key="due-request" to="/due-request" onClick={() => setCollapseName("due-request")}>
     <SidenavCollapse name="Due Record Request" icon={<Icon fontSize="small">today</Icon>} active={collapseName === "due-request"} />
     </NavLink>,
+
+    <NavLink key="verification-table" to="/verification-table" onClick={() => setCollapseName("verification-table")}>
+    <SidenavCollapse name="Verification" icon={<Icon fontSize="small">domain_verification</Icon>} active={collapseName === "verification-table"} />
+    </NavLink>,
+
     <NavLink key="payment" to="/payment" onClick={() => setCollapseName("payment")}>
     <SidenavCollapse name="Payment" icon={<Icon fontSize="small">payment</Icon>} active={collapseName === "payment"} />
     </NavLink>,
+
 
     <NavLink key="type-of-record" to="/type-of-record" onClick={() => setCollapseName("type-of-record")}>
     <SidenavCollapse name="Type of Record" icon={<Icon fontSize="small">folder</Icon>} active={collapseName === "type-of-record"} />
@@ -219,8 +225,10 @@ function Sidenav({ color, brand, brandName, routes, userID, ...rest }) {
   </NavLink>,
   <NavLink key="student-signature-request" to="/signature-request" onClick={() => setCollapseName("signature-request-table")}>
     <SidenavCollapse name="Signature Request Table" icon={<Icon fontSize="small">history_edu</Icon>} active={collapseName === "signature-request-table"} />
+  </NavLink>,
+  <NavLink key="verification-table" to="/verification-table" onClick={() => setCollapseName("verification-table")}>
+    <SidenavCollapse name="Verification" icon={<Icon fontSize="small">domain_verification</Icon>} active={collapseName === "verification-table"} />
   </NavLink>
-  
 ]: [
   // Code to execute if none of the conditions are met
 ];

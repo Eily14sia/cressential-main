@@ -147,6 +147,11 @@ function Verifier_portal() {
   
       // if the txHash is existing, retrieve the multihash from blockchain
       if (response.ok) {
+        const nodes = await response.json();
+        const rpr_id = nodes.rpr_id;
+
+        setRprID(rpr_id);
+
         const getTransaction = await axios.post(
           `https://cressential-5435c63fb5d8.herokuapp.com/blockchain/getTransaction`,
           { txHash },
@@ -159,11 +164,10 @@ function Verifier_portal() {
     
         if (getTransaction.data.success) {
           // Handle the response, e.g., display the transaction details
-          console.log('Transaction Details:', getTransaction.data.transactionDetails);
+          // console.log('Transaction Details:', getTransaction.data.transactionDetails);
           setBchainMultihash(getTransaction.data.multihash);
-          console.log('Multihash', getTransaction.data.multihash);
+          // console.log('Multihash', getTransaction.data.multihash);
           await handleSubmit(hash, getTransaction.data.multihash, verifyRecord)
-
         } else {
           // Handle the error, e.g., display an error message
           console.error('Error retrieving transaction details:', response.data.error);
@@ -223,8 +227,10 @@ function Verifier_portal() {
         const currentDate = new Date();
         // Use map to iterate through the data array
         
-        const date_issued = new Date(nodes.date_issued);    
-        const oneYearInMilliseconds = 365 * 24 * 60 * 60 * 1000;
+        const date_issued = new Date(nodes.date_issued);  
+          
+        // const oneYearInMilliseconds = 365 * 24 * 60 * 60 * 1000;
+        const fiveYearsInMilliseconds = 5 * 365 * 24 * 60 * 60 * 1000;
         const date_difference = currentDate - date_issued;  
 
         console.log("uploaded hash", uploaded_hash);
@@ -232,7 +238,7 @@ function Verifier_portal() {
 
         if(record_status === 'Valid'){
           // Check if the record is not more than a year from the date_issued, 
-          if (!(date_difference >= oneYearInMilliseconds)) {
+          if (!(date_difference >= fiveYearsInMilliseconds)) {
 
             // if valid & not expired & hashes match
             if (uploaded_hash === bchain_multihash){      

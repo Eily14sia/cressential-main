@@ -256,7 +256,7 @@ function verifyToken(req, res, next) {
         // Transaction hash not found in the database
         return res.status(404).json({ message: 'Transaction hash not found' });
       } else{
-        return res.status(200).json({ message: 'Transaction hash found.' });
+        return res.json({ rpr_id: checkResults.rows[0].rpr_id})
       }
 
       
@@ -308,6 +308,88 @@ function verifyToken(req, res, next) {
       });
     
   }); 
+
+  router.get('/verification-table', verifyToken, (req, res) => {
+
+      // Query the database to retrieve user data
+      const sql = `
+      SELECT *, 
+        v.id as v_id,
+        v.last_name as v_last_name, 
+        v.first_name as v_first_name, 
+        v.middle_name as v_middle_name 
+      FROM verification as v
+      ORDER BY v.id DESC
+      `;     
+
+      db.query(sql, (err, results)=> {
+        if(err) return res.json(err);
+        const data = results.rows;
+        return res.json(data);
+    })
+    
+  }); 
+  router.get('/verification-student/:student_id', verifyToken, (req, res) => {
+
+    const student_id = req.params.student_id;
+      // Query the database to retrieve user data
+      const sql = `
+      SELECT *, 
+        v.id as v_id,
+        v.last_name as v_last_name, 
+        v.first_name as v_first_name, 
+        v.middle_name as v_middle_name 
+      FROM verification as v
+      INNER JOIN record_per_request as rpr ON rpr.rpr_id = v.record_per_request_id
+      INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+      INNER JOIN type_of_record as tor ON rpr.record_type_id = tor.id
+      INNER JOIN student_management as sm ON r.student_id = sm.id
+      WHERE sm.id = $1
+      ORDER BY v.id DESC
+      `;     
+
+      db.query(sql, [student_id], (err, results)=> {
+        if(err) return res.json(err);
+        const data = results.rows;
+        return res.json(data);
+    })
+    
+  }); 
+
+  
+
+  // for verification portal
+  router.get('/verification/getData', verifyToken, (req, res) => {
+
+      // Query the database to retrieve user data
+      const sql = `
+      SELECT *, tor.type as record_type, rpr.ctrl_number as control_number
+      FROM record_per_request as rpr
+      INNER JOIN record_request as r ON rpr.ctrl_number = r.ctrl_number
+      INNER JOIN type_of_record as tor ON rpr.record_type_id = tor.id
+      INNER JOIN student_management as sm ON r.student_id = sm.id;
+      `;     
+
+      db.query(sql, (err, results) => {
+        if (err) {
+          console.error('MySQL query error:', err);
+          res.status(500).json({ success: false, message: 'Internal server error' });
+          return;
+        }
+
+        if (results.rows.length > 0) {
+          // Record found in the database
+          const data = results.rows;
+          return res.json(data);
+        } else {
+          // Record not found in the database or invalid password
+          res.status(401).json({ success: false }); // Return a 401 status code
+        }
+        
+      });
+    
+  }); 
+
 
   router.post('/verify/add-record', (req, res) => {
     const formData = req.body;

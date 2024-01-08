@@ -41,7 +41,7 @@ function Verifier_portal() {
   const status = location.state?.verifResult;
   const description = location.state?.description;
   const result_num = location.state?.result_num;
-  console.log("result_num: ", result_num);
+
   return (
     <CoverLayout image={bgImage}>
       <Card>

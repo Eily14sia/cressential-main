@@ -231,7 +231,7 @@ function Payment() {
                 <MDBox p={3}>   
                 
                   <DataTable table={{ columns, 
-                  rows: data.map((item) => ({
+                    rows: data.map((item) => ({
                     ctrl_num: "CTRL-"+item.ctrl_number,
                     payment_id: item.payment_id,
                     student_id: getStudentName(item.student_id),

@@ -63,9 +63,9 @@ function DialogBox({ open, onDialogClose, isSuccess, isError, setIsSuccess, setI
           setDescription("Unable to verify the record as it appears to be an outdated version, and a new version may have been re-uploaded. Please reach out to the owner of the record for confirmation.");
           break;
         case 6: 
-          // Incorrect Transaction number or Password
-          setResult("Incorrect Transaction number or Password."); 
-          setDescription("Unable to verify the record as the entered Transaction number or Password is incorrect. Please confirm to the owner of the record.");
+          // Incorrect Password
+          setResult("Incorrect Password."); 
+          setDescription("Unable to verify the record as the entered Password is incorrect. Please confirm to the owner of the record.");
           break;
         default:
           // Handle the default case if verificationResult doesn't match any specified cases
@@ -183,15 +183,15 @@ function DialogBox({ open, onDialogClose, isSuccess, isError, setIsSuccess, setI
           studentName: studentName,
           recordType: recordType,
           alertMessage: alertMessage,
-          isSuccess: false,
+          isSuccess: (verificationResult === 2 || verificationResult === 3) ? true : false,
           verificationResult: result,
           description: description,
           rpr_id: rpr_id ? rpr_id : null
       });
 
     }
-  }, [verificationResult]);
-  
+  }, [verificationResult, result]);
+
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent page reload
 
@@ -216,6 +216,7 @@ function DialogBox({ open, onDialogClose, isSuccess, isError, setIsSuccess, setI
       setIsError(true);
       return;
     }
+
     try {
       const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/mysql/verify/add-record', {
         method: 'POST',
@@ -228,7 +229,6 @@ function DialogBox({ open, onDialogClose, isSuccess, isError, setIsSuccess, setI
       if (response.ok) {
         const nodes = await response.json();       
         const verificationID = nodes.verificationID;
-        console.log('verificationID: ', verificationID);
         
         navigate('/verification-report', { 
           state: { 
@@ -240,7 +240,7 @@ function DialogBox({ open, onDialogClose, isSuccess, isError, setIsSuccess, setI
             studentName: studentName,
             recordType: recordType,
             alertMessage: alertMessage,
-            isSuccess: false,
+            isSuccess: (verificationResult === 2 || verificationResult === 3) ? true : false,
             verifResult: result,
             description: description, 
             result_num: verificationResult
