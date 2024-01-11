@@ -86,7 +86,7 @@ function Add_Record() {
     }
 
     try {
-      const response = await fetch('https://cressential-5435c63fb5d8.herokuapp.com/student-management/add-record', {
+      const response = await fetch('http://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/add-record', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,6 +110,9 @@ function Add_Record() {
   };
 
   const [data, setData] = useState([]);
+  const [course_id, setCourseID] = useState('');
+  const [colleges, setCollege] = useState([]);
+  const [courses, setCourse] = useState([]);
   const [studentNumberUnique, setStudentNumberUnique] = useState(true);
   const [walletAddressUnique, setWalletAddressUnique] = useState(true);
   const [emailUnique, setEmailUnique] = useState(true);
@@ -133,6 +136,43 @@ function Add_Record() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/college`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setCollege(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/course`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const filteredData = data.filter((course) => course.college_id === course_id);
+        setCourse(filteredData);
+      })
+      .catch((err) => console.log(err));
+  }, [course_id]);
   
 
   const isStudentNumberUnique = (studentNumber) => {
@@ -349,14 +389,18 @@ function Add_Record() {
                                 style={{ height: "50px" }}
                                 label="Select an option"  required  
                                 value={formData.college} 
-                                onChange={(e) => setFormData({ ...formData, college: e.target.value})}                        
-                                >                            
-                                    <MenuItem value="CET"> CET</MenuItem>
-                                    <MenuItem value="CE"> CE</MenuItem>
-                                    <MenuItem value="CHASS"> CHASS</MenuItem>
-                                    <MenuItem value="CAUP"> CAUP</MenuItem>
-                                    <MenuItem value="CS"> CS</MenuItem>
-                                    <MenuItem value="CN"> CN</MenuItem>
+                                onChange={(e) => {
+                                  setFormData({ ...formData, college: e.target.value });
+                                  setCourseID(e.target.value);
+                                  console.log(e.target.value);
+                                }}            
+                                >                           
+                                   
+                                    {colleges.map((college) => (
+                                      <MenuItem key={college.id} value={college.id}>
+                                        {college.college_name}
+                                      </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                           </Grid>
@@ -372,12 +416,11 @@ function Add_Record() {
                                 value={formData.course} 
                                 onChange={(e) => setFormData({ ...formData, course: e.target.value})}                    
                                 >                            
-                                    <MenuItem value="BSIT"> BSIT</MenuItem>
-                                    <MenuItem value="BECEd"> BECEd</MenuItem>
-                                    <MenuItem value="CHASS"> CHASS</MenuItem>
-                                    <MenuItem value="BAC"> BAC</MenuItem>
-                                    <MenuItem value="BSBio"> BSBio</MenuItem>
-                                    <MenuItem value="BSN"> BSN</MenuItem>
+                                     {courses.map((course) => (
+                                        <MenuItem key={course.id} value={course.id}>
+                                          {course.course_name}
+                                        </MenuItem>
+                                      ))}
                                 </Select>
                             </FormControl>
                           </Grid>

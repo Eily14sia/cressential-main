@@ -44,6 +44,8 @@ import regeneratorRuntime from "regenerator-runtime";
 function Student_Management() {
   const jwtToken = localStorage.getItem('token');
   const [data, setData] = useState([]);
+  const [courses, setCourse] = useState([]);
+  const [colleges, setCollege] = useState([]);
 
   useEffect(() => {
     fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management`, {
@@ -114,6 +116,43 @@ function Student_Management() {
     }
   } 
 
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/college`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setCollege(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/course`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setCourse(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -170,10 +209,13 @@ function Student_Management() {
                         ),
                         course: (
                           <MDBox lineHeight={1} textAlign="left">
-                            <MDTypography display="block" variant="caption"  fontWeight="medium">
-                              {item.course}
+                            <MDTypography display="block" variant="caption" fontWeight="medium">
+                              {item.course ? courses.find((course) => course.id == item.course)?.course_nname : ""}
                             </MDTypography>
-                            <MDTypography variant="caption">{item.college}</MDTypography>
+
+                            <MDTypography variant="caption">
+                              {item.college ? colleges.find((college) => college.id == item.college)?.college_nname : ""}
+                            </MDTypography>
                           </MDBox>
                         ),
                         entry_year: item.entry_year_from + " - " + item.entry_year_to,

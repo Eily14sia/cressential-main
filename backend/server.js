@@ -127,93 +127,85 @@ function verifyToken(req, res, next) {
 
 
   // default login
-  router.post('/login', (req, res) => {
+  router.post('/login', async (req, res) => {
     const { email, password } = req.body.loginRecord;
-
-    function updateLoginAttempts(email) {
-      const incrementAttemptsSql = 'UPDATE user_management SET login_attempts = login_attempts + 1 WHERE email = $1';
-      const incrementAttemptsValues = [email];
-      db.query(incrementAttemptsSql, incrementAttemptsValues, (err) => {
-        if (err) {
-          console.error('MySQL query error:', err);
-        } else {
-          // Check if attempts reach five
-          const checkAttemptsSql = 'SELECT login_attempts FROM user_management WHERE email = $1';
-          const checkAttemptsValues = [email];
-          db.query(checkAttemptsSql, checkAttemptsValues, (err, attemptsResults) => {
-            if (err) {
-              console.error('MySQL query error:', err);
-            } else if (attemptsResults.rows[0].login_attempts === 4) {
-              // Lock the account
-              lockAccount(email);
-            }
-          });
-        }
-      });
-    }
-  
-    function lockAccount(email) {
-      const lockAccountSql = 'UPDATE user_management SET is_locked = true, login_attempts = 0 WHERE email = $1';
-      const lockAccountValues = [email];
-      db.query(lockAccountSql, lockAccountValues, (err) => {
-        if (err) {
-          console.error('MySQL query error:', err);
-        } else {
-          console.log('Account locked and login attempts reset for user:', email);
-        }
-      });
-    }
   
     // Hash the password using SHA-256
     const hashedPassword = hashPassword(password);
   
-    // Check if the user is already locked
-    const checkLockSql = 'SELECT is_locked FROM user_management WHERE email = $1';
-    const checkLockValues = [email];
-    db.query(checkLockSql, checkLockValues, (err, lockResults) => {
-      if (err) {
-        console.error('MySQL query error:', err);
-        res.status(500).json({ success: false, message: 'Internal server error' });
-        return;
-      }
+    // Query the database to retrieve user data
+    const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
+    const values = [email, hashedPassword];
   
-      if (lockResults.rows[0].is_locked) {
-        return res.status(403).json({ message: 'Account locked due to multiple failed attempts' });
-      }
+    try {
+      const results = await db.query(sql, values);
   
-      // Query the database to retrieve user data
-      const sql = 'SELECT * FROM user_management WHERE email = $1 AND password = $2';
-      const values = [email, hashedPassword];
-      db.query(sql, values, (err, results) => {
-        if (err) {
-          console.error('MySQL query error:', err);
-          res.status(500).json({ success: false, message: 'Internal server error' });
-          return;
+      if (results.rows.length === 0) {
+        // Increment login attempts
+        await updateLoginAttempts(email);
+  
+        // Check if the user is already locked
+        const checkLockSql = 'SELECT is_locked FROM user_management WHERE email = $1';
+        const checkLockValues = [email];
+        const lockResults = await db.query(checkLockSql, checkLockValues);
+  
+        if (lockResults.rows[0].is_locked) {
+          return res.status(403).json({ message: 'Account locked due to multiple failed attempts' });
         }
   
-        if (results.rows.length === 0) {
-          // Increment login attempts
-          updateLoginAttempts(email);
-          return res.status(401).json({ message: 'Incorrect email or password' });
-        }
+        return res.status(401).json({ message: 'Incorrect email or password' });
+      }
   
-        const user = results.rows[0];
-        const userData = {
-          user_id: user.user_id,
-          role: user.role,
-          status: user.status,
-        };
+      await updateLockAccount(email);
+      const user = results.rows[0];
+      const userData = {
+        user_id: user.user_id,
+        role: user.role,
+        status: user.status,
+      };
   
-        // Generate a JWT token
-        const token = jwt.sign(userData, secretKey, {
-          expiresIn: '2h', // Token expires in 2 hours (adjust as needed)
-        });
-  
-        // Include the token in the response
-        res.json({ user: userData, token });
+      // Generate a JWT token
+      const token = jwt.sign(userData, secretKey, {
+        expiresIn: '2h', // Token expires in 2 hours (adjust as needed)
       });
-    });
+  
+      // Include the token in the response
+      res.json({ user: userData, token });
+    } catch (err) {
+      console.error('MySQL query error:', err);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
   });
+  
+  async function updateLoginAttempts(email) {
+    const incrementAttemptsSql = 'UPDATE user_management SET login_attempts = login_attempts + 1 WHERE email = $1';
+    const incrementAttemptsValues = [email];
+    await db.query(incrementAttemptsSql, incrementAttemptsValues);
+  
+    // Check if attempts reach five
+    const checkAttemptsSql = 'SELECT login_attempts FROM user_management WHERE email = $1';
+    const checkAttemptsValues = [email];
+    const attemptsResults = await db.query(checkAttemptsSql, checkAttemptsValues);
+  
+    if (attemptsResults.rows[0].login_attempts === 5) {
+      // Lock the account
+      await lockAccount(email);
+    }
+  }
+  
+  async function lockAccount(email) {
+    const lockAccountSql = 'UPDATE user_management SET is_locked = true, login_attempts = 0 WHERE email = $1';
+    const lockAccountValues = [email];
+    await db.query(lockAccountSql, lockAccountValues);
+    console.log('Account locked and login attempts reset for user:', email);
+  }
+  
+  async function updateLockAccount(email) {
+    const lockAccountSql = 'UPDATE user_management SET is_locked = false, login_attempts = 0 WHERE email = $1';
+    const lockAccountValues = [email];
+    await db.query(lockAccountSql, lockAccountValues);
+    console.log('Account unlocked and login attempts reset for user:', email);
+  }
   
 // ========================= Profile  =========================
 
@@ -221,22 +213,38 @@ function verifyToken(req, res, next) {
   router.put('/change-password/:user_id', verifyToken, (req, res) => {
     const user_id = req.params.user_id;
     const { password } = req.body;
-
+  
     const hashedPassword = hashPassword(password);
-
+  
     const sql = "UPDATE user_management SET password = $1 WHERE user_id = $2";
-
-    db.query(sql, [hashedPassword, user_id], (err, result) => {
+  
+    db.query(sql, [hashedPassword, user_id], async (err, result) => {
+      try {
         if (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Failed to update record' });
+          console.error(err);
+          return res.status(500).json({ message: 'Failed to update record' });
         }
+  
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Record not found' });
+          return res.status(404).json({ message: 'Record not found' });
         }
+  
+        await updateLockAccount(user_id);
         return res.status(200).json({ message: 'Record updated successfully' });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
     });
+  
+    async function updateLockAccount(user_id) {
+      const lockAccountSql = 'UPDATE user_management SET is_locked = false, login_attempts = 0 WHERE user_id = $1';
+      const lockAccountValues = [user_id];
+      await db.query(lockAccountSql, lockAccountValues);
+      console.log('Account unlocked and login attempts reset for user:', user_id);
+    }
   });
+  
 // ========================= Verification  =========================
 
   // for verify, check if txHash is existing
@@ -329,6 +337,7 @@ function verifyToken(req, res, next) {
     })
     
   }); 
+
   router.get('/verification-student/:student_id', verifyToken, (req, res) => {
 
     const student_id = req.params.student_id;
@@ -355,8 +364,6 @@ function verifyToken(req, res, next) {
     })
     
   }); 
-
-  
 
   // for verification portal
   router.get('/verification/getData', verifyToken, (req, res) => {
@@ -437,7 +444,7 @@ function verifyToken(req, res, next) {
       });
     });
   
-});
+  });
 
 // ========================= Notification  =========================
 
@@ -886,7 +893,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
    router.put('/update-record-per-request/is_expired/:recordID', verifyToken, (req, res) => {
     const recordID = req.params.recordID;
   
-      sql = "UPDATE record_per_request SET is_expired = 1 WHERE rpr_id = ?";
+      sql = "UPDATE record_per_request SET is_expired = true WHERE rpr_id = $1";
     
     db.query(sql, [recordID], (err, result) => {
       if (err) {
@@ -904,7 +911,7 @@ router.get('/email/signature-request', verifyToken, (req, res) => {
   router.put('/update-record-per-request/is_notified/:recordID', verifyToken, (req, res) => {
     const recordID = req.params.recordID;
   
-      sql = "UPDATE record_per_request SET is_notified = 1 WHERE rpr_id = ?";
+      sql = "UPDATE record_per_request SET is_notified = true WHERE rpr_id = $1";
     
     db.query(sql, [recordID], (err, result) => {
       if (err) {
@@ -1204,6 +1211,36 @@ router.put('/student-management/update-record/:user_id', verifyToken, (req, res)
     });
   });
 });
+
+// Student Management with UserID
+router.get('/college', verifyToken, (req, res) => {
+      
+      const sql = `
+          SELECT *
+          FROM college 
+      `;
+
+      db.query(sql, (err, results)=> {
+          if(err) return res.json(err);
+          const data = results.rows;
+          return res.json(data);
+      })
+  });
+router.get('/course', verifyToken, (req, res) => {
+      
+      const sql = `
+          SELECT *
+          FROM course 
+      `;
+
+      db.query(sql, (err, results)=> {
+          if(err) return res.json(err);
+          const data = results.rows;
+          return res.json(data);
+      })
+  });
+
+
 
 // ================ Registrar Management =======================
 

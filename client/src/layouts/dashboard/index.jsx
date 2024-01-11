@@ -278,7 +278,7 @@ function Dashboard() {
         console.log('Email sent successfully.');
 
         try {
-          const response = await fetch(`http://localhost:8081/mysql/payment/update-signature/notify/${ctrlNumber}`, {
+          const response = await fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/payment/update-signature/notify/${ctrlNumber}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -343,7 +343,7 @@ function Dashboard() {
   };
 
 
-  const sendNotifEmail = async (toEmail, recordType, ipfs, dateIssued) => {
+  const sendNotifEmail = async (toEmail, recordType, ipfs, dateIssued, ctrl_number) => {
 
     const date_issued= new Date(dateIssued);
     date_issued.setDate(date_issued.getDate() + 365);
@@ -361,6 +361,7 @@ function Dashboard() {
   
       This is a friendly reminder that your record with the following information is set to expire on ${formattedDate}.
 
+        • Control No: ${ctrl_number}
         • Record Type: ${recordType}
         • IPFS Link: https://cressential.infura-ipfs.io/ipfs/${ipfs}
         • Expiration Date: ${formattedDate}
@@ -395,7 +396,7 @@ function Dashboard() {
     }
   };
 
-  const sendExpirationEmail = async (toEmail, recordType, ipfs, dateIssued) => {
+  const sendExpirationEmail = async (toEmail, recordType, ipfs, dateIssued, ctrl_number) => {
 
     const date_issued= new Date(dateIssued);
     date_issued.setDate(date_issued.getDate() + 365);
@@ -413,6 +414,7 @@ function Dashboard() {
   
       We regret to inform you that your record with the following information has expired on ${formattedDate}.
 
+        • Control No: ${ctrl_number}
         • Record Type: ${recordType}
         • IPFS Link: https://cressential.infura-ipfs.io/ipfs/${ipfs}
         • Expiration Date: ${formattedDate}
@@ -445,8 +447,8 @@ function Dashboard() {
     } catch (error) {
       console.error('Error sending email:', error);
     }
+    console.log('expiration email sent');
   };
-
 
   const unpaidDecline = async () => {
     // const jwtToken = localStorage.getItem("token");
@@ -612,11 +614,11 @@ function Dashboard() {
             const record_type = getRecordType(item.request_record_type_id);
   
               if (to_email && record_type){
-                sendExpirationEmail(to_email, record_type, item.ipfs, item.date_issued);      
+                sendExpirationEmail(to_email, record_type, item.ipfs, item.date_issued, item.ctrl_number);      
               }
             
           } else {
-            setAlertMessage('Failed to update record');
+            console.log('Failed to update record');
           }
         } catch (error) {
           console.error('Error:', error);
@@ -642,18 +644,15 @@ function Dashboard() {
             const record_type = getRecordType(item.request_record_type_id);
   
             if (to_email && record_type){
-              sendNotifEmail(to_email, record_type, item.ipfs, item.date_issued);  
+              sendNotifEmail(to_email, record_type, item.ipfs, item.date_issued, item.ctrl_number);  
             }
           } else {
-            setAlertMessage('Failed to update record');
+            console.log('Failed to update record');
           }
         } catch (error) {
           console.error('Error:', error);
         }
       }
-  
-        
-      
     });
   }
 
@@ -666,7 +665,6 @@ function Dashboard() {
     fetchData();
   }, []);
  
-
     useEffect(() => {
       fetch("https://cressential-5435c63fb5d8.herokuapp.com/mysql/record-request", {
         headers: {

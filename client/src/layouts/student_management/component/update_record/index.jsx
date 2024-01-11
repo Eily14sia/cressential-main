@@ -57,6 +57,47 @@ function Update_Record() {
   const state_status = location.state?.status;
   const [data, setData] = useState([]);
  
+  const [collegeData, setCollegeData] = useState([]);
+  const [courseData, setCourseData] = useState([]);
+  const [college_id, setCollegeID] = useState('');
+
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/college`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setCollegeData(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  
+  useEffect(() => {
+    fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/course`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to authenticate token");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const filteredData = data.filter((course) => course.college_id == college_id);
+        setCourseData(filteredData);
+      })
+      .catch((err) => console.log(err));
+  }, [college_id]);
+
   useEffect(() => {
   if (state_userID) {
      fetch(`https://cressential-5435c63fb5d8.herokuapp.com/mysql/student-management/${state_userID}`,{
@@ -82,6 +123,7 @@ function Update_Record() {
  
            const new_date = `${year}-${month}-${day}`;
            setCollege(item.college);
+           setCollegeID(item.college);
            setCourse(item.course);
  
            setFormData((prevFormData) => ({
@@ -109,6 +151,7 @@ function Update_Record() {
   }
   }, []);
  
+  console.log('college', formData.college);
 
   // =========== For the MDAlert =================
   const [alertMessage, setAlertMessage] = useState('');
@@ -156,7 +199,7 @@ function Update_Record() {
   const goBack = () => {    
     navigate(-1);
   };
-
+ 
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -249,19 +292,26 @@ function Update_Record() {
                           </Grid>
                           <Grid item xs={9}>
                             <FormControl variant="outlined" fullWidth margin="normal">
-                                <Select
-                                style={{ height: "50px" }}
-                                required  
-                                value={college}
-                                onChange={(e) => setFormData({ ...formData, college: e.target.value})}                        
-                                >                            
-                                    <MenuItem value="CET"> CET</MenuItem>
-                                    <MenuItem value="CE"> CE</MenuItem>
-                                    <MenuItem value="CHASS"> CHASS</MenuItem>
-                                    <MenuItem value="CAUP"> CAUP</MenuItem>
-                                    <MenuItem value="CS"> CS</MenuItem>
-                                    <MenuItem value="CN"> CN</MenuItem>
-                                </Select>
+                            <Select
+                              style={{ height: "50px" }}
+                              label="Select an option"
+                              required
+                              value={formData.college || ''}  // Set default value to an empty string or another suitable default
+                              onChange={(e) => {
+                                setFormData({ ...formData, college: e.target.value });
+                                setCollegeID(e.target.value);
+                                console.log("courseID", e.target.value);
+                              }}
+                              disabled={!collegeData}  // Disable the Select until collegeData is available
+                            >
+                              {collegeData &&
+                                collegeData.map((college) => (
+                                  <MenuItem key={college.id} value={college.id}>
+                                    {college.college_name}
+                                  </MenuItem>
+                                ))}
+                            </Select>
+
                             </FormControl>
                           </Grid>
                           <Grid item xs={3} sx={{margin:"auto"}}>
@@ -269,19 +319,19 @@ function Update_Record() {
                           </Grid>
                           <Grid item xs={9}>
                             <FormControl variant="outlined" fullWidth margin="normal">                                
-                                <Select
+                              <Select
                                 style={{ height: "50px" }}
-                                required  
-                                value={course}
-                                onChange={(e) => setFormData({ ...formData, course: e.target.value})}                    
+                                label="Select an option"   required  
+                                value={formData.course || ''} 
+                                onChange={(e) => setFormData({ ...formData, course: e.target.value})}
+                                disabled={!courseData}                     
                                 >                            
-                                    <MenuItem value="BSIT"> BSIT</MenuItem>
-                                    <MenuItem value="BECEd"> BECEd</MenuItem>
-                                    <MenuItem value="CHASS"> CHASS</MenuItem>
-                                    <MenuItem value="BAC"> BAC</MenuItem>
-                                    <MenuItem value="BSBio"> BSBio</MenuItem>
-                                    <MenuItem value="BSN"> BSN</MenuItem>
-                                </Select>
+                                     {courseData.map((course) => (
+                                        <MenuItem key={course.id} value={course.id}>
+                                          {course.course_name}
+                                        </MenuItem>
+                                      ))}
+                              </Select>
                             </FormControl>
                           </Grid>
                           <Grid item xs={4} sx={{margin:"auto"}}>

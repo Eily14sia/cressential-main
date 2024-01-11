@@ -185,6 +185,7 @@ const renderMenu = () => (
           key={item.id} 
           icon={<Icon>notification_add</Icon>}
           desc={`CTRL-${item.description}:`}
+          ctrl_num={item.description}
           title={item.title}
         />
         ))
